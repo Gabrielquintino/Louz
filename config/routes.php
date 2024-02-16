@@ -2,13 +2,13 @@
 
 // Defina suas rotas aqui
 $rotas = [
-    '' => 'CloneController@index',         // Exemplo: página inicial
-    '/import' => 'CloneController@importSite',
+    '' => 'LoginController@index',         // Exemplo: página inicial
+    '/cadastrar' => 'RegistrarController@cadastrar',
     // Adicione outras rotas conforme necessário
 ];
 
 if (!isset($rotas['/'])) {
-    $rotas['/'] = 'CloneController@index';
+    $rotas['/'] = 'LoginController@index';
 }
 
 return $rotas;

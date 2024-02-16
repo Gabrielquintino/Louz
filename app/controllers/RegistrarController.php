@@ -2,9 +2,9 @@
 
 namespace App\Controllers;
 
-use App\Models\CloneModel;
+use App\Models\UsuarioModel;
 
-class CloneController {
+class RegistrarController {
 
     /**
      * Retorna o arquivo
@@ -14,11 +14,11 @@ class CloneController {
         include_once __DIR__ . '/../views/index.php';
     }
 
-    public function importSite() {
+    public function cadastrar() {
 
         $arrData = $_POST;
 
-        $cloneModel = new CloneModel();
+        $cloneModel = new UsuarioModel();
         $result = $cloneModel->save($arrData);
 
         return $result;
