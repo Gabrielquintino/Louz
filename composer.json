@@ -1,0 +1,9 @@
+{
+    "name": "vendor/gestaofacil",
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/"
+        }
+    },
+    "require": {}
+}
