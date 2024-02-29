@@ -2,7 +2,8 @@
 
 // Defina suas rotas aqui
 $rotas = [
-    '' => 'LoginController@index',         // Exemplo: página inicial
+    '' => 'LoginController@index',  
+    '/entrar' => 'LoginController@entrar',
     '/cadastrar' => 'RegistrarController@cadastrar',
     // Adicione outras rotas conforme necessário
 ];

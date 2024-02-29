@@ -9,8 +9,6 @@ class UsuarioModel extends DatabaseConfig {
 
     public function save($arrData) {
 
-        print_r($arrData);
-
         $planoId = isset($arrData['planoId']) ? $arrData['planoId'] : 1;
         $url = $arrData['url'];
         $nome = $arrData['nome'];
@@ -25,6 +23,20 @@ class UsuarioModel extends DatabaseConfig {
         try {
             $pdo->execute([$planoId, $email, $senha, $nome, null, null, $tipo]);
             return ['success' => true, 'id' => $this->getConnection()->lastInsertId()];
+        } catch (Exception $err) {
+            throw new Exception($err);
+        }
+    }
+
+    public function login($usuario, $senha) : bool {
+
+        $sql = "SELECT * FROM " . DB_BASE . ".usuarios WHERE email = '" . $usuario . "' AND senha = '" . md5($senha) . "'";
+        $pdo = $this->getConnection()->prepare($sql);
+
+        try {
+            $result = $pdo->execute();
+            $id = $this->getConnection()->lastInsertId();
+            return $pdo->rowCount() > 0 ? true : false;
         } catch (Exception $err) {
             throw new Exception($err);
         }
