@@ -10,7 +10,6 @@
 </head>
 
 <body>
-
     <!--  Body Wrapper -->
     <div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full" data-sidebar-position="fixed" data-header-position="fixed">
         <!-- Sidebar Start -->
@@ -18,7 +17,7 @@
             <!-- Sidebar scroll-->
             <div>
                 <div class="brand-logo d-flex align-items-center justify-content-between">
-                    <a href="./index.html" class="text-nowrap logo-img">
+                    <a href="./index" class="text-nowrap logo-img">
                         <img src="../../resources/images/logos/dark-logo.svg" width="180" alt="" />
                     </a>
                     <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
@@ -33,11 +32,23 @@
                             <span class="hide-menu">Home</span>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link" href="./index.html" aria-expanded="false">
+                            <a class="sidebar-link" href="./index" aria-expanded="false">
                                 <span>
                                     <i class="ti ti-layout-dashboard"></i>
                                 </span>
                                 <span class="hide-menu">Dashboard</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a class="sidebar-link" href="./integracao" aria-expanded="false">
+                                <span class="icon-item-icon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-whatsapp" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                        <path d="M3 21l1.65 -3.8a9 9 0 1 1 3.4 2.9l-5.05 .9"></path>
+                                        <path d="M9 10a.5 .5 0 0 0 1 0v-1a.5 .5 0 0 0 -1 0v1a5 5 0 0 0 5 5h1a.5 .5 0 0 0 0 -1h-1a.5 .5 0 0 0 0 1"></path>
+                                    </svg>
+                                </span>
+                                <span class="hide-menu">Integrações</span>
                             </a>
                         </li>
                         <li class="sidebar-item">
@@ -55,7 +66,7 @@
                                 </span>
                                 <span class="hide-menu">Clientes</span>
                             </a>
-                        </li>                        
+                        </li>
                         <li class="sidebar-item">
                             <a class="sidebar-link" href="./ui-alerts.html" aria-expanded="false">
                                 <span>
@@ -148,16 +159,18 @@
                 </nav>
             </header>
 
-            <?php
-            // Arquivos html a serem chamados
-            require 'index.html';
-            ?>
+            <div class="container-fluid">
+
+                <?php
+                // Arquivos html a serem chamados
+                include $html;
+                ?>
+            </div>
 
         </div>
 
     </div>
 
-    <script src="../../resources/libs/jquery/dist/jquery.min.js"></script>
     <script src="../../resources/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../../resources/js/sidebarmenu.js"></script>
     <script src="../../resources/js/app.min.js"></script>
@@ -165,10 +178,16 @@
     <script src="../../resources/libs/simplebar/dist/simplebar.js"></script>
     <script src="../../resources/js/dashboard.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="../../resources/js/main.js"></script>
+    <script src="../../resources/js/utils.js"></script>
+    <script src="../../resources/js/handlebarsHelpers.js"></script>
+    <!-- <script src="../../resources/js/integracao.js"></script> -->
     <script>
         var objMain = new Main();
+        var objUtils = new Utils();
     </script>
+
 </body>
 
 </html>

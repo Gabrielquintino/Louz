@@ -2,9 +2,13 @@
 
 // Defina suas rotas aqui
 $rotas = [
-    '' => 'LoginController@index',  
+    '' => 'LoginController@index',
+    '/index' => 'LoginController@index',
     '/entrar' => 'LoginController@entrar',
     '/cadastrar' => 'RegistrarController@cadastrar',
+    '/integracao' => 'IntegracaoController@index',
+    '/listagemIntegracao' => 'IntegracaoController@listagem',
+    '/qrcode' => ''
     // Adicione outras rotas conforme necessário
 ];
 

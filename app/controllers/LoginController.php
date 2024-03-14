@@ -11,6 +11,7 @@ class LoginController
     public function index()
     {
         if (isset($_SESSION['usuario_logado']) && $_SESSION['usuario_logado']) {
+            $html = 'index.html';
             include_once __DIR__ . '/../views/index.php';
         } else {
             include_once __DIR__ . '/../views/authentication-login.html';
