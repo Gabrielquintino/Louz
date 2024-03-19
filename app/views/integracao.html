@@ -20,6 +20,9 @@
                         <th class="border-bottom-0">
                             <h6 class="fw-semibold mb-0">Número</h6>
                         </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Data</h6>
+                        </th>
                     </tr>
                 </thead>
                 <tbody id="listIntegracao"></tbody>
@@ -81,6 +84,7 @@
     {{#each data}}
         <tr>
             <td>{{this.nome}}</td>
+            <td>{{this.data}}</td>
         </tr>
     {{/each}}
     {{#unless data}}
@@ -131,7 +135,7 @@
 
         var qrReceived = false;  // Variável para rastrear se o QR code foi recebido
 
-        $.get('http://gestao.local:3000/qrcode?clientId=' + $('#validationServerTelefone').val(), function (response) {
+        $.get('http://3.81.81.196:3000/qrcode?clientId=' + $('#validationServerTelefone').val(), function (response) {
             if (response.type === 'qr') {
                 console.log(response);
 
@@ -153,31 +157,34 @@
                 } else {
                     console.error('A biblioteca qrcode.min.js não foi carregada corretamente.');
                 }
+
+
+
+                $.get('http://3.81.81.196:3000/conectado', function (response) {
+                    $(document).ready(function () {
+                        // Seleciona o elemento com o ID "qrcodeContainer" e aplica o estilo de desfoque
+                        $("#qrcodeContainer").css("filter", "blur(10px)");
+
+                        // Seleciona o elemento com o ID "checkIcon" e altera o estilo para torná-lo visível
+                        $("#checkIcon").css("display", "block");
+                    });
+
+                    Swal.fire({
+                        title: "Sucesso!",
+                        text: "Conectado com sucesso.",
+                        icon: "success"
+                    }).then((result) => {
+
+                        setTimeout(() => {
+                            $('#exampleModal').modal('hide');
+                        }, 6000);
+                    })
+
+                });
+
+
+
             }
         });
-
-        $.get('http://gestao.local:3000/conectado', function (response) {
-            $(document).ready(function () {
-                // Seleciona o elemento com o ID "qrcodeContainer" e aplica o estilo de desfoque
-                $("#qrcodeContainer").css("filter", "blur(10px)");
-
-                // Seleciona o elemento com o ID "checkIcon" e altera o estilo para torná-lo visível
-                $("#checkIcon").css("display", "block");
-            });
-
-            Swal.fire({
-                title: "Sucesso!",
-                text: "Conectado com sucesso.",
-                icon: "success"
-            }).then((result) => {
-
-                setTimeout(() => {
-                    $('#exampleModal').modal('hide');
-                }, 6000);
-            })
-
-        });
     }
-
-
 </script>
