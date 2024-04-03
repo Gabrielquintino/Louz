@@ -38,7 +38,8 @@
 </div>
 
 <!-- Modal -->
-<div class="modal fade " id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div class="modal fade " id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true"
+    data-bs-backdrop="static" data-bs-keyboard="false" data-bs-focus="false">
     <div class="modal-dialog modal-fullscreen">
         <div class="modal-content">
             <div class="modal-header pb-0">
@@ -99,7 +100,7 @@
                 <button class="btn btn-primary" type="button" onclick="objChatBot.edit('{{this.id}}')">
                     <i class="ti ti-edit" data-bs-toggle="modal" data-bs-target="#exampleModal"></i>
                 </button>
-                <button class="btn btn-danger" type="button">
+                <button class="btn btn-danger" type="button" onclick="objChatBot.delete('{{this.id}}')">
                     <i class="ti ti-trash"></i>
                 </button>
             </td>
@@ -172,16 +173,16 @@
             return magnet.getAttribute('magnet') !== 'passive';
         },
         markAvailable: true,
-        elementView: joint.dia.ElementView.extend({
-            pointerdblclick: function (evt, x, y) {
-                this.model.remove();
-            }
-        }),
-        linkView: joint.dia.LinkView.extend({
-            pointerdblclick: function (evt, x, y) {
-                this.model.remove();
-            }
-        }),
+        // elementView: joint.dia.ElementView.extend({
+        //     pointerdblclick: function (evt, x, y) {
+        //         this.model.remove();
+        //     }
+        // }),
+        // linkView: joint.dia.LinkView.extend({
+        //     pointerdblclick: function (evt, x, y) {
+        //         this.model.remove();
+        //     }
+        // }),
     });
 
     var draggableElementContainerGraph = new joint.dia.Graph;
@@ -218,17 +219,130 @@
 
     paper.on('element:pointerdown',
         function (elementView, evt, x, y) {
-            console.log('cell view ' + elementView.model.id + ' was clicked');
             elementView.highlight();
-            console.log("highlighted " + elementView.model.id);
+
+            console.log(elementView);
 
             if (elementView != previousCellView && previousCellView != null) {
                 previousCellView.unhighlight();
-                console.log("unhighlighted " + previousCellView.model.id);
             }
             previousCellView = elementView;
+
+
+            $(document).keydown(function (event) {
+                // Verifica se a tecla pressionada é "Backspace" ou "Delete"
+                if (event.key === "Backspace" || event.key === "Delete") {
+                    elementView.model.remove();
+                }
+            });
+
         }
     );
+
+    paper.on('element:pointerdblclick',
+        function (elementView, evt, x, y) {
+            console.log(elementView.model.attributes.type)
+            // Exibe um Sweet Alert com um campo de texto personalizado
+            if (elementView.model.attributes.type == "standard.HeaderedRectangle") {
+                Swal.fire({
+                    title: "Digite a mensagem que você irá enviar",
+                    input: 'textarea',
+                    inputAttributes: {
+                        autocapitalize: 'off',
+                        autocorrect: 'off'
+                    },
+                    showCancelButton: true,
+                    confirmButtonText: 'Inserir',
+                    preConfirm: (value) => {
+                        // Verifica se o valor é válido
+                        if (!value) {
+                            Swal.showValidationMessage('Por favor, insira uma mensagem!');
+                        }
+                        return value;
+                    },
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Obtém o valor do texto digitado
+                        var inputValue = result.value;
+
+                        // Verifica o tamanho do texto digitado
+                        if (inputValue.length > 17) {
+                            // Se for maior que 20 caracteres, trunca o texto
+                            var shortText = inputValue.substring(0, 17) + "...";
+                            // Define o texto truncado como descrição do elemento
+                            elementView.model.attributes.attrs.bodyText.text = shortText;
+                        } else {
+                            // Caso contrário, mantém o texto original
+                            elementView.model.attributes.attrs.bodyText.text = inputValue;
+                        }
+
+                        elementView.model.attributes.attrs.bodyText.description = inputValue;
+
+                        // Atualiza a visualização do elemento
+                        elementView.update();
+                    }
+                });
+
+            }
+        }
+    );
+
+
+    // paper.on('element:pointerdblclick',
+    //     function (elementView, evt, x, y) {
+    //         // Obtém o modelo do elemento
+    //         var model = elementView.model;
+
+    //         Swal.fire({
+    //         input: "textarea",
+    //         inputLabel: "Message",
+    //         inputPlaceholder: "Type your message here...",
+    //         inputAttributes: {
+    //             "aria-label": "Type your message here"
+    //         },
+    //         showCancelButton: true
+    //         });
+    //         if (text) {
+    //         Swal.fire(text);
+    //         }
+
+    //         // Swal.fire({
+    //         //     inputLabel: "Mensagem",
+    //         //     input: "textarea",
+    //         //     inputAttributes: {
+    //         //         "aria-label": "Digite a mensagem que você irá enviar"
+    //         //     },
+    //         //     inputValidator: (value) => {
+    //         //         if (!value) {
+    //         //             return 'Por favor, insira uma mensagem!';
+    //         //         }
+    //         //     },
+    //         //     showCancelButton: true,
+    //         //     confirmButtonText: "Inserir"
+    //         // }).then((result) => {
+    //         //     if (result.isConfirmed) {
+    //         //         // Obtém o valor do texto digitado
+    //         //         var inputValue = result.value;
+
+    //         //         // Verifica o tamanho do texto digitado
+    //         //         if (inputValue.length > 20) {
+    //         //             // Se for maior que 20 caracteres, trunca o texto
+    //         //             var shortText = inputValue.substring(0, 17) + "...";
+    //         //             // Define o texto truncado como descrição do elemento
+    //         //             elementView.model.attributes.attrs.bodyText.description = shortText;
+    //         //         } else {
+    //         //             // Caso contrário, mantém o texto original
+    //         //             elementView.model.attributes.attrs.bodyText.description = inputValue;
+    //         //         }
+
+    //         //         // Atualiza a visualização do elemento
+    //         //         elementView.update();
+    //         //     }
+    //         // });
+
+    //     }
+    // );
+
 
     paper.on('blank:pointerdown',
         function (evt, x, y) {
@@ -349,7 +463,8 @@
                 fill: 'rgb(107,188,241)'
             },
             bodyText: {
-                'text': 'Digite o texto'
+                'text': 'Digite o texto',
+                'description': ''
             }
         },
         ports: {

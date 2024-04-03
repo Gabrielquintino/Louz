@@ -1,20 +1,20 @@
 class Main {
     // Função para enviar dados para o servidor via AJAX usando jQuery
-    validar(campo, formulario = ''){    
+    validar(campo, formulario = '') {
         // Verifica se os campos estão preenchidos
         if (campo === '') {
             // Exibe alerta
             $('#preenchaCampos').show();
-    
+
             // Adiciona borda vermelha temporária
-            var campos = document.querySelectorAll( formulario + '.campo');
-            campos.forEach(function(campo) {
+            var campos = document.querySelectorAll(formulario + '.campo');
+            campos.forEach(function (campo) {
                 campo.style.border = '2px solid red';
             });
-    
+
             // Remove a borda vermelha após 5 segundos
-            setTimeout(function() {
-                campos.forEach(function(campo) {
+            setTimeout(function () {
+                campos.forEach(function (campo) {
                     campo.style.border = '';
                 });
             }, 5000);
@@ -74,7 +74,36 @@ class Main {
                         }
                     });
                 }
-            });            
+            });
         }
     }
+
+    confirmWithInputAndCallback(confirmText, inputText, confirmCallback) {
+        Swal.fire({
+            title: confirmText,
+            text: inputText,
+            input: "text",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Sim, excluir!",
+            cancelButtonText: "Cancelar",
+            inputValidator: (value) => {
+                // Validate input value
+                if (value !== "excluir permanentemente") {
+                    return 'Você precisa digitar "excluir permanentemente"!';
+                } else {                    
+                    confirmCallback();
+                    Swal.fire({
+                        title: "Registro excluído com sucesso!",
+                        text: "Esse registro foi excluído para todo o sempre.",
+                        icon: "success"
+                    }).then((result) => {
+                        location.reload();
+                    });
+                }
+            }
+        })
+    }
+
 }

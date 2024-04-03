@@ -40,7 +40,7 @@ class ChatBotModel extends DatabaseConfig {
         $objJson = json_encode($arrData['objJson']);
         $id = $arrData['id'];
 
-        if (isset($arrData['id'])) {
+        if (isset($arrData['id']) && !empty($arrData['id']) ) {
             $sql = "UPDATE " . $_SESSION["db_usuario"] . ".chatbot SET `nome` = ?, `integration_phone` = ?, `json` = ? WHERE id = ?";
             $pdo = $this->getConnection()->prepare($sql);
             

@@ -52,7 +52,7 @@ class ChatBot {
                     if (jsonData.success) {
                         Swal.fire({
                             title: "Sucesso!",
-                            text: "Seja bem-vindo",
+                            text: "ChatBot configurado, agora é a hora de testar!",
                             icon: "success"
                         }).then((result) => {
                             location.reload();
@@ -90,37 +90,35 @@ class ChatBot {
             success: function (data) {
 
                 var objData = JSON.parse(data)
-                
+
                 console.log(objData)
                 $('#nome').val(objData.data.nome)
                 $('#selListIntegrations').val(objData.data.integration_phone)
                 $('#idChatBot').val(objData.data.id)
 
                 graph.fromJSON(JSON.parse(objData.data.json))
-
-
             }
         })
     }
 
     delete(intId) {
-        $.ajax({
-            url: '/deleteChatbot',
-            type: 'POST',
-            data: {
-                'id': intId
-            },
-            async: true,
-            success: function (data) {
 
-                var objData = JSON.parse(data)
-                
-                console.log(objData)
+        function deletar(id) {
+            $.ajax({
+                url: '/deleteChatbot',
+                type: 'POST',
+                data: {
+                    'id': id
+                },
+                async: true,
+                success: function (data) {
+                    var objData = JSON.parse(data);
+                }
+            })
+        }
 
+        objMain.confirmWithInputAndCallback("Tem certeza? Essa é uma ação irreversível.",
+            "Digite 'excluir permanentemente' para excluir o registro:", function() {deletar(intId)} )
 
-
-            }
-        })
-    
     }
 }
