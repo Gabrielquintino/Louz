@@ -6,9 +6,19 @@ $rotas = [
     '/index' => 'LoginController@index',
     '/entrar' => 'LoginController@entrar',
     '/cadastrar' => 'RegistrarController@cadastrar',
+    //Integração
     '/integracao' => 'IntegracaoController@index',
     '/listagemIntegracao' => 'IntegracaoController@listagem',
-    '/qrcode' => ''
+    '/qrcode' => '',
+    //ChatBot
+    '/chatbot' => 'ChatBotController@index',
+    '/listagemChatBot' => 'ChatBotController@listagem',
+    '/saveChatbot' => 'ChatBotController@save',
+    '/getChatbot' => 'ChatBotController@getData',
+    '/deleteChatbot' => 'ChatBotController@delete',
+
+
+    
     // Adicione outras rotas conforme necessário
 ];
 

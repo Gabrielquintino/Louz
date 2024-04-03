@@ -33,11 +33,14 @@ class LoginController
         $usuarioModel = new UsuarioModel();
         $resultado = $usuarioModel->login($_POST['email'], $_POST['senha']);
 
-        if ($resultado) {
+        if ($resultado["exist"]) {
             // Credenciais corretas, define a variável de sessão indicando que o usuário está logado
             $_SESSION['usuario_logado'] = true;
             $_SESSION['usuario'] = $_POST['email'];
-            
+            $_SESSION['db_usuario'] = 'db_' . $resultado["data"][0]["codigo"];
+
+            define('DB_USUARIO', 'db_' . $resultado["data"][0]["codigo"]);
+
             echo json_encode(['success' => true]);
             return true;
 

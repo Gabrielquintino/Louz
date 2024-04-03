@@ -16,9 +16,14 @@ class IntegracaoController
      */
     public function index()
     {
+
         // Lógica de roteamento e controle aqui
-        $html = "integracao.html";
-        include_once __DIR__ . '/../views/index.php';
+        if (isset($_SESSION['usuario_logado']) && $_SESSION['usuario_logado']) {
+            $html = "integracao.html";
+            include_once __DIR__ . '/../views/index.php';
+        } else {
+            include_once __DIR__ . '/../views/index.php';
+        }
     }
 
     public function listagem()
@@ -66,12 +71,7 @@ class IntegracaoController
             echo $e->getMessage() . "\n";
         }
 
-
-
-
         $arrLista['success'] = true;
-
-
         echo json_encode($arrLista);
         return true;
     }

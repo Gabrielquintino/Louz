@@ -52,6 +52,14 @@
                             </a>
                         </li>
                         <li class="sidebar-item">
+                            <a class="sidebar-link" href="./chatbot" aria-expanded="false">
+                                <span class="icon-item-icon">
+                                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-message-chatbot"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12z" /><path d="M9.5 9h.01" /><path d="M14.5 9h.01" /><path d="M9.5 13a3.5 3.5 0 0 0 5 0" /></svg>
+                                </span>
+                                <span class="hide-menu">ChatBot</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
                             <a class="sidebar-link" href="./ui-buttons.html" aria-expanded="false">
                                 <span>
                                     <i class="ti ti-article"></i>
@@ -171,18 +179,15 @@
 
     </div>
 
+
     <script src="../../resources/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../../resources/js/sidebarmenu.js"></script>
     <script src="../../resources/js/app.min.js"></script>
-    <script src="../../resources/libs/apexcharts/dist/apexcharts.min.js"></script>
     <script src="../../resources/libs/simplebar/dist/simplebar.js"></script>
-    <script src="../../resources/js/dashboard.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="../../resources/js/main.js"></script>
     <script src="../../resources/js/utils.js"></script>
-    <script src="../../resources/js/handlebarsHelpers.js"></script>
-    <!-- <script src="../../resources/js/integracao.js"></script> -->
     <script>
         var objMain = new Main();
         var objUtils = new Utils();

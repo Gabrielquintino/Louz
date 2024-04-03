@@ -1,0 +1,537 @@
+<nav class="navbar navbar-light bg-transparent mb-3">
+    <div class="container-fluid">
+        <a class="navbar-brand">ChatBot</a>
+        <form class="d-flex">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                Criar
+            </button>
+        </form>
+    </div>
+</nav>
+
+<!-- Lista de chatbots -->
+<div class="card w-100">
+    <div class="card-body p-4">
+        <h5 class="card-title fw-semibold mb-4">Lista de chatbots</h5>
+        <div class="table-responsive">
+            <table class="table text-nowrap mb-0 align-middle">
+                <thead class="text-dark fs-4">
+                    <tr>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Nome</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Integração</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Data</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Status</h6>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="listChatBot"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade " id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header pb-0">
+                <h5 class="modal-title" id="exampleModalLabel">Novo chatbot</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formChatBot" action="">
+                    <input type="hidden" id="idChatBot">
+                    <div class="row mb-0">
+                        <div class="col">
+                            <input class="form-control" id="nome" type="text" placeholder="Nome do chatbot"
+                                aria-label="Nome do chatbot">
+                        </div>
+                        <div class="col">
+                            <div class="input-group mb-0">
+                                <label class="input-group-text" for="selListIntegrations">Integrações</label>
+                                <select class="form-select" id="selListIntegrations">
+                                    <option selected>Escolha...</option>
+                                    <option value="48988267601">48988267601</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+
+                <!-- content -->
+                <div style="width:100%; white-space:nowrap;">
+                    <span style="display: inline-block; vertical-align: top;">
+                        <div id="draggableElementContainerPaper" style="border: solid 1px black; margin: 20px;"></div>
+                    </span>
+                    <span style="width:5%"></span>
+                    <span style="display: inline-block; vertical-align: top;">
+                        <div id="paper" style="border: solid 1px black; margin: 20px;"></div>
+                    </span>
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-primary" data-bs-toggle="tooltip"
+                    data-bs-title="Clique aqui para salvar" onclick="objChatBot.saveChatbot()">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="listChatBotTemplate" type="text/x-handlebars-template">
+    {{#each data}}
+        <tr>
+            <td>{{this.nome}}</td>
+            <td>{{this.integration_phone}}</td>
+            <td>{{this.data}}</td>
+            <td>{{this.status}}</td>
+            <td class="text-right">
+                <button class="btn btn-primary" type="button" onclick="objChatBot.edit('{{this.id}}')">
+                    <i class="ti ti-edit" data-bs-toggle="modal" data-bs-target="#exampleModal"></i>
+                </button>
+                <button class="btn btn-danger" type="button">
+                    <i class="ti ti-trash"></i>
+                </button>
+            </td>
+        </tr>
+    {{/each}}
+    {{#unless data}}
+        <tr>
+            <td colspan="4">
+                <p class="text-danger text-center">Nenhum dado encontrado</p>
+            </td>
+        </tr>
+    {{/unless}}
+</script>
+
+
+<!-- dependencies -->
+<link rel="stylesheet" href="../../resources/css/chatbot.scss">
+
+<script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+<script src="../../resources/js/handlebarsHelpers.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.1/lodash.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.3.3/backbone-min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@joint/core@4.0.1/dist/joint.js"></script>
+
+<script src="../../resources/js/chatbot.js"></script>
+
+
+<!-- code -->
+<script>
+
+    var objChatBot = new ChatBot();
+
+    var graph = new joint.dia.Graph;
+    var paper = new joint.dia.Paper({
+        el: document.getElementById('paper'),
+        gridSize: 1,
+        width: 1100,
+        height: 500,
+        model: graph,
+        snapLinks: true,
+        linkPinning: false,
+        gridSize: 10,
+        drawGrid: true,
+        background: {
+            color: '#e6ffff',
+            opacity: 0.3
+        },
+        defaultLink: () => new joint.shapes.standard.Link(),
+        highlighting: {
+            'default': {
+                name: 'stroke',
+                options: {
+                    padding: 20
+                }
+            }
+        },
+        validateConnection: function (cellViewS, magnetS, cellViewT, magnetT, end, linkView) {
+            // Prevent linking from input ports
+            if (magnetS && magnetS.getAttribute('port-group') === 'in') return false;
+            // Prevent linking from output ports to input ports within one element
+            if (cellViewS === cellViewT) return false;
+            // Prevent linking to output ports
+            return magnetT && magnetT.getAttribute('port-group') === 'in';
+        },
+        validateMagnet: function (cellView, magnet) {
+            // Note that this is the default behaviour. It is shown for reference purposes.
+            // Disable linking interaction for magnets marked as passive
+            return magnet.getAttribute('magnet') !== 'passive';
+        },
+        markAvailable: true,
+        elementView: joint.dia.ElementView.extend({
+            pointerdblclick: function (evt, x, y) {
+                this.model.remove();
+            }
+        }),
+        linkView: joint.dia.LinkView.extend({
+            pointerdblclick: function (evt, x, y) {
+                this.model.remove();
+            }
+        }),
+    });
+
+    var draggableElementContainerGraph = new joint.dia.Graph;
+    var draggableElementContainerPaper = new joint.dia.Paper({
+        el: document.getElementById('draggableElementContainerPaper'),
+        gridSize: 1,
+        width: 150,
+        height: 500,
+        model: draggableElementContainerGraph,
+        interactive: false,
+        background: {
+            color: '#ecf8ec',
+            opacity: 0.3
+        },
+    });
+
+    var connect = function (source, sourcePort, target, targetPort) {
+
+        var link = new joint.dia.Link({
+            source: {
+                id: source.id,
+                port: sourcePort
+            },
+            target: {
+                id: target.id,
+                port: targetPort
+            }
+        });
+
+        link.addTo(graph).reparent();
+    };
+
+    var previousCellView = null;
+
+    paper.on('element:pointerdown',
+        function (elementView, evt, x, y) {
+            console.log('cell view ' + elementView.model.id + ' was clicked');
+            elementView.highlight();
+            console.log("highlighted " + elementView.model.id);
+
+            if (elementView != previousCellView && previousCellView != null) {
+                previousCellView.unhighlight();
+                console.log("unhighlighted " + previousCellView.model.id);
+            }
+            previousCellView = elementView;
+        }
+    );
+
+    paper.on('blank:pointerdown',
+        function (evt, x, y) {
+            if (previousCellView != null) {
+                previousCellView.unhighlight();
+                console.log("unhighlighted " + previousCellView.model.id);
+            }
+        }
+    );
+
+    // #region portas
+    var portsIn = {
+        position: {
+            name: 'left'
+        },
+        attrs: {
+            portBody: {
+                magnet: true,
+                r: 10,
+                fill: '#023047',
+                stroke: '#023047'
+            }
+        },
+        label: {
+            position: {
+                name: 'left',
+                args: { y: 6 }
+            },
+            markup: [{
+                tagName: 'text',
+                selector: 'label',
+                className: 'label-text'
+            }]
+        },
+        markup: [{
+            tagName: 'circle',
+            selector: 'portBody'
+        }]
+    };
+
+    var portsOut = {
+        position: {
+            name: 'right'
+        },
+        attrs: {
+            portBody: {
+                magnet: true,
+                r: 10,
+                fill: '#E6A502',
+                stroke: '#023047'
+            }
+        },
+        label: {
+            position: {
+                name: 'right',
+                args: { y: 6 }
+            },
+            markup: [{
+                tagName: 'text',
+                selector: 'label',
+                className: 'label-text'
+            }]
+        },
+        markup: [{
+            tagName: 'circle',
+            selector: 'portBody'
+        }]
+    };
+    // #endregion
+
+    // #region Inicio
+    var start = new joint.shapes.standard.Circle({
+        position: { x: 45, y: 10 },
+        size: { width: 50, height: 50 },
+        attrs: {
+            root: {
+                'title': 'joint.shapes.standard.Circle'
+            },
+            label: {
+                'text': 'Início'
+            },
+            body: {
+                'fill': 'rgb(178,255,178)'
+            }
+        },
+        ports: {
+            groups: {
+                'in': portsIn,
+                'out': portsOut
+            }
+        }
+    });
+
+    start.addPorts([
+        {
+            group: 'out',
+        },
+    ]);
+    start.addTo(draggableElementContainerGraph);
+
+    // #endregion
+
+    // #region Mensagem enviada
+    var msgEnviada = new joint.shapes.standard.HeaderedRectangle({
+        position: { x: 14, y: 70 },
+        size: { width: 120, height: 75 },
+        attrs: {
+            root: {
+                'title': 'joint.shapes.standard.HeaderedRectangle'
+            },
+            header: {
+                'fill': 'lightgray'
+            },
+            headerText: {
+                'text': 'Msg Enviada'
+            },
+            body: {
+                fill: 'rgb(107,188,241)'
+            },
+            bodyText: {
+                'text': 'Digite o texto'
+            }
+        },
+        ports: {
+            groups: {
+                'in': portsIn,
+                'out': portsOut
+            }
+        }
+    });
+
+    msgEnviada.addPorts([
+        {
+            group: 'in',
+        },
+        {
+            group: 'out',
+        }
+    ]);
+    msgEnviada.addTo(draggableElementContainerGraph);
+
+    // #endregion
+
+    // #region Pergunta de texto
+    var msgPergunta = new joint.shapes.standard.HeaderedRectangle({
+        position: { x: 14, y: 155 },
+        size: { width: 120, height: 75 },
+        attrs: {
+            root: {
+                'title': 'joint.shapes.standard.HeaderedRectangle'
+            },
+            header: {
+                'fill': 'lightgray'
+            },
+            headerText: {
+                'text': 'Pergunta'
+            },
+            body: {
+                fill: 'rgb(77,144,141)'
+            },
+            bodyText: {
+                'text': 'Digite a pergunta'
+            }
+        },
+        ports: {
+            groups: {
+                'in': portsIn,
+                'out': portsOut
+            }
+        }
+    });
+
+    msgPergunta.addPorts([
+        {
+            group: 'in',
+        },
+        {
+            group: 'out',
+        }
+    ]);
+    msgPergunta.addTo(draggableElementContainerGraph);
+
+    // #endregion
+
+    // #region Condicional
+    var condicional = new joint.shapes.standard.Polygon({
+        position: { x: 14, y: 240 },
+        size: { width: 120, height: 75 },
+        attrs: {
+            root: {
+                'title': 'joint.shapes.standard.Polygon'
+            },
+            body: {
+                'refPoints': '0,10 10,0 20,10 10,20',
+                'fill': 'rgb(255,153,0)'
+            },
+            label: {
+                'text': 'Condicional'
+            }
+        },
+        ports: {
+            groups: {
+                'in': portsIn,
+                'out': portsOut
+            }
+        }
+    });
+
+    condicional.addPorts([
+        {
+            group: 'in',
+        },
+        {
+            group: 'out',
+            attrs: { label: { text: 'sim' } }
+        },
+        {
+            group: 'out',
+            attrs: { label: { text: 'não' } }
+        }
+    ]);
+    condicional.addTo(draggableElementContainerGraph);
+
+    // #endregion
+
+    // #region Termina
+    var end = new joint.shapes.standard.Circle({
+        position: { x: 45, y: 325 },
+        size: { width: 50, height: 50 },
+        attrs: {
+            root: {
+                'title': 'joint.shapes.standard.Circle'
+            },
+            label: {
+                'text': 'Fim'
+            },
+            body: {
+                'fill': 'rgb(249,65,68)'
+            }
+        },
+        ports: {
+            groups: {
+                'in': portsIn,
+                'out': portsOut
+            }
+        }
+    });
+
+    end.addPorts([
+        {
+            group: 'in',
+        },
+    ]);
+    end.addTo(draggableElementContainerGraph);
+
+    // #endregion
+
+    draggableElementContainerPaper.on('cell:pointerdown', function (cellView, e, x, y) {
+        $('body').append('<div id="flyPaper" style="position:relative;opacity:0.4;pointer-event:none;"></div>');
+        var flyGraph = new joint.dia.Graph,
+            flyPaper = new joint.dia.Paper({
+                el: $('#flyPaper'),
+                model: flyGraph,
+                height: 100,
+                width: 110,
+                interactive: false
+            }),
+            flyShape = cellView.model.clone(),
+            pos = cellView.model.position(),
+            offset = {
+                x: x - pos.x,
+                y: y - pos.y
+            };
+
+        flyShape.position(15, 10);
+        flyShape.prop = 1;
+        flyGraph.addCell(flyShape);
+        $("#flyPaper").offset({
+            left: e.pageX - offset.x,
+            top: e.pageY - offset.y
+        });
+        $('body').on('mousemove.fly', function (e) {
+            $("#flyPaper").offset({
+                left: e.pageX - offset.x,
+                top: e.pageY - offset.y
+            });
+        });
+        $('body').on('mouseup.fly', function (e) {
+            var x = e.pageX,
+                y = e.pageY,
+                target = paper.$el.offset();
+
+            // Dropped over paper ?
+            if (x > target.left && x < target.left + paper.$el.width() && y > target.top && y < target.top + paper.$el.height()) {
+                var s = flyShape.clone();
+                s.position(x - target.left - offset.x, y - target.top - offset.y);
+                graph.addCell(s);
+            }
+            $('body').off('mousemove.fly').off('mouseup.fly');
+            flyShape.remove();
+            $('#flyPaper').remove();
+        });
+    });
+
+
+</script>

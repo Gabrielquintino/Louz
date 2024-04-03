@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Config\DatabaseConfig;
 use Exception;
+use PDO;
 
 class UsuarioModel extends DatabaseConfig {
 
@@ -28,15 +29,21 @@ class UsuarioModel extends DatabaseConfig {
         }
     }
 
-    public function login($usuario, $senha) : bool {
+    public function login($usuario, $senha) : array {
 
-        $sql = "SELECT * FROM " . DB_BASE . ".usuarios WHERE email = '" . $usuario . "' AND senha = '" . md5($senha) . "'";
+        $sql = "SELECT * FROM " . DB_BASE . ".usuarios WHERE email = :email AND senha = :senha";
         $pdo = $this->getConnection()->prepare($sql);
-
+        $senha_md5 = md5($senha); // Atribui o resultado de md5($senha) a uma variável
+        $pdo->bindParam(':email', $usuario);
+        $pdo->bindParam(':senha', $senha_md5); // Passa a variável para bindParam()
+        
         try {
-            $result = $pdo->execute();
-            $id = $this->getConnection()->lastInsertId();
-            return $pdo->rowCount() > 0 ? true : false;
+            $pdo->execute();
+            $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
+            return [
+                'exist' => count($result) > 0,
+                'data' => $result
+            ];
         } catch (Exception $err) {
             throw new Exception($err);
         }

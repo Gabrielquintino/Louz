@@ -27,9 +27,6 @@ class Integracao {
                 //Overwrite the contents of #target with the renderer HTML
                 document.getElementById('listIntegracao').innerHTML = rendered;
 
-
-
-
             }
         })
     }
