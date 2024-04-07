@@ -22,7 +22,8 @@ class IntegracaoController
             $html = "integracao.html";
             include_once __DIR__ . '/../views/index.php';
         } else {
-            include_once __DIR__ . '/../views/index.php';
+            // Redireciona
+            header("Location: /");
         }
     }
 
