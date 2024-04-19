@@ -3,14 +3,20 @@ class Main {
     validar(campo, formulario = '') {
         // Verifica se os campos estão preenchidos
         if (campo === '') {
+
+            
             // Exibe alerta
-            $('#preenchaCampos').show();
 
             // Adiciona borda vermelha temporária
-            var campos = document.querySelectorAll(formulario + '.campo');
+            var form = document.querySelector(formulario);
+            var campos = form.querySelectorAll('input');
+
             campos.forEach(function (campo) {
-                campo.style.border = '2px solid red';
+                if (campo.value === '') {
+                    campo.classList.add('is-invalid');
+                }
             });
+            $('#preenchaCampos').show();
 
             // Remove a borda vermelha após 5 segundos
             setTimeout(function () {
@@ -18,6 +24,7 @@ class Main {
                     campo.style.border = '';
                 });
             }, 5000);
+
             return false;
         } else {
             // Se os campos estiverem preenchidos, chama a função entrar()

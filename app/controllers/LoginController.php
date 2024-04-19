@@ -38,8 +38,11 @@ class LoginController
             $_SESSION['usuario_logado'] = true;
             $_SESSION['usuario'] = $_POST['email'];
             $_SESSION['db_usuario'] = 'db_' . $resultado["data"][0]["codigo"];
+            $_SESSION['codigo_usuario'] = $resultado["data"][0]["codigo"];
 
             define('DB_USUARIO', 'db_' . $resultado["data"][0]["codigo"]);
+            define('USER_ID',  $resultado["data"][0]["id"]);
+            
 
             echo json_encode(['success' => true]);
             return true;

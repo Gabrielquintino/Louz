@@ -2,8 +2,8 @@
     <div class="container-fluid">
         <a class="navbar-brand">Integrações</a>
         <form class="d-flex">
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                Criar
+            <button type="button" id="NovaConexao" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" onclick="objIntegracao.genereteQrCode()" style="display: none;">
+                Conectar
             </button>
         </form>
     </div>
@@ -18,11 +18,15 @@
                 <thead class="text-dark fs-4">
                     <tr>
                         <th class="border-bottom-0">
-                            <h6 class="fw-semibold mb-0">Número</h6>
+                            <h6 class="fw-semibold mb-0">Telefone</h6>
                         </th>
                         <th class="border-bottom-0">
-                            <h6 class="fw-semibold mb-0">Data</h6>
+                            <h6 class="fw-semibold mb-0">Dispositivo</h6>
                         </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Status</h6>
+                        </th>
+
                     </tr>
                 </thead>
                 <tbody id="listIntegracao"></tbody>
@@ -40,41 +44,25 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="row" id="insiraTelefone">
-                    <div class="col-12">
-                        <h3 class="text-center">Insira o número de telefone</h3>
-                        <label for="validationServerTelefone" class="form-label">Telefone</label>
-                        <div class="input-group has-validation">
-                            <span class="input-group-text" id="inputGroupPrepend3">+55</span>
-                            <input type="tel" class="form-control" id="validationServerTelefone"
-                                aria-describedby="inputGroupPrepend3 validationServerTelefoneFeedback">
-                            <div id="validationServerTelefoneFeedback" class="invalid-feedback">
-                                Por favor insira o número de telefone válido.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="row" id="gerandoQrCode" style="display: none;">
-                    <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
-                        <div id="container">
-                            <div id="qrcodeContainer" style="position: sticky;"></div>
-                            <i id="checkIcon" class="ti ti-circle-check text-success" style="position:absolute;top: 50%;left: 50%;transform: translate(-50%, -50%);
-                                font-size: 2em; display: none;">
-                            </i>
-                        </div>
-                    </div>
-                    <div class="col-12 col-sm-12 col-md-6 col-lg-8 col-xl-8">
+                <div class="row" id="gerandoQrCode">
+                    <div class="col-12 col-sm-12 col-md-6 col-lg-7 col-xl-7">
                         <h3 class="text-center">Conecte o dispositvo</h3>
                         <p>Abra o whatsapp e clique em <b>Dispositivos Conectados</b>, clique em conectar um dispositivo
-                            e <b>aponte a câmera para o qr code</b>.</p>
+                            e <b>aponte a câmera para o qr code</b>.
+                        </p>
+                        <p>
+                            <b>Depois de conectar</b> clique em conectei e aguarde alguns instantes.
+                        </p>
+                    </div>
+                    <div class="col-12 col-sm-12 col-md-6 col-lg-5 col-xl-5 p-0 me-0">
+                        <img src="" id="qrCodeImg" alt="" style="width: -webkit-fill-available;">
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                <button type="button" class="btn btn-primary" id="btnGerarQrCode" data-bs-toggle="tooltip"
-                    data-bs-title="Clique aqui para gerar o qr code de conexão" onclick="gerarQRCode()">Gerar
-                    QrCode</button>
+                <button type="button" class="btn btn-success" id="btnGerarQrCode" data-bs-toggle="tooltip"
+                    data-bs-title="Clique aqui para gerar o qr code de conexão" onclick="objIntegracao.save()">Conectei</button>
             </div>
         </div>
     </div>
@@ -83,13 +71,19 @@
 <script id="listIntegracaoTemplate" type="text/x-handlebars-template">
     {{#each data}}
         <tr>
-            <td>{{this.nome}}</td>
-            <td>{{this.data}}</td>
+            <td>{{this.phone}}</td>
+            <td>{{this.originalDevice}}</td>
+            <td>{{this.status}}</td>
+            <td>
+                <button class="btn btn-danger" type="button" onclick="objIntegracao.delete('{{this.id}}')">
+                    <i class="ti ti-trash"></i>
+                </button>
+            </td>
         </tr>
     {{/each}}
     {{#unless data}}
         <tr>
-            <td colspan="2">
+            <td colspan="4">
                 <p class="text-danger text-center">Nenhum dado encontrado</p>
             </td>
         </tr>
@@ -109,80 +103,4 @@
 
     var objIntegracao = new Integracao();
 
-    $("#minhaModal").on("shown.bs.modal", function () {
-        $('#insiraTelefone').show();
-    })
-
-
-    function gerarQRCode() {
-
-        var booValidacao = objUtils.validarNumeroTelefone($('#validationServerTelefone').val());
-        objUtils.aplicarClasseInvalida('validationServerTelefone', booValidacao);
-
-        $('#insiraTelefone').hide();
-        $('#btnGerarQrCode').hide();
-
-        $('#gerandoQrCode').show();
-
-        // Adiciona um GIF de loading ao #qrcodeContainer
-        var loadingGif = document.createElement('img');
-        loadingGif.src = '../../resources/images/loading.gif';  // Substitua com o caminho real para o seu GIF de loading
-        loadingGif.id = 'loadingGif';
-        loadingGif.style = "width: -webkit-fill-available;";
-        $('#qrcodeContainer').html(loadingGif);
-
-        var qrReceived = false;  // Variável para rastrear se o QR code foi recebido
-
-        $.get('http://3.81.81.196:3000/qrcode?clientId=' + $('#validationServerTelefone').val(), function (response) {
-            if (response.type === 'qr') {
-                console.log(response);
-
-                var qrCode = response.data;
-                qrReceived = true;  // Marca que o QR code foi recebido
-                // Exibe o QR code no console para verificar se está sendo recebido corretamente
-                console.log(qrCode);
-                $('#loadingGif').remove();
-                // Cria um novo elemento div para o QR code
-                var qrcodeDiv = document.createElement('div');
-                qrCode.style = "width: -webkit-fill-available;";
-                qrcodeDiv.id = 'qrcode';
-                // Adiciona o novo elemento à div principal
-                $('#qrcodeContainer').html(qrcodeDiv);
-                // Certifique-se de que a biblioteca qrcode.min.js está carregada corretamente
-                if (typeof QRCode !== 'undefined') {
-                    // Gera a imagem do QR code usando a biblioteca qrcode-generator
-                    var qrcode = new QRCode(document.getElementById('qrcode'), qrCode);
-                } else {
-                    console.error('A biblioteca qrcode.min.js não foi carregada corretamente.');
-                }
-
-
-
-                $.get('http://3.81.81.196:3000/conectado', function (response) {
-                    $(document).ready(function () {
-                        // Seleciona o elemento com o ID "qrcodeContainer" e aplica o estilo de desfoque
-                        $("#qrcodeContainer").css("filter", "blur(10px)");
-
-                        // Seleciona o elemento com o ID "checkIcon" e altera o estilo para torná-lo visível
-                        $("#checkIcon").css("display", "block");
-                    });
-
-                    Swal.fire({
-                        title: "Sucesso!",
-                        text: "Conectado com sucesso.",
-                        icon: "success"
-                    }).then((result) => {
-
-                        setTimeout(() => {
-                            $('#exampleModal').modal('hide');
-                        }, 6000);
-                    })
-
-                });
-
-
-
-            }
-        });
-    }
 </script>

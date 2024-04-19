@@ -10,13 +10,17 @@ $rotas = [
     //Integração
     '/integracao' => 'IntegracaoController@index',
     '/listagemIntegracao' => 'IntegracaoController@listagem',
-    '/qrcode' => '',
+    '/getQrCode' => 'IntegracaoController@getQrCode',
+    '/getWppInstance' => 'IntegracaoController@getWppInstance',
+    '/deleteWppInstance' => 'IntegracaoController@deleteWppInstance',
     //ChatBot
     '/chatbot' => 'ChatBotController@index',
     '/listagemChatBot' => 'ChatBotController@listagem',
     '/saveChatbot' => 'ChatBotController@save',
     '/getChatbot' => 'ChatBotController@getData',
     '/deleteChatbot' => 'ChatBotController@delete',
+    
+    '/instancia/{instancia}/receive' => 'InstanciaWppController@receiveWebhook'
 
 
     

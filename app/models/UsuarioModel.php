@@ -77,6 +77,24 @@ class UsuarioModel extends DatabaseConfig
         }
     }
 
+    public function obterUsuarioPorId(int $pIntId)
+    {
+        $sql = "SELECT * FROM " . DB_BASE . ".usuarios WHERE id = :id";
+        $pdo = $this->getConnection()->prepare($sql);
+        $pdo->bindParam(':id', $pIntId);
+
+        try {
+            $pdo->execute();
+            $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
+            return [
+                'exist' => count($result) > 0,
+                'data' => $result
+            ];
+        } catch (Exception $err) {
+            throw new Exception($err);
+        }
+    }
+
     // Função para criar a nova base de dados e a tabela 'chatbot' usando o PDO
     public function createDatabaseAndTable($codigo)
     {

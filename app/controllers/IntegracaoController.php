@@ -2,11 +2,14 @@
 
 namespace App\Controllers;
 
+use App\Models\UsuarioInstanciaModel;
 use App\Models\UsuarioModel;
+use App\Models\ZapiModel;
 use Aws\S3\S3Client;
 use Aws\Exception\AwsException;
 use stdClass;
 use DateTime;
+use Exception;
 
 class IntegracaoController
 {
@@ -29,47 +32,28 @@ class IntegracaoController
 
     public function listagem()
     {
-        // Configurações da AWS
-        $bucketName = 'wwebjs'; // Substitua pelo nome do seu bucket
-        $prefix = 'sessions'; // Substitua pelo prefixo da pasta que deseja listar
+        $objZapiModel = new ZapiModel();
 
-        // Configuração do cliente S3
-        $s3Client = new S3Client([
-            'region'  => 'us-east-1', // Substitua pela região da sua S3
-            'credentials' => [
-                'key'    => AWS_ACCESS_KEY,
-                'secret' => AWS_SECRET_ACCESS_KEY,
-            ],
-            'http' => [
-                'verify' => false, // Desativar a verificação SSL
-            ],
-        ]);
+        $objUsuarioInstanciaModel = new UsuarioInstanciaModel();
 
-        try {
-            // Lista os objetos na pasta
-            $objects = $s3Client->listObjects([
-                'Bucket' => $bucketName,
-                'Prefix' => $prefix
-            ]);
+        $arrInstancia = $objUsuarioInstanciaModel->getInstance(true);
 
-            $arrLista = [
-                'data' => []
-            ];
+        $arrLista = [
+            'data' => []
+        ];
 
-            // Itera sobre os objetos e exibe o nome e a data de modificação de cada um
-            foreach ($objects['Contents'] as $object) {
-                if ($object['Key'] !== "sessions/") {
-                    $objItem = new stdClass;
-                    preg_match('/(\d+)/',$object['Key'], $matches);
-                    $objItem->nome = $matches[0];
-                    $data = new DateTime($object['LastModified']);
-                    $objItem->data = $data->format('d/m/Y H:i:s');
-                    array_push($arrLista['data'], $objItem);
-                }
+        foreach ($arrInstancia as $key => $objInstancia) {
+            if ($objInstancia['status'] == 'conectado') {
+                
+                $objInstanciaDados = $objZapiModel->getInstanceData($objInstancia['instancia'], $objInstancia['token']);
+                $objInstanciaDados->status = 'conectado';
+                array_push($arrLista['data'], $objInstanciaDados);
+            } else {
+                $objInstancia['originalDevice'] = '-';
+                $objInstancia['nome'] = $objInstancia['instancia'];
+                $objInstancia['phone'] = '-';
+                array_push($arrLista['data'], $objInstancia);
             }
-        } catch (AwsException $e) {
-            // Captura e exibe erros da AWS
-            echo $e->getMessage() . "\n";
         }
 
         $arrLista['success'] = true;
@@ -77,15 +61,76 @@ class IntegracaoController
         return true;
     }
 
-    public function cadastrarWhatsapp()
-    {
+    public function getQrCode() {        
+        $objZapiModel = new ZapiModel();
 
-        $arrData = $_POST;
+        $objUsuarioInstanciaModel = new UsuarioInstanciaModel();
 
-        $cloneModel = new UsuarioModel();
-        $result = $cloneModel->save($arrData);
+        $arrInstancia = $objUsuarioInstanciaModel->getInstance();
 
-        return $result;
+        try {
+            $strQrCode = $objZapiModel->generateQrCode($arrInstancia[0]["instancia"],  $arrInstancia[0]['token']);
+
+            $arrLista['success'] = true;
+            $arrLista['data'] = $strQrCode;
+    
+            echo json_encode($arrLista);
+            return true;
+        } catch (Exception $err) {
+            http_response_code(500);
+
+            throw $err;
+        }
+    }
+
+    public function getWppInstance()
+    {        
+        $objZapiModel = new ZapiModel();
+        
+        $objUsuarioInstanciaModel = new UsuarioInstanciaModel();
+
+        $arrInstancia = $objUsuarioInstanciaModel->getInstance();
+
+        try {
+            $objInstancia = $objZapiModel->getInstanceData($arrInstancia[0]['instancia'], $arrInstancia[0]['token']);
+
+            if (property_exists($objInstancia, 'phone')) {
+                $objUsuarioInstanciaModel->updateInstance('conectado', $objInstancia->phone, $arrInstancia[0]['id']);
+                $arrLista['success'] = true;
+            } else {
+                $arrLista['success'] = false;
+            }
+
+            $arrLista['data'] = $objInstancia;
+    
+            echo json_encode($arrLista);
+            return true;
+        } catch (Exception $err) {
+            http_response_code(500);
+            throw $err;
+        }
+
+    }
+
+    public function deleteWppInstance() {
+        $objZapiModel = new ZapiModel();
+        
+        $objUsuarioInstanciaModel = new UsuarioInstanciaModel();
+
+        $arrInstancia = $objUsuarioInstanciaModel->getInstance();
+
+        try {
+            $booDisconected = $objZapiModel->disconnectInstance($arrInstancia[0]['instancia'], $arrInstancia[0]['token']);
+
+            if ($booDisconected) {
+                $objUsuarioInstanciaModel->updateInstance('disconectado', '', $arrInstancia[0]['id']);
+                return true;
+            }
+            
+        } catch (Exception $err) {
+            http_response_code(500);
+            throw $err;
+        }
     }
 
     // Outras funções do controlador conforme necessário

@@ -24,11 +24,39 @@ class ChatBot {
 
                 //Overwrite the contents of #target with the renderer HTML
                 document.getElementById('listChatBot').innerHTML = rendered;
+
+            }
+        })
+
+        $.ajax({
+            url: '/listagemIntegracao',
+            type: 'POST',
+            success: function (data) {
+
+                var objData = JSON.parse(data)
+
+                objData.data.forEach(function(item) {
+                    $('#selListIntegrations').append(
+                        $('<option>', {value: item.phone, text: item.phone})
+                    )
+                })
             }
         })
     }
 
+    // Função para comprimir JSON
+    compressJSON(jsonData) {
+        var compressedData = pako.deflate(JSON.stringify(jsonData), { to: 'string' });
+        return btoa(compressedData);
+    }
+
+
     saveChatbot() {
+
+        var arrOrder = graph.getSuccessors(graph.getFirstCell());
+        var arrOrderCompressed = btoa(JSON.stringify(arrOrder))
+
+        var arrObjJsonCompressed =  btoa(JSON.stringify(graph.toJSON()))
 
         var select = document.getElementById("selListIntegrations");
         var integracao = select.value;
@@ -37,16 +65,19 @@ class ChatBot {
         var integracaoValida = objMain.validar(document.getElementById("selListIntegrations").value, "#formChatBot")
 
         if (nomeValido && integracaoValida) {
+
             $.ajax({
                 url: '/saveChatbot',
                 type: 'POST',
                 data: {
                     nome: $('#nome').val(),
                     phone: integracao,
-                    objJson: graph.toJSON(),
+                    objJson: arrObjJsonCompressed,
+                    arrOrder: arrOrderCompressed,
                     id: $('#idChatBot').val()
                 },
                 success: function (data) {
+                    alert('d')
                     var jsonData = JSON.parse(data);
                     // Processa a resposta do servidor
                     if (jsonData.success) {
@@ -71,10 +102,8 @@ class ChatBot {
                 },
                 error: function (error) {
                     var jsonData = JSON.parse(data);
-
                 }
             })
-
         }
     }
 
@@ -96,7 +125,10 @@ class ChatBot {
                 $('#selListIntegrations').val(objData.data.integration_phone)
                 $('#idChatBot').val(objData.data.id)
 
-                graph.fromJSON(JSON.parse(objData.data.json))
+                setTimeout(function() {
+                    graph.fromJSON(JSON.parse(objData.data.json))
+                }, 3000)
+
             }
         })
     }
