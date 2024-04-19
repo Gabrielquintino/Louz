@@ -221,6 +221,15 @@
 
     var previousCellView = null;
 
+    paper.on('link:mouseleave', function(linkView) {
+        if (linkView.targetView !== null) {
+            var nextElement = linkView.targetView;
+            var prevElement = linkView.sourceView;
+            nextElement.model.attributes.attrs.bodyText.anterior = linkView.sourceMagnet.nextSibling.textContent;
+        }
+
+    });    
+
     paper.on('element:pointerdown',
         function (elementView, evt, x, y) {
             elementView.highlight();
@@ -232,14 +241,12 @@
             }
             previousCellView = elementView;
 
-
             $(document).keydown(function (event) {
                 // Verifica se a tecla pressionada é "Backspace" ou "Delete"
                 if (event.key === "Backspace" || event.key === "Delete") {
                     elementView.model.remove();
                 }
             });
-
         }
     );
 
@@ -279,74 +286,14 @@
                             // Caso contrário, mantém o texto original
                             elementView.model.attributes.attrs.bodyText.text = inputValue;
                         }
-
                         elementView.model.attributes.attrs.bodyText.description = inputValue;
-
                         // Atualiza a visualização do elemento
                         elementView.update();
                     }
                 });
-
             }
         }
     );
-
-
-    // paper.on('element:pointerdblclick',
-    //     function (elementView, evt, x, y) {
-    //         // Obtém o modelo do elemento
-    //         var model = elementView.model;
-
-    //         Swal.fire({
-    //         input: "textarea",
-    //         inputLabel: "Message",
-    //         inputPlaceholder: "Type your message here...",
-    //         inputAttributes: {
-    //             "aria-label": "Type your message here"
-    //         },
-    //         showCancelButton: true
-    //         });
-    //         if (text) {
-    //         Swal.fire(text);
-    //         }
-
-    //         // Swal.fire({
-    //         //     inputLabel: "Mensagem",
-    //         //     input: "textarea",
-    //         //     inputAttributes: {
-    //         //         "aria-label": "Digite a mensagem que você irá enviar"
-    //         //     },
-    //         //     inputValidator: (value) => {
-    //         //         if (!value) {
-    //         //             return 'Por favor, insira uma mensagem!';
-    //         //         }
-    //         //     },
-    //         //     showCancelButton: true,
-    //         //     confirmButtonText: "Inserir"
-    //         // }).then((result) => {
-    //         //     if (result.isConfirmed) {
-    //         //         // Obtém o valor do texto digitado
-    //         //         var inputValue = result.value;
-
-    //         //         // Verifica o tamanho do texto digitado
-    //         //         if (inputValue.length > 20) {
-    //         //             // Se for maior que 20 caracteres, trunca o texto
-    //         //             var shortText = inputValue.substring(0, 17) + "...";
-    //         //             // Define o texto truncado como descrição do elemento
-    //         //             elementView.model.attributes.attrs.bodyText.description = shortText;
-    //         //         } else {
-    //         //             // Caso contrário, mantém o texto original
-    //         //             elementView.model.attributes.attrs.bodyText.description = inputValue;
-    //         //         }
-
-    //         //         // Atualiza a visualização do elemento
-    //         //         elementView.update();
-    //         //     }
-    //         // });
-
-    //     }
-    // );
-
 
     paper.on('blank:pointerdown',
         function (evt, x, y) {
@@ -434,7 +381,6 @@
         },
         ports: {
             groups: {
-                'in': portsIn,
                 'out': portsOut
             }
         }
