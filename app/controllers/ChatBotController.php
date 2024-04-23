@@ -74,7 +74,7 @@ class ChatBotController
         $chatBotModel = new ChatBotModel();
 
         try {
-            $result = $chatBotModel->getChatBot($intId);
+            $result = $chatBotModel->getChatBot('id', $intId);
             $arrObj['success'] = true;
             $arrObj['data'] = $result;
     

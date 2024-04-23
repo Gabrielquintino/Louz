@@ -25,7 +25,12 @@ if (strpos($url, '/receive') !== false && strpos($url, '/instancia') !== false) 
             ini_set('session.cookie_lifetime', 0);
             ini_set('session.use_strict_mode', 1);
             $_SESSION['inicio'] = date(format: 'd/m/Y H:i:s');
-        }    
+        }
+
+        if (session_status() == PHP_SESSION_ACTIVE && isset($_SESSION['db_usuario']) && isset($_SESSION['user_id'])) {
+            define('DB_USUARIO', $_SESSION['db_usuario']);
+            define('USER_ID',  $_SESSION["user_id"]);
+        }
     
         // Crie uma instância do controlador
         $controladorCompleto = 'App\Controllers\\' . $controlador;

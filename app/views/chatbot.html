@@ -225,9 +225,10 @@
         if (linkView.targetView !== null) {
             var nextElement = linkView.targetView;
             var prevElement = linkView.sourceView;
-            nextElement.model.attributes.attrs.bodyText.anterior = linkView.sourceMagnet.nextSibling.textContent;
+            if (prevElement.model.attributes.type == 'standard.Polygon') {
+                nextElement.model.attributes.attrs.bodyText.anterior = linkView.sourceMagnet.nextSibling.textContent;
+            }
         }
-
     });    
 
     paper.on('element:pointerdown',

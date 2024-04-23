@@ -46,8 +46,16 @@ class IntegracaoController
             if ($objInstancia['status'] == 'conectado') {
                 
                 $objInstanciaDados = $objZapiModel->getInstanceData($objInstancia['instancia'], $objInstancia['token']);
-                $objInstanciaDados->status = 'conectado';
-                array_push($arrLista['data'], $objInstanciaDados);
+                if (property_exists($objInstanciaDados, 'error')) {
+                    $objInstancia['originalDevice'] = '-';
+                    $objInstancia['nome'] = $objInstancia['instancia'];
+                    $objInstancia['phone'] = '-';
+                    $objInstancia['status'] = 'desconectado';
+                    array_push($arrLista['data'], $objInstancia);
+                } else {
+                    $objInstanciaDados->status = 'conectado';
+                    array_push($arrLista['data'], $objInstanciaDados);
+                }
             } else {
                 $objInstancia['originalDevice'] = '-';
                 $objInstancia['nome'] = $objInstancia['instancia'];

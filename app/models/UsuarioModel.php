@@ -124,6 +124,41 @@ class UsuarioModel extends DatabaseConfig
                     PRIMARY KEY (`id`),
                     UNIQUE KEY `id_UNIQUE` (`id`)
                 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3;
+
+                CREATE TABLE IF NOT EXISTS `atendimentos` (
+                    `id` INT(11) NOT NULL AUTO_INCREMENT,
+                    `chatbot_id` INT(11) NOT NULL,
+                    `cliente_id` INT(11) NOT NULL,
+                    `data` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP(),
+                    `mensagem` VARCHAR(200) NOT NULL,
+                    `index` INT(11) NOT NULL,
+                    PRIMARY KEY (`id`),
+                    INDEX `fk_atendimentos_clientes_idx` (`cliente_id` ASC) VISIBLE,
+                    INDEX `fk_atendimentos_chatbot1_idx` (`chatbot_id` ASC) VISIBLE,
+                    CONSTRAINT `fk_atendimentos_clientes`
+                      FOREIGN KEY (`cliente_id`)
+                      REFERENCES `clientes` (`id`)
+                      ON DELETE NO ACTION
+                      ON UPDATE NO ACTION,
+                    CONSTRAINT `fk_atendimentos_chatbot1`
+                      FOREIGN KEY (`chatbot_id`)
+                      REFERENCES `chatbot` (`id`)
+                      ON DELETE NO ACTION
+                      ON UPDATE NO ACTION
+                ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8;
+                  
+                CREATE TABLE IF NOT EXISTS `clientes` (
+                    `id` INT(11) NOT NULL AUTO_INCREMENT,
+                    `nome` VARCHAR(150) NULL DEFAULT NULL,
+                    `email` VARCHAR(150) NULL DEFAULT NULL,
+                    `telefone` VARCHAR(15) NULL DEFAULT NULL,
+                    `cpf` VARCHAR(15) NULL DEFAULT NULL,
+                    `cnpj` VARCHAR(15) NULL DEFAULT NULL,
+                    `tags` MEDIUMTEXT NULL DEFAULT NULL,
+                    PRIMARY KEY (`id`),
+                    UNIQUE INDEX `telefone_UNIQUE` (`telefone` ASC) VISIBLE,
+                    UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE
+                ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8;
             ";
             $pdo->exec($sqlTable);
 

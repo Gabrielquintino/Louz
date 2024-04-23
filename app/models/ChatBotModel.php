@@ -71,19 +71,14 @@ class ChatBotModel extends DatabaseConfig {
         }
     }
 
-    public function getChatBot($intId, string $strUserDb = '') : array {
-        $id = $intId;
+    public function getChatBot(string $strFilterType, string $strFilterValue) : array {
 
-        if (empty($strUserDb)) {
-            $sql = "SELECT * FROM " . $_SESSION["db_usuario"] . ".chatbot WHERE id = ?";        
-        } else {
-            $sql = "SELECT * FROM " . $strUserDb . ".chatbot WHERE integration_phone = ?";
-        }
+        $sql = "SELECT * FROM " . DB_USUARIO . ".chatbot WHERE ".$strFilterType." = ?";
 
         $pdo = $this->getConnection()->prepare($sql);
 
         try {
-            $pdo->execute([$id]); // Substitua $id pelo valor do ID que você deseja consultar
+            $pdo->execute([$strFilterValue]); // Substitua $id pelo valor do ID que você deseja consultar
             $result = $pdo->fetch(PDO::FETCH_ASSOC);
             if ($result) {
                 return $result; // Retorna os dados encontrados
