@@ -43,8 +43,8 @@ class ChatBotModel extends DatabaseConfig {
 
         $nome = $arrData['nome'];
         $phone = $arrData['phone'];
-        $objJson = $this->decompressJSON($arrData['objJson']);
-        $arrOrder = $this->decompressJSON($arrData['arrOrder']);
+        $objJson = ($arrData['objJson']);
+        $arrOrder = ($arrData['arrOrder']);
         $id = $arrData['id'];
 
         if (isset($arrData['id']) && !empty($arrData['id']) ) {
@@ -91,9 +91,19 @@ class ChatBotModel extends DatabaseConfig {
     }
 
     public function delete(int $intId) : array {
+
+        $sql = "DELETE FROM " . $_SESSION["db_usuario"] . ".atendimentos WHERE chatbot_id = ?";
+        $pdo = $this->getConnection()->prepare($sql);
+
+        try {
+            $pdo->execute([$intId]); // Substitua $id pelo valor do ID que você deseja excluir
+        } catch (Exception $err) {
+            throw new Exception($err);
+        }  
+
         $sql = "DELETE FROM " . $_SESSION["db_usuario"] . ".chatbot WHERE id = ?";
         $pdo = $this->getConnection()->prepare($sql);
-        
+
         try {
             $pdo->execute([$intId]); // Substitua $id pelo valor do ID que você deseja excluir
             return ['success' => true, 'id' => $intId];

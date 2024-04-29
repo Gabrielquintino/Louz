@@ -35,9 +35,7 @@ class AtendimentoModel extends DatabaseConfig
 
     public function save(array $arrData) : int {
         $sql = "INSERT INTO " . DB_USUARIO . ".atendimentos (`chatbot_id`, `cliente_id`, `mensagem`, `index`, `status` ) VALUES (?, ?, ?, ?, ?) 
-        ON DUPLICATE KEY UPDATE 
-        `chatbot_id` = VALUES(`chatbot_id`), 
-        `cliente_id` = VALUES(`cliente_id`), 
+        ON DUPLICATE KEY UPDATE
         `mensagem` = VALUES(`mensagem`), 
         `status` = VALUES(`status`),
         `index` = VALUES(`index`)";

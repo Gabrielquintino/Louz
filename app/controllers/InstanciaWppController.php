@@ -7,7 +7,7 @@ use App\Models\ChatBotModel;
 use App\Models\ClienteModel;
 use App\Models\UsuarioInstanciaModel;
 use App\Models\UsuarioModel;
-use App\Models\ZapiModel;
+use App\Models\WhatsappApiModel;
 use stdClass;
 
 class InstanciaWppController {
@@ -16,6 +16,20 @@ class InstanciaWppController {
         echo "<pre>";
         // Obtém a URL atual
         $url = $_SERVER['REQUEST_URI'];
+
+        // Nome do arquivo onde você deseja salvar os dados
+        $nome_arquivo = "dados_webhook.txt";
+
+        // Abre o arquivo para escrita (ou cria se não existir)
+        $arquivo = fopen($nome_arquivo, "w");
+
+        // Verifica se o arquivo foi aberto com sucesso
+        if ($arquivo) {
+            // Escreve o conteúdo no arquivo
+            fwrite($arquivo, json_encode($objData));
+            // Fecha o arquivo
+            fclose($arquivo);
+        }
 
         #region Dados necessarios
         
@@ -45,29 +59,32 @@ class InstanciaWppController {
         $strUserCode = $objUser['codigo'];
         $strDbUser = 'db_' . $strUserCode;
 
+        $strConnectedPhone = str_replace('@c.us', '', $objData->to);
+        $strSendedPhone = str_replace('@c.us', '', $objData->from);
+
         // Obtem dados do ChatBot
         $chatBotModel = new ChatBotModel();
-        $arrChatBot = $chatBotModel->getChatBot('integration_phone', $objData->connectedPhone);
+        $arrChatBot = $chatBotModel->getChatBot('integration_phone', $strConnectedPhone);
         if (empty($arrChatBot)) {
             echo "Chatbot nao configurado para a instancia";
             return false;
         }
+
         $objChatBotJson = json_decode($arrChatBot['json']);
         $arrChatBotOrder = json_decode($arrChatBot['arr_ordem']);
-        $arrFluxo = $objChatBotJson->cells;
         $arrListMessage = [];
 
         #endregion
 
         // Obtém dados do cliente
         $clienteModel = new ClienteModel();
-        $arrCliente = $clienteModel->getClient('telefone', $objData->phone);
+        $arrCliente = $clienteModel->getClient('telefone', $strSendedPhone);
 
         if (empty($arrCliente)) {
             // Cliente novo
             $intClienteId = $clienteModel->save([
-                'nome' => $objData->senderName,
-                'telefone' => $objData->phone
+                'nome' => '',
+                'telefone' => $strSendedPhone
             ]);
         } else {
             $intClienteId = $arrCliente[0]['id'];
@@ -119,13 +136,9 @@ class InstanciaWppController {
             }
         }
 
-        // print_r($arrListMessage);
-        // echo "///////arrChatBotOrder////////////";
-        // print_r($arrListMessage);
-
         // Mensagem de texto
-        if (property_exists($objData, 'text')) {
-            $strMsg = $objData->text->message;
+        if (!empty($objData->body)) {
+            $strMsg = $objData->body;
 
             if (empty($arrAtendimento)) {
                 $arrAtendimento = [
@@ -166,15 +179,16 @@ class InstanciaWppController {
                 $strMsgSended = $arrListMessage[$arrAtendimento['index']]['text'];
             }
 
-            $zapiModel = new ZapiModel();
-            // $zapiModel->sendMessage(
-            //     $arrInstancia[0]['instancia'], 
-            //     $arrInstancia[0]['token'], 
-            //     $arrInstancia[0]['client_id'], 
-            //     $objData->connectedPhone,
-            //     $strMsgSended
-            // );
 
+
+            $WhatsappApiModel = new WhatsappApiModel();
+            $WhatsappApiModel->sendMessage(
+                $arrInstancia[0]['instancia'], 
+                $arrInstancia[0]['token'], 
+                $arrInstancia[0]['client_id'], 
+                $strSendedPhone,
+                $strMsgSended
+            );
             
             $intNewIndex = $arrAtendimento['index'] +1;
 
@@ -185,9 +199,6 @@ class InstanciaWppController {
                 $strStatus = 'andamento';
             }
 
-            var_dump($intNewIndex);
-
-
             $arrAtualizaAtendimento = [
                 'chatbot_id' => $arrChatBot['id'],
                 'cliente_id' => $intClienteId,
@@ -197,7 +208,6 @@ class InstanciaWppController {
             ];
             $atentimentoModel->save($arrAtualizaAtendimento);
 
-            // var_dump($arrAtualizaAtendimento);
         }
         // Lista de botao
         if (property_exists($objData, 'buttonsResponseMessage')) {
@@ -207,7 +217,5 @@ class InstanciaWppController {
         if (property_exists($objData, 'listResponseMessage')) {
             # code...
         }
-
-        var_dump($objData);
     }
 }

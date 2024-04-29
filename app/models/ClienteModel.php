@@ -16,10 +16,10 @@ class ClienteModel extends DatabaseConfig
 
     public function save(array $arrData) : int {
         $strNome = isset($arrData['nome']) ? mb_substr($arrData['nome'], 150) : null;
-        $strEmail = isset($arrData['email']) ? mb_substr($arrData['email'], 150) : null;
-        $strTelefone = isset($arrData['telefone']) ? mb_substr($arrData['telefone'], 15) : null;
-        $strCpf = isset($arrData['cpf']) ? mb_substr($arrData['cpf'], 15): null;
-        $strCnpj = isset($arrData['cnpj']) ? mb_substr($arrData['cnpj'], 15) : null;
+        $strEmail = isset($arrData['email']) ? mb_substr($arrData['email'], 0, 150) : null;
+        $strTelefone = isset($arrData['telefone']) ? mb_substr($arrData['telefone'], 0, 15) : null;
+        $strCpf = isset($arrData['cpf']) ? mb_substr($arrData['cpf'], 0, 15): null;
+        $strCnpj = isset($arrData['cnpj']) ? mb_substr($arrData['cnpj'], 0, 15) : null;
         $strTags = isset($arrData['tags']) ? json_encode($arrData['tags']) : null;
 
         $sql = "INSERT INTO " . DB_USUARIO . ".clientes (`nome`, `email`, `telefone`, `cpf`, `cnpj`, `tags` ) VALUES (?, ?, ?, ?, ?, ?)";

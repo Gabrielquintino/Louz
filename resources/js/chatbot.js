@@ -44,19 +44,15 @@ class ChatBot {
         })
     }
 
-    // Função para comprimir JSON
-    compressJSON(jsonData) {
-        var compressedData = pako.deflate(JSON.stringify(jsonData), { to: 'string' });
-        return btoa(compressedData);
-    }
-
-
     saveChatbot() {
 
         var arrOrder = graph.getSuccessors(graph.getFirstCell());
-        var arrOrderCompressed = btoa(JSON.stringify(arrOrder))
+        var arrOrderCompressed = JSON.stringify(arrOrder)
 
-        var arrObjJsonCompressed =  btoa(JSON.stringify(graph.toJSON()))
+        var arrObjJsonCompressed =  JSON.stringify(graph.toJSON())
+
+        console.log(arrOrderCompressed)
+        console.log(arrObjJsonCompressed);
 
         var select = document.getElementById("selListIntegrations");
         var integracao = select.value;
@@ -77,7 +73,6 @@ class ChatBot {
                     id: $('#idChatBot').val()
                 },
                 success: function (data) {
-                    alert('d')
                     var jsonData = JSON.parse(data);
                     // Processa a resposta do servidor
                     if (jsonData.success) {
@@ -121,6 +116,7 @@ class ChatBot {
                 var objData = JSON.parse(data)
 
                 console.log(objData)
+
                 $('#nome').val(objData.data.nome)
                 $('#selListIntegrations').val(objData.data.integration_phone)
                 $('#idChatBot').val(objData.data.id)

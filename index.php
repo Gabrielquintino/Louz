@@ -1,5 +1,5 @@
 <?php
-session_start();
+
 require_once __DIR__ . '/config/config.php';
 require_once __DIR__ . '/vendor/autoload.php';
 // Inclua o arquivo de rotas
@@ -17,7 +17,10 @@ if (strpos($url, '/receive') !== false && strpos($url, '/instancia') !== false) 
     $objInstanciaWppController = new App\Controllers\InstanciaWppController;
     $objInstanciaWppController->receiveWebhook(json_decode($data));
 } else {
+
     if ($rotaAtual) {
+        session_start();
+
         // Separe o controlador e o método
         list($controlador, $metodo) = explode('@', $rotaAtual);
     

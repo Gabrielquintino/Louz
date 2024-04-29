@@ -39,14 +39,16 @@ class Integracao {
         $.ajax({
             url: '/getQrCode',
             type: 'POST',
-            async: false,
-            await: true,
+            beforeSend: function () {
+                objMain.showLoading();
+            },
             success: function (data) {
-                var objData = JSON.parse(data)
+                var objData = JSON.parse(data);
                 $('#insiraTelefone').hide();
                 $('#gerandoQrCode').show();
                 var img = document.getElementById('qrCodeImg');
                 img.src = objData.data;
+                $('#exampleModal').modal('show')
             },
             error: function () {
                 Swal.fire({
@@ -54,6 +56,9 @@ class Integracao {
                     text: "Nao foi possivel gerar o QrCode. Tente novamente mais tarde!",
                     icon: "error"
                 })
+            },
+            complete: function () {
+                objMain.hideLoading();
             }
         })
 
@@ -98,7 +103,6 @@ class Integracao {
 
     delete(intId) { // vai desconectar a instancia
 
-
         function deletar(id) {
             $.ajax({
                 url: '/deleteWppInstance',
@@ -110,11 +114,9 @@ class Integracao {
                 },
                 success: function (data) {
                     var objData = JSON.parse(data);
-
                 }
             })
         }
-
 
         objMain.confirmWithInputAndCallback("Tem certeza? Essa é uma ação irreversível.",
         "Digite 'excluir permanentemente' para excluir o registro:", function() {deletar(intId)} )

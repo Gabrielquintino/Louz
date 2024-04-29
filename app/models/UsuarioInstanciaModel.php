@@ -8,11 +8,24 @@ use PDO;
 
 class UsuarioInstanciaModel extends DatabaseConfig {
 
+    public function getInstanceByUser(int $pIntUserId, bool $pBoolOnlyConected = false) {
+
+        $strSqlFilter = $pBoolOnlyConected ? " and status = 'conectado' " : '';
+
+        $sql = "SELECT * FROM " . DB_BASE . ".usuarios_instancias WHERE usuario_id = " . $pIntUserId . $strSqlFilter;
+        $pdo = $this->getConnection()->prepare($sql);
+        try {
+            $pdo->execute();
+            $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $err) {
+            throw new Exception($err);
+        }
+        return $result;
+    }
+
     public function getInstance(bool $pBooOnlyConected = false, string $pStrInstance = '') : array {
 
-
         $strSqlFilter = " WHERE instancia = '" . $pStrInstance . "'";
-
         
         $sql = "SELECT * FROM " . DB_BASE . ".usuarios_instancias " . $strSqlFilter;
         $pdo = $this->getConnection()->prepare($sql);

@@ -4,7 +4,7 @@ class Main {
         // Verifica se os campos estão preenchidos
         if (campo === '') {
 
-            
+
             // Exibe alerta
 
             // Adiciona borda vermelha temporária
@@ -99,7 +99,7 @@ class Main {
                 // Validate input value
                 if (value !== "excluir permanentemente") {
                     return 'Você precisa digitar "excluir permanentemente"!';
-                } else {                    
+                } else {
                     confirmCallback();
                     Swal.fire({
                         title: "Registro excluído com sucesso!",
@@ -111,6 +111,21 @@ class Main {
                 }
             }
         })
+    }
+
+    // Função para mostrar o gif de loading e o fundo embaçado
+    showLoading() {
+        var loadingDiv = $('<div id="loading" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999;"><img src="resources/images/loading.gif" alt="Loading..." style="width:120px;"></div>');
+        var blurBackground = $('<div id="blur-background" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.5); filter: blur(5px); z-index: 9998;"></div>');
+        $('body').append(blurBackground, loadingDiv);
+        $('body').css('pointer-events', 'none');
+    }
+
+    // Função para ocultar o gif de loading e o fundo embaçado
+    hideLoading() {
+        $('#loading').remove();
+        $('#blur-background').remove();
+        $('body').css('pointer-events', 'auto');
     }
 
 }
