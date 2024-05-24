@@ -128,4 +128,38 @@ class Main {
         $('body').css('pointer-events', 'auto');
     }
 
+
+    inicializarSelect2(idSelect2, dados, campoExibir, agrupar = false, campoAgrupar = null, dropdownParent = '') {
+        // Função para agrupar os dados se necessário
+        function agruparDados(dados, campoAgrupar) {
+          return dados.reduce((acc, item) => {
+            acc[item[campoAgrupar]] = acc[item[campoAgrupar]] || [];
+            acc[item[campoAgrupar]].push({ id: item.id, text: item[campoExibir] });
+            return acc;
+          }, {});
+        }
+      
+        // Converte o objeto agrupado em um array
+        function converterParaArray(agrupados) {
+          return Object.keys(agrupados).map(chave => ({
+            text: chave,
+            children: agrupados[chave]
+          }));
+        }
+      
+        // Prepara os dados para o Select2
+        let data;
+        if (agrupar && campoAgrupar) {
+          const dadosAgrupados = agruparDados(dados, campoAgrupar);
+          data = converterParaArray(dadosAgrupados);
+        } else {
+          data = dados.map(item => ({ id: item.id, text: item[campoExibir] }));
+        }
+      
+        // Inicializa o Select2
+        $(idSelect2).select2({
+          data: data,
+          dropdownParent: $(dropdownParent)
+        });
+    }
 }

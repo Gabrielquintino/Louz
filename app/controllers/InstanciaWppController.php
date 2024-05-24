@@ -8,52 +8,29 @@ use App\Models\ClienteModel;
 use App\Models\UsuarioInstanciaModel;
 use App\Models\UsuarioModel;
 use App\Models\WhatsappApiModel;
+use Exception;
 use stdClass;
 
-class InstanciaWppController {
+class InstanciaWppController
+{
 
-    public function receiveWebhook($objData) {
-        echo "<pre>";
+    public function receiveWebhook($objData)
+    {
         // Obtém a URL atual
         $url = $_SERVER['REQUEST_URI'];
 
-        // Nome do arquivo onde você deseja salvar os dados
-        $nome_arquivo = "dados_webhook.txt";
-
-        // Abre o arquivo para escrita (ou cria se não existir)
-        $arquivo = fopen($nome_arquivo, "w");
-
-        // Verifica se o arquivo foi aberto com sucesso
-        if ($arquivo) {
-            // Escreve o conteúdo no arquivo
-            fwrite($arquivo, json_encode($objData));
-            // Fecha o arquivo
-            fclose($arquivo);
-        }
-
         #region Dados necessarios
-        
+
         // Encontra a posição de "/instancia/" na URL
         $posicaoInstancia = strpos($url, '/instancia/') + strlen('/instancia/');
-        
+
         // Extrai o valor da instância da URL
         $instancia = substr($url, $posicaoInstancia, strpos($url, '/', $posicaoInstancia) - $posicaoInstancia);
 
-        // Obtem dados da instancia
-        $objUsuarioInstanciaModel = new UsuarioInstanciaModel();
-        $arrInstancia = $objUsuarioInstanciaModel->getInstance(pStrInstance: $instancia);
-        if (empty($arrInstancia)) {
-            echo "Instancia nao encontrada";
-            return false;
-        }
+        $arrInstancia = $this->getInstance($instancia);
 
         // Obtem dados do Usuario
-        $objUsuario = new UsuarioModel();
-        $arrUsuario = $objUsuario->obterUsuarioPorId($arrInstancia[0]['usuario_id']);
-        if (empty($arrUsuario)) {
-            echo "Instancia nao configurada";
-            return false;
-        }
+        $arrUsuario = $this->getUser($arrInstancia[0]['usuario_id']);
 
         $objUser = $arrUsuario['data'][0];
         $strUserCode = $objUser['codigo'];
@@ -63,20 +40,169 @@ class InstanciaWppController {
         $strSendedPhone = str_replace('@c.us', '', $objData->from);
 
         // Obtem dados do ChatBot
-        $chatBotModel = new ChatBotModel();
-        $arrChatBot = $chatBotModel->getChatBot('integration_phone', $strConnectedPhone);
-        if (empty($arrChatBot)) {
-            echo "Chatbot nao configurado para a instancia";
-            return false;
-        }
+        $arrChatBotData = $this->getChatbot($strConnectedPhone);
 
-        $objChatBotJson = json_decode($arrChatBot['json']);
-        $arrChatBotOrder = json_decode($arrChatBot['arr_ordem']);
-        $arrListMessage = [];
+        $objChatBotJson = json_decode($arrChatBotData['json']);
+        $arrChatBotOrder = json_decode($arrChatBotData['arr_ordem']);
+        $arrChatBot = $objChatBotJson->cells;
 
         #endregion
 
         // Obtém dados do cliente
+        $intClienteId = $this->getClient($strSendedPhone);
+
+        $atentimentoModel = new AtendimentoModel();
+        $arrAtendimento = $atentimentoModel->getAtendimento(['cliente_id', 'chatbot_id'], [$intClienteId, $arrChatBotData['id']]);
+
+        $arrOpcoes = [];
+
+        if (!empty($objData->body)) {
+            $strMsg = $objData->body;
+        
+            if (empty($arrAtendimento) || $arrAtendimento[0]['status'] != 'andamento') {  // #region NOVO ATENDIMENTO
+                // Dispara as mensagens
+                $arrNewAttendance = $this->sendMessages($arrChatBotOrder, $arrInstancia, $strSendedPhone, $arrChatBotData['id'], $intClienteId);
+                if (!empty($arrNewAttendance)) {
+                    $atentimentoModel->save($arrNewAttendance);
+                }
+                // #endregion
+            } else { // #region ATENDIMENTO JA ABERTO
+
+                foreach ($arrChatBot as $key => $objChat) {
+                    if ($objChat->type == "standard.Link" && $objChat->source->id == $arrAtendimento[0]['index']) {
+                        array_push($arrOpcoes, $objChat->target->id);
+                    }
+                }
+
+                $strChatboIndex = '';
+                foreach ($arrChatBotOrder as $key => $objValue) {
+                    if (
+                        property_exists($objValue->attrs, 'bodyText') &&
+                        property_exists($objValue->attrs->bodyText, 'previousElement') &&
+                        property_exists($objValue->attrs->bodyText->previousElement, 'prevId') &&
+                        in_array($objValue->attrs->bodyText->previousElement->prevId, $arrOpcoes)
+                    ) {
+
+                        $strOption = $objValue->attrs->bodyText->previousElement->opcao;
+                        $strOptionSelected = $objValue->attrs->bodyText->previousElement->valor;
+
+                        switch ($strOption) {
+                            case 'igual':
+                                $booPass = $strMsg == $strOptionSelected;
+                                break;
+                            case 'diferente':
+                                $booPass = $strMsg != $strOptionSelected;
+                                break;
+                            case 'contem':
+                                $booPass = str_contains($strMsg, $strOptionSelected);
+                                break;
+                            case 'naoContem':
+                                $booPass = !str_contains($strMsg, $strOptionSelected);
+                                break;
+                            default:
+                                $booPass = false;
+                                break;
+                        }
+
+                        if ($booPass) {
+                            $strChatboIndex = $objValue->id;
+                            $strMsgSended = $objValue->attrs->bodyText->description;
+                            break;
+                        } else {
+                            $strMsgSended = "Por favor digite um valor que corresponde as opções apresentas.";
+                        }
+
+
+                    }
+                }
+
+                if ($booPass) {
+                    $arrNewAttendance = $this->sendMessages($arrChatBotOrder, $arrInstancia, $strSendedPhone, $arrChatBotData['id'], $intClienteId, $strChatboIndex);
+                    if (!empty($arrNewAttendance)) {
+                        $atentimentoModel->save($arrNewAttendance);
+                        if ($arrNewAttendance['status'] == "encerrado") {
+                            $WhatsappApiModel = new WhatsappApiModel();
+                            sleep(15);
+                            var_dump($strMsgSended);
+
+                            $WhatsappApiModel->sendTextMessage(
+                                $arrInstancia[0]['token'], 
+                                $strSendedPhone,
+                                "Atendimento finalizado"
+                            );
+                        }
+                    }
+                } else {
+                    if ($strSendedPhone == '554898003266') {
+                        $strMsgSended = preg_replace("/\r|\n/", '\n', $strMsgSended);
+                        $WhatsappApiModel = new WhatsappApiModel();
+                        var_dump($strMsgSended);
+                        $WhatsappApiModel->sendTextMessage(
+                            $arrInstancia[0]['token'], 
+                            $strSendedPhone,
+                            $strMsgSended
+                        );
+                    }
+                }
+            }
+        }
+
+        // Lista de botao
+        if (property_exists($objData, 'buttonsResponseMessage')) {
+            # code...
+        }
+        // Lista de opçao
+        if (property_exists($objData, 'listResponseMessage')) {
+            # code...
+        }
+
+        $objResult = new stdClass();
+        $objResult->success = true;
+
+        print_r($objResult);
+    }
+
+    // Retorna a instancia
+    public function getInstance(string $pInstancia): array
+    {
+        // Obtem dados da instancia
+        $objUsuarioInstanciaModel = new UsuarioInstanciaModel();
+        $arrInstancia = $objUsuarioInstanciaModel->getInstance(pStrInstance: $pInstancia);
+        if (empty($arrInstancia)) {
+            throw new Exception("Instancia nao encontrada", 1);
+            return false;
+        }
+        return $arrInstancia;
+    }
+
+    // Retorna o usuario
+    public function getUser($pUserId): array
+    {
+        $objUsuario = new UsuarioModel();
+        $arrUsuario = $objUsuario->obterUsuarioPorId($pUserId);
+        if (empty($arrUsuario)) {
+            throw new Exception("Instancia nao encontrada", 1);
+            return false;
+        }
+
+        return $arrUsuario;
+    }
+
+    // Retorna o chatbot
+    public function getChatbot($strConnectedPhone): array
+    {
+        $chatBotModel = new ChatBotModel();
+        $arrChatBotData = $chatBotModel->getChatBot('integration_phone', $strConnectedPhone);
+        if (empty($arrChatBotData)) {
+            throw new Exception("Chatbot nao configurado para a instancia", 1);
+            return false;
+        }
+        return $arrChatBotData;
+    }
+
+    // Retorna o id do Cliente
+    public function getClient($strSendedPhone): int
+    {
         $clienteModel = new ClienteModel();
         $arrCliente = $clienteModel->getClient('telefone', $strSendedPhone);
 
@@ -89,133 +215,80 @@ class InstanciaWppController {
         } else {
             $intClienteId = $arrCliente[0]['id'];
         }
+        return $intClienteId;
+    }
 
-        $atentimentoModel = new AtendimentoModel();
-        $arrAtendimento = $atentimentoModel->getAtendimento('cliente_id', $intClienteId);
-
-        $intLengthAtendimento = 0;
-
-        foreach ($arrChatBotOrder as $key => $objChat) {
-            if ($objChat->type != 'standard.Link') {
-                if ($objChat->type == 'standard.HeaderedRectangle') {
-                    $intLengthAtendimento++;
-                    $strAnterior = '';
-                    $strTextMsg =  '';
-                    if (property_exists($objChat->attrs->bodyText, 'anterior')) {
-                        $strAnterior = $objChat->attrs->bodyText->anterior;
-                    }
-                    if (property_exists($objChat->attrs->bodyText, 'description')) {
-                        $strTextMsg = $objChat->attrs->bodyText->description;
-                    }
-
-                    $arrMessage = [
-                        'index' => $key,
-                        'type' => $objChat->attrs->headerText->text,
-                        'text' => $strTextMsg,
-                        'id' => $objChat->id,
-                        'option_selected' => $strAnterior
-                    ];
-
-                    array_push($arrListMessage, $arrMessage);
-
-                } elseif ($objChat->type == 'standard.Polygon') {
-                    $arrOptions = [
-                        'type' => 'options',
-                        'index' => $key,
-                        'options' => []
-                    ];
-
-                    foreach ($objChat->ports->items as $key => $value) {
-                        if ($value->group == 'out') {
-                            array_push($arrOptions['options'], $value->attrs->label->text);
-                        }
-                    }
-
-                    array_push($arrListMessage, $arrOptions);
+    public function sendMessages($pArrChatBotOrder, $pArrInstancia, $pStrSendedPhone, $pChatbotId, $pClienteId, $pStartIn = false)  {
+        if ($pStartIn) {
+            foreach ($pArrChatBotOrder as $key => $objChat) {
+                if ($objChat->id == $pStartIn) {
+                    $pArrChatBotOrder = array_slice($pArrChatBotOrder, $key);
                 }
             }
         }
 
-        // Mensagem de texto
-        if (!empty($objData->body)) {
-            $strMsg = $objData->body;
+        $arrNewAttendance = [];
+        foreach ($pArrChatBotOrder as $key => $objChat) {
+            if (property_exists($objChat->attrs, 'root') && $objChat->attrs->root->title == 'Mensagem Enviada') {
+                $strMsgSended = $objChat->attrs->bodyText->description;
+                // CHAMA FUNCAO QUE ENVIA A MSG
+                if ($pStrSendedPhone == '554898003266') {
+                    $strMsgSended = preg_replace("/\r|\n/", '\n', $strMsgSended);
+                    $WhatsappApiModel = new WhatsappApiModel();
+                    var_dump($strMsgSended);
 
-            if (empty($arrAtendimento)) {
-                $arrAtendimento = [
-                    'chatbot_id' => $arrChatBot['id'],
-                    'cliente_id' => $intClienteId,
-                    'mensagem' => mb_substr($strMsg, 0, 200),
-                    'index' => 0,
+                    $WhatsappApiModel->sendTextMessage(
+                        $pArrInstancia[0]['token'], 
+                        $pStrSendedPhone,
+                        $strMsgSended
+                    );
+                }
+
+                // ATUALIZA O ATENDIMENTO
+                $arrAttendance = [
+                    'chatbot_id' => $pChatbotId,
+                    'cliente_id' => $pClienteId,
+                    'funcionarios_id' => 0,
+                    'mensagem' => mb_substr($strMsgSended, 0, 200),
+                    'index' => $objChat->id,
                     'status' => 'andamento'
                 ];
-                $atentimentoModel->save($arrAtendimento);
-            }
-
-            $strMsgSended = '';
-
-            if ($arrListMessage[$arrAtendimento['index']]['type'] == 'Pergunta') {
-                
-                $strMsgSended = $arrListMessage[$arrAtendimento['index']]['text'];
-                $strMsgSended .= ". Responda com " . implode(" ou ", $arrOptions['options']);
-
-            } elseif ($arrListMessage[$arrAtendimento['index']]['type'] == 'options') {
-
-                // Respondeu de acordo com as opções
-                if (in_array($strMsg, $arrListMessage[$arrAtendimento['index']]['options']) ) {
-                    $arrAtendimento['index'] ++;
-
-                    // Verifica a opçao correta selecionada que corresponde a mensagem
-                    while ($arrListMessage[$arrAtendimento['index']]['option_selected'] != $strMsg) {
-                        $arrAtendimento['index'] ++;
-                    }
-
-                } else {
-                    $arrAtendimento['index'] --;
+                $arrNewAttendance = $arrAttendance;
+            } elseif (property_exists($objChat->attrs, 'root') && $objChat->attrs->label->text == 'Foto') {
+                if ( filter_var($objChat->attrs->bodyText->arquivo, FILTER_VALIDATE_URL) !== false ) {
+                    $WhatsappApiModel = new WhatsappApiModel();
+                    $WhatsappApiModel->sendFile($pArrInstancia[0]['token'], $pStrSendedPhone, $objChat->attrs->bodyText->arquivo);
                 }
-
-                $strMsgSended = $arrListMessage[$arrAtendimento['index']]['text'];
-
-            } else {
-                $strMsgSended = $arrListMessage[$arrAtendimento['index']]['text'];
+            } elseif (property_exists($objChat->attrs, 'root') && $objChat->attrs->label->text == 'Audio') {
+                if ( filter_var($objChat->attrs->bodyText->arquivo, FILTER_VALIDATE_URL) !== false ) {
+                    $WhatsappApiModel = new WhatsappApiModel();
+                    $WhatsappApiModel->sendFile($pArrInstancia[0]['token'], $pStrSendedPhone, $objChat->attrs->bodyText->arquivo);
+                }
+            } elseif (property_exists($objChat->attrs, 'root') && $objChat->attrs->label->text == 'Arquivo') {
+                if ( filter_var($objChat->attrs->bodyText->arquivo, FILTER_VALIDATE_URL) !== false ) {
+                    $WhatsappApiModel = new WhatsappApiModel();
+                    $WhatsappApiModel->sendFile($pArrInstancia[0]['token'], $pStrSendedPhone, $objChat->attrs->bodyText->arquivo);
+                }
+            } elseif (property_exists($objChat->attrs, 'root') && $objChat->attrs->label->text == 'Localizaçao') {
+                print_r("ENVIAR Localizaçao"); echo "<br/>";
+            } elseif (property_exists($objChat->attrs, 'root') && $objChat->attrs->label->text == 'Fim') {
+                $strMsgSended = "Atendimento finalizado";
+                $arrAttendance = [
+                    'chatbot_id' => $pChatbotId,
+                    'cliente_id' => $pClienteId,
+                    'funcionarios_id' => 0,
+                    'mensagem' => mb_substr($strMsgSended, 0, 200),
+                    'index' => $objChat->id,
+                    'status' => 'encerrado'
+                ];
+                $arrNewAttendance = $arrAttendance;
+                break;
+            } 
+            elseif (property_exists($objChat->attrs, 'root') && $objChat->attrs->label->text == 'Recebe') {
+                break;
             }
-
-
-
-            $WhatsappApiModel = new WhatsappApiModel();
-            $WhatsappApiModel->sendMessage(
-                $arrInstancia[0]['instancia'], 
-                $arrInstancia[0]['token'], 
-                $arrInstancia[0]['client_id'], 
-                $strSendedPhone,
-                $strMsgSended
-            );
-            
-            $intNewIndex = $arrAtendimento['index'] +1;
-
-            if ($intNewIndex > $intLengthAtendimento) {
-                $strStatus = 'encerrado';
-                $intNewIndex = 0;
-            } else {
-                $strStatus = 'andamento';
-            }
-
-            $arrAtualizaAtendimento = [
-                'chatbot_id' => $arrChatBot['id'],
-                'cliente_id' => $intClienteId,
-                'mensagem' => mb_substr($strMsgSended, 0, 200),
-                'index' => $intNewIndex,
-                'status' => $strStatus
-            ];
-            $atentimentoModel->save($arrAtualizaAtendimento);
-
         }
-        // Lista de botao
-        if (property_exists($objData, 'buttonsResponseMessage')) {
-            # code...
-        }
-        // Lista de opçao
-        if (property_exists($objData, 'listResponseMessage')) {
-            # code...
-        }
+
+        return $arrNewAttendance;
     }
 }

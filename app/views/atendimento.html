@@ -1,0 +1,203 @@
+<nav class="navbar navbar-light bg-transparent mb-3">
+    <div class="container-fluid">
+        <a class="navbar-brand">Atendimento</a>
+
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#atendimentotModal">
+            Novo Atendimento
+        </button>
+    </div>
+</nav>
+
+<!-- Lista de atendimentos -->
+<div class="card w-100">
+    <div class="card-body p-4">
+        <h5 class="card-title fw-semibold mb-4">Lista de Atendimentos</h5>
+        <div class="table-responsive">
+            <table class="table text-nowrap mb-0 align-middle">
+                <thead class="text-dark fs-4">
+                    <tr>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Cliente</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Telefone</h6>
+                        </th>                        
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">ChatBot</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Funcionário</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Data</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Status</h6>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="listAtendimento"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade " id="atendimentotModal" tabindex="-1" aria-labelledby="atendimentotModalLabel"
+    aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false" data-bs-focus="false">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <form id="formAtendimento">
+                <div class="modal-body pb-0">
+                    <div class="row">
+                        <div class="col-12 col-sm-12 col-md-6 col-lg-8 col-xl-9">
+                            <input type="hidden" name="telefone" id="telefone">
+                            <input type="hidden" name="id" id="id">
+                            <input type="hidden" name="clientId" id="clientId">
+                            <input type="hidden" name="originalTags" id="originalTags">
+
+                            <div class="card">
+                                <div class="card-header">Chat</div>
+                                <div class="card-body">
+                                    <div id="chatAtendimento" style="max-height: 350px; min-height: 350px; overflow-y: auto;"></div>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="input-group mb-0">
+                                        <input type="text" class="form-control" id="message" placeholder="Digite a mensagem" aria-label="Digite a mensagem" aria-describedby="button-addon2">
+                                        <button class="btn btn-success" type="button" id="button-addon2" onclick="objAtendimento.sendMessage()">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-send-2">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path d="M4.698 4.034l16.302 7.966l-16.302 7.966a.503 .503 0 0 1 -.546 -.124a.555 .555 0 0 1 -.12 -.568l2.468 -7.274l-2.468 -7.274a.555 .555 0 0 1 .12 -.568a.503 .503 0 0 1 .546 -.124z" />
+                                                <path d="M6.5 12h14.5" />
+                                              </svg>
+                                        </button>
+                                      </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-3">
+                            <div class="card">
+                                <div class="card-header">Ações</div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-12 mb-2">
+                                            <label for="funcionarios" class="form-label">Transferir para...</label>
+                                            <select class="atendimento-select2 form-control" id="funcionarios" name="funcionarios">
+                                                <option value="">Selecione...</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12 mb-2">
+                                            <label for="evento" class="form-label">Evento</label>
+                                            <select class="atendimento-select2 form-control" name="evento" id="evento">
+                                                <option value="">Selecione...</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-12 mb-2">
+                                            <div class="form-group">
+                                                <label class="form-label" for="agendamento">Agendar</label>
+                                                <div class="input-group date" id="id_0">
+                                                    <input name="agendamento" id="agendamento" type="text" value=""
+                                                        class="form-control" placeholder="MM/DD/YYYY hh:mm:ss"
+                                                        required />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-12 mb-4">
+                                            <label for="tags" class="form-label">Tags</label>
+                                            <input class="form-control" id="tags" name="tags" type="text" value=""
+                                                data-role="tagsinput" />
+                                        </div>
+                                        <div class="col-12">
+                                            <button type="button" id="encerrar" class="btn btn-danger btn-lg w-100" onclick="objAtendimento.encerrar()">Encerrar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="tooltip"
+                        data-bs-title="Clique aqui para salvar" onclick="objAtendimento.save()">Salvar</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script id="listAtendimentoTemplate" type="text/x-handlebars-template">
+    {{#each data}}
+        <tr>
+            <td>{{this.cliente}}</td>
+            <td>{{this.telefone}}</td>
+            <td>{{this.chatbot}}</td>
+            <td>{{#if this.funcionario}}{{this.funcionario}}{{else}} <p class="text-center">---</p>{{/if}}</td>
+            <td>{{'formatDate' this.data}}</td>
+            <td>{{this.status}}</td>
+            <td class="text-right">
+                <button class="btn btn-primary" type="button" onclick="objAtendimento.edit('{{this.id}}','{{this.clientId}}', '{{this.telefone}}')">
+                    <i class="ti ti-edit" data-bs-toggle="modal" data-bs-target="#atendimentotModal"></i>
+                </button>
+                <button class="btn btn-danger" type="button" onclick="objAtendimento.delete('{{this.id}}')">
+                    <i class="ti ti-trash"></i>
+                </button>
+            </td>
+        </tr>
+    {{/each}}
+    {{#unless data}}
+        <tr>
+            <td colspan="4">
+                <p class="text-danger text-center">Nenhum dado encontrado</p>
+            </td>
+        </tr>
+    {{/unless}}
+</script>
+
+<script id="chatAtendimentoTemplate" type="text/x-handlebars-template">
+    {{#each chat}}
+        {{#if this.fromMe}}
+            <div class="d-flex flex-row justify-content-end mb-4">
+                <div class="p-3 me-3 border"
+                    style="border-radius: 15px; background-color: #fbfbfb;">
+                    <p class="small mb-0">{{this.message}}</p>
+                    <p class="text-end mb-0" style="font-size: xx-small;">{{this.data}}</p>
+                </div>
+
+                <img src="../../resources/images/profile/chatbot.png"
+                    alt="avatar 1"
+                    style="width: 45px; height: 100%;">
+            </div>
+        {{else}}
+            <div class="d-flex flex-row justify-content-start mb-4">
+                <img src="../../resources/images/profile/avatar.png"
+                    alt="avatar 1"
+                    style="width: 45px; height: 100%;">
+                <div class="p-3 ms-3"
+                    style="border-radius: 15px; background-color: rgba(57, 192, 237,.2);">
+                    <p class="small mb-0">{{this.message}}</p>
+                    <p class="text-end mb-0" style="font-size: xx-small;">{{this.data}}</p>
+                </div>
+            </div>
+        {{/if}}
+    {{/each}}
+    {{#unless chat}}
+        <h4 class="text-danger text-center" style="margin-top: 125px;">Nenhuma mensagem encontrada</h4>
+    {{/unless}}
+</script>
+
+<!-- Seus scripts personalizados -->
+<script src="../../resources/js/atendimento.js"></script>
+
+
+<script src="../../resources/libs/calendar/js/popper.js"></script>
+<script src="../../resources/libs/calendar/js/bootstrap.min.js"></script>
+<script src="../../resources/libs/calendar/js/moment-with-locales.min.js"></script>
+<script src="../../resources/libs/calendar/js/bootstrap-datetimepicker.min.js"></script>
+<script src="../../resources/libs/calendar/js/main.js"></script>
+
+<script>
+    var objAtendimento = new Atendimento();
+</script>

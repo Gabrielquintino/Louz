@@ -20,7 +20,7 @@ class ChatBotModel extends DatabaseConfig {
             define('DB_USUARIO', 'db_' . $resultado[0]["codigo"]);
         }
 
-        $sql = "SELECT * FROM " . DB_USUARIO . ".chatbot";
+        $sql = "SELECT * FROM " . DB_USUARIO . ".chatbot WHERE status = 'ativo'";
         $pdo = $this->getConnection()->prepare($sql);
         
         try {
@@ -73,7 +73,7 @@ class ChatBotModel extends DatabaseConfig {
 
     public function getChatBot(string $strFilterType, string $strFilterValue) : array {
 
-        $sql = "SELECT * FROM " . DB_USUARIO . ".chatbot WHERE ".$strFilterType." = ?";
+        $sql = "SELECT * FROM " . DB_USUARIO . ".chatbot WHERE status = 'ativo' and ".$strFilterType." = ?";
 
         $pdo = $this->getConnection()->prepare($sql);
 
@@ -92,24 +92,16 @@ class ChatBotModel extends DatabaseConfig {
 
     public function delete(int $intId) : array {
 
-        $sql = "DELETE FROM " . $_SESSION["db_usuario"] . ".atendimentos WHERE chatbot_id = ?";
+        $sql = "UPDATE " . $_SESSION["db_usuario"] . ".chatbot SET `status` = 'inativo' WHERE id = ?";
         $pdo = $this->getConnection()->prepare($sql);
-
+        
         try {
-            $pdo->execute([$intId]); // Substitua $id pelo valor do ID que você deseja excluir
-        } catch (Exception $err) {
-            throw new Exception($err);
-        }  
-
-        $sql = "DELETE FROM " . $_SESSION["db_usuario"] . ".chatbot WHERE id = ?";
-        $pdo = $this->getConnection()->prepare($sql);
-
-        try {
-            $pdo->execute([$intId]); // Substitua $id pelo valor do ID que você deseja excluir
+            $pdo->execute([$intId]); // Substitua $id pelo valor do ID que você deseja atualizar
             return ['success' => true, 'id' => $intId];
         } catch (Exception $err) {
             throw new Exception($err);
-        }        
+        }
+             
     }
 
 }

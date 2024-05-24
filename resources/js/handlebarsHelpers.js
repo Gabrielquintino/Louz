@@ -5,16 +5,28 @@ Handlebars.registerHelper('formatDate', (dateString) => {
         year: 'numeric',
         hour: '2-digit',
         minute: '2-digit',
-        second: '2-digit',
         timeZoneName: 'short',
     };
 
+    // Formatar a data como string
     const formattedDate = new Date(dateString).toLocaleString('pt-BR', options);
 
-    // Removendo o sufixo de fuso horário
+    // Remover o sufixo de fuso horário
     const dateWithoutTimeZone = formattedDate.replace(/ [A-Z]{3}$/, '');
 
-    return dateWithoutTimeZone;
+    // Separar a parte da data e da hora
+    const [datePart, timePart] = dateWithoutTimeZone.split(' ');
+
+    // Separar dia, mês e ano
+    const [day, month, year] = datePart.split('/');
+
+    // Manter apenas os dois últimos dígitos do ano
+    const shortYear = year.slice(-3);
+
+    // Reformatar a data com o ano encurtado
+    const shortYearDate = `${day}/${month}/${shortYear} ${timePart}`;
+
+    return shortYearDate;
 });
 
 // Helper para extrair o número de telefone

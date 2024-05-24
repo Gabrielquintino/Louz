@@ -7,6 +7,33 @@
     <title>Louz Free</title>
     <link rel="shortcut icon" type="image/png" href="../../resources/images/logos/favicon.png" />
     <link rel="stylesheet" href="../../resources/css/styles.min.css" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.css" />
+    <link rel="stylesheet" href="../../resources/css/chat.css" />
+    <link rel="stylesheet" href="../../resources/css/main.css" />
+
+
+    <link rel="stylesheet" href="../../resources/libs/calendar/css/bootstrap-datetimepicker.min.css">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
+
+    <style>
+        .bootstrap-tagsinput .tag {
+            background-color: #5bc0de;
+            /* Cor de fundo da tag */
+            border: 1px solid #5bc0de;
+            /* Cor da borda da tag */
+            color: white;
+            /* Cor do texto da tag */
+            padding: 2px 5px;
+            /* Espaçamento interno da tag */
+            border-radius: 4px;
+            /* Bordas arredondadas */
+        }
+        .bootstrap-tagsinput {
+            width: 100%;
+        }
+    </style>
 </head>
 
 <body>
@@ -54,54 +81,73 @@
                         <li class="sidebar-item">
                             <a class="sidebar-link" href="./chatbot" aria-expanded="false">
                                 <span class="icon-item-icon">
-                                    <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-message-chatbot"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12z" /><path d="M9.5 9h.01" /><path d="M14.5 9h.01" /><path d="M9.5 13a3.5 3.5 0 0 0 5 0" /></svg>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-message-chatbot">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                        <path d="M18 4a3 3 0 0 1 3 3v8a3 3 0 0 1 -3 3h-5l-5 3v-3h-2a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12z" />
+                                        <path d="M9.5 9h.01" />
+                                        <path d="M14.5 9h.01" />
+                                        <path d="M9.5 13a3.5 3.5 0 0 0 5 0" />
+                                    </svg>
                                 </span>
                                 <span class="hide-menu">ChatBot</span>
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link" href="./ui-buttons.html" aria-expanded="false">
+                            <a class="sidebar-link" href="./atendimento" aria-expanded="false">
+                                <span class="icon-item-icon">
+                                    <i class="ti ti-headset"></i>
+                                </span>
+                                <span class="hide-menu">Atendimentos</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a class="sidebar-link" href="./funil" aria-expanded="false">
                                 <span>
-                                    <i class="ti ti-article"></i>
+                                    <i class="ti ti-filter"></i>
+                                </span>
+                                <span class="hide-menu">Funil</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a class="sidebar-link" href="./crm" aria-expanded="false">
+                                <span>
+                                    <i class="ti ti-heart-handshake"></i>
+                                </span>
+                                <span class="hide-menu">CRM</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a class="sidebar-link" href="./fornecedores" aria-expanded="false">
+                                <span>
+                                    <i class="ti ti-building-store"></i>
                                 </span>
                                 <span class="hide-menu">Fornecedores</span>
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link" href="./ui-buttons.html" aria-expanded="false">
+                            <a class="sidebar-link" href="./produtos" aria-expanded="false">
                                 <span>
-                                    <i class="ti ti-article"></i>
-                                </span>
-                                <span class="hide-menu">Clientes</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a class="sidebar-link" href="./ui-alerts.html" aria-expanded="false">
-                                <span>
-                                    <i class="ti ti-alert-circle"></i>
+                                    <i class="ti ti-box"></i>
                                 </span>
                                 <span class="hide-menu">Produtos</span>
                             </a>
                         </li>
                         <li class="sidebar-item">
-                            <a class="sidebar-link" href="./ui-card.html" aria-expanded="false">
+                            <a class="sidebar-link" href="./estoque" aria-expanded="false">
                                 <span>
-                                    <i class="ti ti-cards"></i>
-                                </span>
-                                <span class="hide-menu">Vendas</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a class="sidebar-link" href="./ui-forms.html" aria-expanded="false">
-                                <span>
-                                    <i class="ti ti-file-description"></i>
+                                    <i class="ti ti-stack-3"></i>
                                 </span>
                                 <span class="hide-menu">Estoque</span>
                             </a>
                         </li>
-
-
-
+                        <li class="sidebar-item">
+                            <a class="sidebar-link" href="./vendas" aria-expanded="false">
+                                <span>
+                                    <i class="ti ti-coin"></i>
+                                </span>
+                                <span class="hide-menu">Vendas</span>
+                            </a>
+                        </li>
                     </ul>
                     <div class="unlimited-access hide-menu bg-light-primary position-relative mb-7 mt-5 rounded">
                         <div class="d-flex">
@@ -142,7 +188,7 @@
                         <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-end">
                             <li class="nav-item dropdown">
                                 <a class="nav-link nav-icon-hover" href="javascript:void(0)" id="drop2" data-bs-toggle="dropdown" aria-expanded="false">
-                                   <span class="me-3">Olá, <span id="SESSION_CODE"><?php echo $_SESSION['codigo_usuario']; ?></span></span> 
+                                    <span class="me-3">Olá, <span id="SESSION_CODE"><?php echo $_SESSION['usuario_nome']; ?></span></span>
                                     <img src="../../resources/images/profile/user-1.jpg" alt="" width="35" height="35" class="rounded-circle">
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
@@ -168,32 +214,21 @@
                 </nav>
             </header>
 
-            <div class="container-fluid">
+            <?php include 'scripts.html'; ?>
 
+            <div class="container-fluid">
                 <?php
-                // Arquivos html a serem chamados
+                // Inclui o arquivo especificado pela variável $html
                 include $html;
                 ?>
             </div>
-
         </div>
-
     </div>
 
-
-    <script src="../../resources/libs/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../../resources/js/sidebarmenu.js"></script>
-    <script src="../../resources/js/app.min.js"></script>
-    <script src="../../resources/libs/simplebar/dist/simplebar.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script src="../../resources/js/main.js"></script>
-    <script src="../../resources/js/utils.js"></script>
     <script>
         var objMain = new Main();
         var objUtils = new Utils();
     </script>
-
 </body>
 
 </html>

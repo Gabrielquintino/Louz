@@ -37,6 +37,7 @@ class LoginController
             // Credenciais corretas, define a variável de sessão indicando que o usuário está logado
             $_SESSION['usuario_logado'] = true;
             $_SESSION['usuario'] = $_POST['email'];
+            $_SESSION['usuario_nome'] = $resultado["data"][0]["nome"];
             $_SESSION['db_usuario'] = 'db_' . $resultado["data"][0]["codigo"];
             $_SESSION['codigo_usuario'] = $resultado["data"][0]["codigo"];
             $_SESSION['user_id'] = $resultado["data"][0]["id"];

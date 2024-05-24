@@ -1,0 +1,287 @@
+<nav class="navbar navbar-light bg-transparent mb-3">
+    <div class="container-fluid">
+        <a class="navbar-brand">CRM</a>
+        <form class="d-flex">
+            <button type="button" class="btn btn-primary">
+                Novo
+            </button>
+        </form>
+    </div>
+</nav>
+
+<!-- Lista de clientes -->
+<div class="card w-100">
+    <div class="card-body p-4">
+        <h5 class="card-title fw-semibold mb-4">Lista de clientes</h5>
+        <div class="table-responsive">
+            <table class="table text-nowrap mb-0 align-middle">
+                <thead class="text-dark fs-4">
+                    <tr>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Nome</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Email</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Telefone</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Data</h6>
+                        </th>
+                        <th class="border-bottom-0"></th>
+                    </tr>
+                </thead>
+                <tbody id="listCrm"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade " id="crmModal" tabindex="-1" aria-labelledby="crmModalLabel" aria-hidden="true"
+    data-bs-backdrop="static" data-bs-keyboard="false" data-bs-focus="false">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header pb-0">
+                <h5 class="modal-title" id="crmModalLabel">CRM</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formCrm" action="">
+                    <input type="hidden" name="id" id="id">
+
+                    <ul class="nav nav-tabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link active" id="simple-tab-0" data-bs-toggle="tab" href="#simple-tabpanel-0"
+                                role="tab" aria-controls="simple-tabpanel-0" aria-selected="true">Dados basicos</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" id="simple-tab-1" data-bs-toggle="tab" href="#simple-tabpanel-1"
+                                role="tab" aria-controls="simple-tabpanel-1" aria-selected="false">Empresa</a>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <a class="nav-link" id="simple-tab-2" data-bs-toggle="tab" href="#simple-tabpanel-2"
+                                role="tab" aria-controls="simple-tabpanel-2" aria-selected="false"
+                                onclick="objCrm.listChat()">Historico</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content pt-3" id="tab-content">
+                        <div class="tab-pane active px-3" id="simple-tabpanel-0" role="tabpanel"
+                            aria-labelledby="simple-tab-0">
+                            <div class="row mb-3">
+                                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                                    <label for="nome" class="form-label">Nome</label>
+                                    <input class="form-control" id="nome" name="nome" type="text" placeholder="Nome"
+                                        aria-label="Nome do cliente">
+                                </div>
+                                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                                    <label for="email" class="form-label">Email</label>
+                                    <input class="form-control" id="email" type="email" name="email" placeholder="Email"
+                                        aria-label="Email do cliente">
+                                </div>
+                                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                                    <label for="telefone" class="form-label">Telefone</label>
+                                    <input class="form-control" id="telefone" type="tel" name="telefone"
+                                        placeholder="Telefone" aria-label="Telefone">
+                                </div>
+
+                            </div>
+                            <div class="row mb-3">
+                                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                                    <label for="data" class="form-label">Data de cadastro</label>
+                                    <input class="form-control" id="data" type="date" name="data" placeholder="Data"
+                                        aria-label="Data">
+                                </div>
+                                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                                    <label for="tags" class="form-label">Tags</label>
+                                    <input class="form-control" id="tags" name="tags" type="text" value=""
+                                        data-role="tagsinput" />
+                                </div>
+                            </div>
+
+
+                        </div>
+                        <div class="tab-pane px-3" id="simple-tabpanel-1" role="tabpanel"
+                            aria-labelledby="simple-tab-1">
+                            <div class="row">
+                                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                                    <label for="empresa" class="form-label">Empresa</label>
+                                    <input class="form-control" id="empresa" name="empresa" type="text"
+                                        placeholder="Empresa" aria-label="Empresa">
+                                </div>
+                                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                                    <label for="cargo" class="form-label">Cargo</label>
+                                    <input class="form-control" id="cargo" name="cargo" type="text" placeholder="Cargo"
+                                        aria-label="Cargo do cliente">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tab-pane px-3" id="simple-tabpanel-2" role="tabpanel"
+                            aria-labelledby="simple-tab-2">
+
+                            <div class="row">
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6">
+                                        <section class="mt-2">
+                                            <div class="container py-2">
+                                                <div class="row d-flex justify-content-center">
+                                                    <div class="col-12 px-0">
+                                                        <div class="card mb-0" id="chat1" style="border-radius: 15px;">
+                                                            <div class="card-header d-flex justify-content-between align-items-center p-3 bg-info text-white border-bottom-0"
+                                                                style="border-top-left-radius: 15px; border-top-right-radius: 15px;">
+                                                                <i class="fas fa-angle-left"></i>
+                                                                <p class="mb-0 fw-bold">Atendimento</p>
+                                                                <i class="fas fa-times"></i>
+                                                            </div>
+                                                            <div class="card-body">
+
+                                                                <div id="chat" style="max-height: 350px;overflow-y: auto;"></div>
+
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </section>
+
+                                </div>
+                                <div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6">
+                                    <h4 class="text-center mt-2">Avaliações</h4>
+
+                                    <div class="table-responsive">
+                                        <table class="table text-nowrap mb-0 align-middle">
+                                            <thead class="text-dark fs-4">
+                                                <tr>
+                                                    <th class="border-bottom-0">
+                                                        <h6 class="fw-semibold mb-0">Nome</h6>
+                                                    </th>
+                                                    <th class="border-bottom-0">
+                                                        <h6 class="fw-semibold mb-0">Tipo</h6>
+                                                    </th>
+                                                    <th class="border-bottom-0">
+                                                        <h6 class="fw-semibold mb-0">Nota</h6>
+                                                    </th>
+                                                    <th class="border-bottom-0">
+                                                        <h6 class="fw-semibold mb-0">Status</h6>
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="listAvaliacoes"></tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-primary" data-bs-toggle="tooltip"
+                    data-bs-title="Clique aqui para salvar" onclick="objCrm.save()">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script id="listCrmTemplate" type="text/x-handlebars-template">
+    {{#each data}}
+        <tr>
+            <td>{{this.nome}}</td>
+            <td>{{this.email}}</td>
+            <td>{{this.telefone}}</td>
+            <td>{{'formatDate' this.data}}</td>
+            <td class="d-flex" style="float: inline-end;">
+                <button class="btn btn-primary me-1" type="button" onclick="objCrm.edit('{{this.id}}')">
+                    <i class="ti ti-edit" data-bs-toggle="modal" data-bs-target="#crmModal"></i>
+                </button>
+                <button class="btn btn-danger" type="button" onclick="objCrm.delete('{{this.id}}')">
+                    <i class="ti ti-trash"></i>
+                </button>
+            </td>
+        </tr>
+    {{/each}}
+    {{#unless data}}
+        <tr>
+            <td colspan="4">
+                <p class="text-danger text-center">Nenhum dado encontrado</p>
+            </td>
+        </tr>
+    {{/unless}}
+</script>
+
+<script id="listAvaliacoesTemplate" type="text/x-handlebars-template">
+{{#each avaliacoes}}
+<tr>
+    <td>{{this.nome}}</td>
+    <td>
+        {{#if this.id_venda}}
+            Produto: {{this.produto}}
+        {{else}}
+            Chatbot: {{this.chatbot_nome}}
+        {{/if}}
+    </td>
+    <td>{{this.nota}}</td>
+    <td>
+        {{#if this.id_venda}}
+            {{this.status_venda}}
+        {{else}}
+            {{this.status_atendimento}}
+        {{/if}}
+    </td>
+
+</tr>
+{{/each}}
+{{#unless avaliacoes}}
+
+{{/unless}}
+</script>
+
+<script id="chatTemplate" type="text/x-handlebars-template">
+    {{#each chat}}
+        {{#if this.fromMe}}
+            <div class="d-flex flex-row justify-content-end mb-4">
+                <div class="p-3 me-3 border"
+                    style="border-radius: 15px; background-color: #fbfbfb;">
+                    <p class="small mb-0">{{this.message}}</p>
+                    <p class="text-end mb-0" style="font-size: xx-small;">{{this.data}}</p>
+                </div>
+
+                <img src="../../resources/images/profile/chatbot.png"
+                    alt="avatar 1"
+                    style="width: 45px; height: 100%;">
+            </div>
+        {{else}}
+            <div class="d-flex flex-row justify-content-start mb-4">
+                <img src="../../resources/images/profile/avatar.png"
+                    alt="avatar 1"
+                    style="width: 45px; height: 100%;">
+                <div class="p-3 ms-3"
+                    style="border-radius: 15px; background-color: rgba(57, 192, 237,.2);">
+                    <p class="small mb-0">{{this.message}}</p>
+                    <p class="text-end mb-0" style="font-size: xx-small;">{{this.data}}</p>
+                </div>
+            </div>
+        {{/if}}
+    {{/each}}
+    {{#unless chat}}
+    <tr>
+        <td colspan="4">
+            <p class="text-danger text-center">Nenhuma mensagem encontrada</p>
+        </td>
+    </tr>
+    {{/unless}}
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+<script src="../../resources/js/handlebarsHelpers.js"></script>
+
+<script src="../../resources/js/crm.js"></script>
+<script>
+    var objCrm = new Crm();
+</script>

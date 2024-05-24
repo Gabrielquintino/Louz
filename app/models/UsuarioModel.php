@@ -101,7 +101,7 @@ class UsuarioModel extends DatabaseConfig
         try {
             // Obter a instância existente de PDO
             $pdo = $this->getConnection();
-            
+
             // Nome da nova base de dados
             $databaseName = 'db_' . $codigo;
 
@@ -123,7 +123,7 @@ class UsuarioModel extends DatabaseConfig
                     `status` enum('ativo','inativo') NOT NULL DEFAULT 'ativo',
                     PRIMARY KEY (`id`),
                     UNIQUE KEY `id_UNIQUE` (`id`)
-                ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb3;
+                ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
                 CREATE TABLE IF NOT EXISTS `atendimentos` (
                     `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -159,6 +159,119 @@ class UsuarioModel extends DatabaseConfig
                     UNIQUE INDEX `telefone_UNIQUE` (`telefone` ASC) VISIBLE,
                     UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE
                 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8;
+
+                CREATE TABLE IF NOT EXISTS `produtos` (
+                    `id` INT(11) NOT NULL AUTO_INCREMENT,
+                    `fornecedores_id` INT(11) NULL DEFAULT NULL,
+                    `nome` VARCHAR(200) NOT NULL,
+                    `valor` DECIMAL(10,2) NULL DEFAULT NULL,
+                    `descricao` MEDIUMTEXT NULL DEFAULT NULL,
+                    `dt_criacao` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+                    `dt_atualizacao` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    `status` ENUM('rascunho', 'publicado') NULL DEFAULT NULL,
+                    PRIMARY KEY (`id`),
+                    INDEX `fk_produtos_fornecedores1_idx` (`fornecedores_id` ASC) VISIBLE,
+                    CONSTRAINT `fk_produtos_fornecedores1`
+                      FOREIGN KEY (`fornecedores_id`)
+                      REFERENCES `fornecedores` (`id`)
+                      ON DELETE NO ACTION
+                      ON UPDATE NO ACTION)
+                  ENGINE = InnoDB
+                  DEFAULT CHARACTER SET = utf8;
+                  
+
+
+                CREATE TABLE `eventos` (
+                    `id` int NOT NULL AUTO_INCREMENT,
+                    `nome` varchar(150) NOT NULL,
+                    `data_inicio` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+                    `data_fim` timestamp NULL DEFAULT NULL,
+                    `periodicidade` int DEFAULT NULL,
+                    `status` enum('ativo','inativo') DEFAULT NULL,
+                    PRIMARY KEY (`id`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+                CREATE TABLE `agendamentos` (
+                    `id` int NOT NULL AUTO_INCREMENT,
+                    `eventos_id` int NOT NULL,
+                    `clientes_id` int NOT NULL,
+                    `atendimentos_id` int NOT NULL,
+                    PRIMARY KEY (`id`),
+                    KEY `fk_agendamentos_eventos1_idx` (`eventos_id`),
+                    KEY `fk_agendamentos_clientes1_idx` (`clientes_id`),
+                    KEY `fk_agendamentos_atendimentos1_idx` (`atendimentos_id`),
+                    CONSTRAINT `fk_agendamentos_atendimentos1` FOREIGN KEY (`atendimentos_id`) REFERENCES `atendimentos` (`id`),
+                    CONSTRAINT `fk_agendamentos_clientes1` FOREIGN KEY (`clientes_id`) REFERENCES `clientes` (`id`),
+                    CONSTRAINT `fk_agendamentos_eventos1` FOREIGN KEY (`eventos_id`) REFERENCES `eventos` (`id`)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8;            
+
+
+                CREATE TABLE IF NOT EXISTS `vendas` (
+                    `id` INT(11) NOT NULL AUTO_INCREMENT,
+                    `produtos_id` INT(11) NOT NULL,
+                    `pagamento` ENUM('credito', 'debito', 'dinheiro', 'pix') NULL DEFAULT NULL,
+                    `condicao` INT(2) NULL DEFAULT NULL,
+                    `total` DECIMAL(10,2) NULL DEFAULT NULL,
+                    `desconto` DECIMAL(10,2) NULL DEFAULT NULL,
+                    `qtd_itens` INT(2) NULL DEFAULT NULL,
+                    `data` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+                    `status` ENUM('concluida', 'estornada', 'aguardando_pagamento', 'chargeback') NULL DEFAULT NULL,
+                    PRIMARY KEY (`id`),
+                    INDEX `fk_vendas_produtos1_idx` (`produtos_id` ASC) VISIBLE,
+                    CONSTRAINT `fk_vendas_produtos1`
+                      FOREIGN KEY (`produtos_id`)
+                      REFERENCES `produtos` (`id`)
+                      ON DELETE NO ACTION
+                      ON UPDATE NO ACTION)
+                  ENGINE = InnoDB
+                  DEFAULT CHARACTER SET = utf8;
+                  
+                CREATE TABLE IF NOT EXISTS `estoque` (
+                    `produtos_id` INT(11) NOT NULL,
+                    `fornecedores_id` INT(11) NULL DEFAULT NULL,
+                    `qtd` INT(11) NULL DEFAULT NULL,
+                    `dt_ultima_compra` DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    PRIMARY KEY (`produtos_id`),
+                    INDEX `fk_estoque_fornecedores1_idx` (`fornecedores_id` ASC) VISIBLE,
+                    CONSTRAINT `fk_estoque_produtos1`
+                      FOREIGN KEY (`produtos_id`)
+                      REFERENCES `produtos` (`id`)
+                      ON DELETE NO ACTION
+                      ON UPDATE NO ACTION,
+                    CONSTRAINT `fk_estoque_fornecedores1`
+                      FOREIGN KEY (`fornecedores_id`)
+                      REFERENCES `fornecedores` (`id`)
+                      ON DELETE NO ACTION
+                      ON UPDATE NO ACTION)
+                  ENGINE = InnoDB
+                  DEFAULT CHARACTER SET = utf8;
+                  
+                CREATE TABLE IF NOT EXISTS `avaliacoes` (
+                    `clientes_id` INT(11) NOT NULL,
+                    `atendimentos_id` INT(11) NOT NULL, -- Alterado para NOT NULL
+                    `vendas_id` INT(11) NULL DEFAULT NULL,
+                    `nota` DECIMAL(4,2) NULL DEFAULT NULL,
+                    `data` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+                    INDEX `fk_avaliacoes_clientes1_idx` (`clientes_id` ASC) VISIBLE,
+                    INDEX `fk_avaliacoes_vendas1_idx` (`vendas_id` ASC) VISIBLE,
+                    CONSTRAINT `fk_avaliacoes_clientes1`
+                      FOREIGN KEY (`clientes_id`)
+                      REFERENCES `clientes` (`id`)
+                      ON DELETE NO ACTION
+                      ON UPDATE NO ACTION,
+                    CONSTRAINT `fk_avaliacoes_atendimentos1`
+                      FOREIGN KEY (`atendimentos_id`)
+                      REFERENCES `atendimentos` (`id`)
+                      ON DELETE NO ACTION
+                      ON UPDATE NO ACTION,
+                    CONSTRAINT `fk_avaliacoes_vendas1`
+                      FOREIGN KEY (`vendas_id`)
+                      REFERENCES `vendas` (`id`)
+                      ON DELETE NO ACTION
+                      ON UPDATE NO ACTION,
+                    PRIMARY KEY (`clientes_id`, `atendimentos_id`) -- Removi `vendas_id` da chave primária
+                  ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8;                  
+
             ";
             $pdo->exec($sqlTable);
 

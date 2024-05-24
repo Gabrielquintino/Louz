@@ -7,7 +7,7 @@ class Integracao {
     list() {
 
         $.ajax({
-            url: '/listagemIntegracao',
+            url: '/integracao/listagem',
             type: 'POST',
             success: function (data) {
 
@@ -37,7 +37,7 @@ class Integracao {
     genereteQrCode() {
 
         $.ajax({
-            url: '/getQrCode',
+            url: '/integracao/qrcode',
             type: 'POST',
             beforeSend: function () {
                 objMain.showLoading();
@@ -67,7 +67,7 @@ class Integracao {
 
     save() {
         $.ajax({
-            url: '/getWppInstance',
+            url: '/integracao/get',
             type: 'POST',
             async: false,
             await: true,
@@ -105,7 +105,7 @@ class Integracao {
 
         function deletar(id) {
             $.ajax({
-                url: '/deleteWppInstance',
+                url: '/integracao/delete',
                 type: 'POST',
                 async: false,
                 await: true,

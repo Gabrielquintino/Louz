@@ -34,6 +34,7 @@ class IntegracaoController
         $objWhatsappApiModel = new WhatsappApiModel();
 
         $objUsuarioInstanciaModel = new UsuarioInstanciaModel();
+        
 
         $arrInstancia = $objUsuarioInstanciaModel->getInstanceByUser($_SESSION['user_id'], true);
 
@@ -43,7 +44,12 @@ class IntegracaoController
 
         foreach ($arrInstancia as $key => $objInstancia) {
 
-            $objInstanciaDados = $objWhatsappApiModel->getInstanceData($objInstancia['instancia'], $objInstancia['token']);
+            try {
+                $objInstanciaDados = $objWhatsappApiModel->getInstanceData($objInstancia['instancia'], $objInstancia['token']);
+            } catch (\Throwable $th) {
+                break;
+            }
+
 
             if ($objInstanciaDados->is_logged) {
                 
