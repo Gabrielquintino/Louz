@@ -175,8 +175,8 @@
             <td>{{this.data}}</td>
             <td>{{this.status}}</td>
             <td class="text-right">
-                <button class="btn btn-primary" type="button" onclick="objChatBot.edit('{{this.id}}')">
-                    <i class="ti ti-edit" data-bs-toggle="modal" data-bs-target="#chatbotModal"></i>
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#chatbotModal" type="button" onclick="objChatBot.edit('{{this.id}}')">
+                    <i class="ti ti-edit" ></i>
                 </button>
                 <button class="btn btn-danger" type="button" onclick="objChatBot.delete('{{this.id}}')">
                     <i class="ti ti-trash"></i>

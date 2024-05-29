@@ -1,34 +1,32 @@
-(function($) {
+class DateTime {
 
-	"use strict";
+	picker(strId) {
+		$(strId).datetimepicker({
+			allowInputToggle: true,
+			showClose: true,
+			showClear: true,
+			showTodayButton: true,
+			format: "DD/MM/YYYY HH:mm:ss",
+			locale: 'pt-BR',
+			icons: {
+				time: 'fa fa-clock-o',
 
-	$('#id_0').datetimepicker({
-    allowInputToggle: true,
-    showClose: true,
-    showClear: true,
-    showTodayButton: true,
-    format: "DD/MM/YYYY HH:mm:ss",
-	locale: 'pt-BR',
-    icons: {
-		  time:'fa fa-clock-o',
+				date: 'fa fa-calendar-o',
 
-		  date:'fa fa-calendar-o',
+				up: 'fa fa-chevron-up',
 
-		  up:'fa fa-chevron-up',
+				down: 'fa fa-chevron-down',
 
-		  down:'fa fa-chevron-down',
+				previous: 'fa fa-chevron-left',
 
-		  previous:'fa fa-chevron-left',
+				next: 'fa fa-chevron-right',
 
-		  next:'fa fa-chevron-right',
+				today: 'fa fa-chevron-up',
 
-		  today:'fa fa-chevron-up',
+				clear: 'fa fa-trash',
 
-		  clear:'fa fa-trash',
-
-		  close:'fa fa-close'
-		},
-
-	});
-
-})(jQuery);
+				close: 'fa fa-close'
+			}
+		});
+	}
+}

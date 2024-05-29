@@ -3,12 +3,28 @@
     width: 100% !important;
 }
 
+.select2-group .select2-container {
+    flex-grow: 1 !important; /* Ajustar para flex-grow para ocupar o espaço disponível */
+}
+
 /* CSS personalizado para aparência semelhante a form-control */
 .select2-container .select2-selection--single {
-    height: 34px;
+    min-height: 39px;
     border: 1px solid #ccc;
     border-radius: 4px;
 }
 .select2-container--default .select2-selection--single .select2-selection__arrow {
     height: 32px;
+}
+
+/* Remover o border-radius do lado direito do select */
+.no-right-radius {
+    border-top-right-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+}
+
+/* Remover o border-radius do lado esquerdo do botão */
+.no-left-radius {
+    border-top-left-radius: 0 !important;
+    border-bottom-left-radius: 0 !important;
 }

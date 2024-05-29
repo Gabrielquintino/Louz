@@ -29,6 +29,46 @@ class Atendimento {
         })
     }
 
+    history(boolForceOpen = false) {
+
+        var modal = document.querySelector('#atendimentotModal');
+        var strTelefone = $('#formAtendimento #telefone').val();
+        var intId = $('#formAtendimento #id').val();
+
+        if ((modal.classList.contains('show') || boolForceOpen ) && strTelefone != '' && intId != '') {
+            $.ajax({
+                url: '/crm/history',
+                type: 'POST',
+                data: {
+                    'id': parseInt(intId),
+                    'telefone': strTelefone
+                },
+                success: function (data) {
+                    var objData = JSON.parse(data);
+                    if (objData) {
+                        var template = document.getElementById('chatAtendimentoTemplate').innerHTML;
+                        var compiled_template = Handlebars.compile(template);
+                        var rendered = compiled_template(objData.data);
+                        document.getElementById('chatAtendimento').innerHTML = rendered;
+
+                        var chatContainer = document.getElementById('chatAtendimento');
+                        // Rola a barra de rolagem para a parte inferior
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                    }
+                },
+                error: function () {
+                    document.getElementById('chatAtendimento').innerHTML = "<h4 class='text-center text-danger'>Erro ao carregar mensagens.</h4>";
+                },
+                fail: function (jqXHR, textStatus, errorThrown) {
+                    console.log("Erro na requisição Ajax:", textStatus, errorThrown);
+                    var compiled_template = Handlebars.compile("<h4 class='text-center text-danger'>Erro ao carregar mensagens.</h4>");
+                    var rendered = compiled_template();
+                    document.getElementById('chat').innerHTML = rendered;
+                }
+            });
+        }
+    }
+
     edit(intId, clientId, strTelefone) {
 
         $('#formAtendimento #telefone').val(strTelefone);
@@ -63,38 +103,6 @@ class Atendimento {
         })
 
         if (intId != null) {
-            $.ajax({
-                url: '/crm/history',
-                type: 'POST',
-                data: {
-                    'id': parseInt(intId),
-                    'telefone': strTelefone
-                },
-                success: function (data) {
-                    var objData = JSON.parse(data);
-                    console.log(objData)
-                    if (objData) {
-                        var template = document.getElementById('chatAtendimentoTemplate').innerHTML;
-                        var compiled_template = Handlebars.compile(template);
-                        var rendered = compiled_template(objData.data);
-                        document.getElementById('chatAtendimento').innerHTML = rendered;
-
-                        var chatContainer = document.getElementById('chatAtendimento');
-                        // Rola a barra de rolagem para a parte inferior
-                        chatContainer.scrollTop = chatContainer.scrollHeight;
-                    }
-                },
-                error: function () {
-                    document.getElementById('chatAtendimento').innerHTML = "<h4 class='text-center text-danger'>Erro ao carregar mensagens.</h4>";
-                },
-                fail: function (jqXHR, textStatus, errorThrown) {
-                    console.log("Erro na requisição Ajax:", textStatus, errorThrown);
-                    var compiled_template = Handlebars.compile("<h4 class='text-center text-danger'>Erro ao carregar mensagens.</h4>");
-                    var rendered = compiled_template();
-                    document.getElementById('chat').innerHTML = rendered;
-                }
-            });
-
 
             $.ajax({
                 url: '/crm/edit',
@@ -106,16 +114,17 @@ class Atendimento {
                     var objData = JSON.parse(data);
                     if (objData.data.tags) {
                         var tagsArray = objData.data.tags.split(',');
+                        $('#formAtendimento #originalTags').val(objData.data.tags);
 
                         // Itera sobre cada tag e adiciona ao input
                         tagsArray.forEach(function(tag) {
                             $('#formAtendimento #tags').tagsinput('add', tag);
-                            $('#formAtendimento #originalTags').tagsinput('add', tag);
-
                         });
                     }
                 }
             })
+
+            this.history(true);
 
         } else {
             document.getElementById('chatAtendimento').innerHTML = "<h4 class='text-center text-danger' style='margin-top: 125px;'>Sem mensagens.</h4>";
@@ -137,6 +146,26 @@ class Atendimento {
             Swal.fire({
                 title: "Ops!",
                 text: "Nenhum campo foi alterado.",
+                icon: "error"
+            })
+
+            return;
+        }
+
+        var data = dataHora
+
+        objMain.validar(document.getElementById('#evento'), '#formAgendamento');
+
+        const dataFornecida = new Date(data);
+
+        // Data atual
+        const dataAtual = new Date();
+
+        // Verifica se a data fornecida é menor que a data atual
+        if (dataFornecida < dataAtual) {
+            Swal.fire({
+                title: "Ops!",
+                text: "A data fornecida e menor que a data atual.",
                 icon: "error"
             })
 
@@ -172,15 +201,13 @@ class Atendimento {
     encerrar() {
         var intId = $('#formAtendimento #id').val();
         var clientId = $('#formAtendimento #clientId').val();
-        var eventoId = $('#formAtendimento #evento ').val();
 
         $.ajax({
             url: '/atendimento/encerrar',
             type: 'POST',
             data: {
                 'id': intId,
-                'clientId': clientId,
-                'eventoId': eventoId
+                'clientId': clientId
             },
             success: function (data) {
                 Swal.fire({

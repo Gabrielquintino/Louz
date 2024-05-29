@@ -100,14 +100,14 @@
                                 <span class="hide-menu">Atendimentos</span>
                             </a>
                         </li>
-                        <li class="sidebar-item">
+                        <!-- <li class="sidebar-item">
                             <a class="sidebar-link" href="./funil" aria-expanded="false">
                                 <span>
                                     <i class="ti ti-filter"></i>
                                 </span>
                                 <span class="hide-menu">Funil</span>
                             </a>
-                        </li>
+                        </li> -->
                         <li class="sidebar-item">
                             <a class="sidebar-link" href="./crm" aria-expanded="false">
                                 <span>
@@ -117,14 +117,51 @@
                             </a>
                         </li>
                         <li class="sidebar-item">
+                            <a class="sidebar-link" href="./agendamentos" aria-expanded="false">
+                                <span>
+                                    <i class="ti ti-calendar-event"></i>
+                                </span>
+                                <span class="hide-menu">Agendamentos</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a class="sidebar-link" href="./eventos" aria-expanded="false">
+                                <span>
+                                    <i class="ti ti-ticket"></i>
+                                </span>
+                                <span class="hide-menu">Eventos</span>
+                            </a>
+                        </li>
+
+                        <li class="sidebar-item">
+                            <a class="sidebar-link" href="./funcionarios" aria-expanded="false">
+                                <span>
+                                    <i class="ti ti-users"></i>
+                                </span>
+                                <span class="hide-menu">Funcionários</span>
+                            </a>
+                        </li>                        
+
+                        <li class="sidebar-item dropdown">
+                            <a class="sidebar-link dropdown-toggle" href="#" id="relatoriosDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="ti ti-chart-infographic"></i>
+                                <span class="hide-menu">Relatórios</span>
+                            </a>
+                            <ul class="dropdown-menu" aria-labelledby="relatoriosDropdown">
+                                <li><a class="dropdown-item" href="#">Relatório 1</a></li>
+                                <li><a class="dropdown-item" href="#">Relatório 2</a></li>
+                                <li><a class="dropdown-item" href="#">Relatório 3</a></li>
+                            </ul>
+                        </li>
+                        <!-- <li class="sidebar-item">
                             <a class="sidebar-link" href="./fornecedores" aria-expanded="false">
                                 <span>
                                     <i class="ti ti-building-store"></i>
                                 </span>
                                 <span class="hide-menu">Fornecedores</span>
                             </a>
-                        </li>
-                        <li class="sidebar-item">
+                        </li> -->
+                        <!-- <li class="sidebar-item">
                             <a class="sidebar-link" href="./produtos" aria-expanded="false">
                                 <span>
                                     <i class="ti ti-box"></i>
@@ -147,7 +184,7 @@
                                 </span>
                                 <span class="hide-menu">Vendas</span>
                             </a>
-                        </li>
+                        </li> -->
                     </ul>
                     <div class="unlimited-access hide-menu bg-light-primary position-relative mb-7 mt-5 rounded">
                         <div class="d-flex">

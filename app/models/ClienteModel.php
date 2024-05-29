@@ -25,36 +25,50 @@ class ClienteModel extends DatabaseConfig
 
     public function save(array $arrData) : int {
 
-        $strNome = isset($arrData['nome']) ? mb_substr($arrData['nome'],0, 150) : null;
-        $strEmail = isset($arrData['email']) ? mb_substr($arrData['email'], 0, 150) : null;
-        $strTelefone = isset($arrData['telefone']) ? mb_substr($arrData['telefone'], 0, 15) : null;
-        $strCpf = isset($arrData['cpf']) ? mb_substr($arrData['cpf'], 0, 15): null;
-        $strCnpj = isset($arrData['cnpj']) ? mb_substr($arrData['cnpj'], 0, 15) : null;
-        $strTags = isset($arrData['tags']) ? ($arrData['tags']) : null;
-
         if (isset($arrData['id']) && !empty($arrData['id'])) {
-            $strEmpresa = isset($arrData['empresa']) ? ($arrData['empresa']) : null;
-            $strCargo = isset($arrData['cargo']) ? ($arrData['cargo']) : null;
+
+            $intId = $arrData['id'];
+            unset($arrData['id']);
             
-            $sql = "UPDATE " . DB_USUARIO . ".clientes SET `nome` = ?, `telefone` = ?, `email` = ?, `cpf` = ?, `cnpj` = ?, `empresa` = ?, `cargo` = ?, `tags` = ? WHERE id = ?";
+            // Construindo a parte SET dinamicamente
+            $setParts = [];
+            foreach ($arrData as $key => $value) {
+                $setParts[] = "`$key` = ?";
+            }
+            $setClause = implode(", ", $setParts);
+
+            // Construindo a query de UPDATE
+            $sql = "UPDATE " . DB_USUARIO . ".clientes SET $setClause WHERE id = ?";
             $pdo = $this->getConnection()->prepare($sql);
-            
+
+            // Adicionando o id ao final do array de dados
+            $arrData[] = $intId;
+
             try {
-                $pdo->execute([$strNome, $strTelefone, $strEmail, $strCpf, $strCnpj, $strEmpresa, $strCargo, $strTags, $arrData['id']]); // Substitua $id pelo valor do ID que você deseja atualizar
-                return ['success' => true, 'id' => $arrData['id']];
+                $pdo->execute(array_values($arrData)); // Certificando-se de usar os valores do array
+                return $intId;
             } catch (Exception $err) {
                 throw new Exception($err);
-            }        
+            }  
         } else {
+
+            $strNome = isset($arrData['nome']) ? mb_substr($arrData['nome'],0, 150) : null;
+            $strEmail = isset($arrData['email']) ? mb_substr($arrData['email'], 0, 150) : null;
+            $strTelefone = isset($arrData['telefone']) ? mb_substr($arrData['telefone'], 0, 15) : null;
+            $strCpf = isset($arrData['cpf']) ? mb_substr($arrData['cpf'], 0, 15): null;
+            $strCnpj = isset($arrData['cnpj']) ? mb_substr($arrData['cnpj'], 0, 15) : null;
+            $strTags = isset($arrData['tags']) ? ($arrData['tags']) : null;
+
             $sql = "INSERT INTO " . DB_USUARIO . ".clientes (`nome`, `email`, `telefone`, `cpf`, `cnpj`, `tags` ) VALUES (?, ?, ?, ?, ?, ?)";
             $pdo = $this->getConnection()->prepare($sql);
-        }
 
-        try {
-            $pdo->execute([$strNome, $strEmail, $strTelefone, $strCpf, $strCnpj, $strTags]);
-            return $this->getConnection()->lastInsertId();
-        } catch (Exception $err) {
-            throw new Exception($err);
+            try {
+                $pdo->execute([$strNome, $strEmail, $strTelefone, $strCpf, $strCnpj, $strTags]);
+                return $this->getConnection()->lastInsertId();
+            } catch (Exception $err) {
+                throw new Exception($err);
+            }
+
         }
     }
 

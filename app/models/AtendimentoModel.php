@@ -61,18 +61,30 @@ class AtendimentoModel extends DatabaseConfig
             throw new Exception($err->getMessage());
         }
     }
-    
 
     public function save(array $arrData) : int {
 
         if (isset($arrData['id'])) {
-            $sql = "UPDATE ".DB_USUARIO.".`atendimentos` SET `funcionarios_id` = '".$arrData['funcionarios_id']."' WHERE (`id` = '". $arrData['id'] . "');";
-    
+            $intId = $arrData['id'];
+            unset($arrData['id']);
+            
+            // Construindo a parte SET dinamicamente
+            $setParts = [];
+            foreach ($arrData as $key => $value) {
+                $setParts[] = "`$key` = ?";
+            }
+            $setClause = implode(", ", $setParts);
+
+            // Construindo a query de UPDATE
+            $sql = "UPDATE " . DB_USUARIO . ".atendimentos SET $setClause WHERE id = ?";
             $pdo = $this->getConnection()->prepare($sql);
-    
+
+            // Adicionando o id ao final do array de dados
+            $arrData[] = $intId;
+
             try {
-                $pdo->execute();
-                return $this->getConnection()->lastInsertId();
+                $pdo->execute(array_values($arrData)); // Certificando-se de usar os valores do array
+                return ['success' => true, 'id' => $intId];
             } catch (Exception $err) {
                 throw new Exception($err);
             }

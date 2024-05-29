@@ -33,7 +33,7 @@ class FuncionarioController
         
         $funcionarioModel = new FuncionarioModel();
 
-        $result = $funcionarioModel->listagem();
+        $result = $funcionarioModel->listagem(false);
 
         $arrLista['success'] = true;
         $arrLista['data'] = $result;
@@ -41,4 +41,36 @@ class FuncionarioController
         echo json_encode($arrLista);
         return true;
     }
+
+    public function get() {
+        $funcionarioModel = new FuncionarioModel();
+
+        $result = $funcionarioModel->get($_POST['id']);
+
+        $arrLista['success'] = true;
+        $arrLista['data'] = $result[0];
+
+        echo json_encode($arrLista);
+        return true;        
+    }
+
+    public function save() {
+        $funcionarioModel = new FuncionarioModel();
+        $result = $funcionarioModel->save($_POST);
+
+        $arrLista['success'] = true;
+        $arrLista['data'] = $result;
+
+        echo json_encode($arrLista);
+        return true;        
+    }
+
+    public function delete() {
+
+        $funcionarioModel = new FuncionarioModel();
+
+        $arrLista['success'] = $funcionarioModel->delete($_POST['id']);
+        echo json_encode($arrLista);
+        return true;
+    }    
 }

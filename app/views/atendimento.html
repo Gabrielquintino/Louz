@@ -51,10 +51,10 @@
                 <div class="modal-body pb-0">
                     <div class="row">
                         <div class="col-12 col-sm-12 col-md-6 col-lg-8 col-xl-9">
-                            <input type="hidden" name="telefone" id="telefone">
-                            <input type="hidden" name="id" id="id">
-                            <input type="hidden" name="clientId" id="clientId">
-                            <input type="hidden" name="originalTags" id="originalTags">
+                            <input type="hidden" name="telefone" id="telefone" style="display: none;">
+                            <input type="hidden" name="id" id="id" style="display: none;">
+                            <input type="hidden" name="clientId" id="clientId" style="display: none;">
+                            <input type="hidden" name="originalTags" id="originalTags" style="display: none;">
 
                             <div class="card">
                                 <div class="card-header">Chat</div>
@@ -138,11 +138,8 @@
             <td>{{'formatDate' this.data}}</td>
             <td>{{this.status}}</td>
             <td class="text-right">
-                <button class="btn btn-primary" type="button" onclick="objAtendimento.edit('{{this.id}}','{{this.clientId}}', '{{this.telefone}}')">
-                    <i class="ti ti-edit" data-bs-toggle="modal" data-bs-target="#atendimentotModal"></i>
-                </button>
-                <button class="btn btn-danger" type="button" onclick="objAtendimento.delete('{{this.id}}')">
-                    <i class="ti ti-trash"></i>
+                <button class="btn btn-success" type="button" data-bs-toggle="modal" data-bs-target="#atendimentotModal" onclick="objAtendimento.edit('{{this.id}}','{{this.clientId}}', '{{this.telefone}}')">
+                    <i class="ti ti-phone"></i>
                 </button>
             </td>
         </tr>
@@ -199,5 +196,10 @@
 <script src="../../resources/libs/calendar/js/main.js"></script>
 
 <script>
-    var objAtendimento = new Atendimento();
+var objAtendimento = new Atendimento();
+var objDateTime = new DateTime();
+objDateTime.picker('#id_0');
+setInterval(function() {
+    objAtendimento.history();
+}, 30000);
 </script>

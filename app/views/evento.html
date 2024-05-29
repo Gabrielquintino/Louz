@@ -1,0 +1,149 @@
+<nav class="navbar navbar-light bg-transparent mb-3">
+    <div class="container-fluid">
+        <a class="navbar-brand">Eventos</a>
+        <form class="d-flex">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#eventoModal">
+                Criar
+            </button>
+        </form>
+    </div>
+</nav>
+
+<!-- Lista de eventos -->
+<div class="card w-100">
+    <div class="card-body p-4">
+        <h5 class="card-title fw-semibold mb-4">Lista de Eventos</h5>
+        <div class="table-responsive">
+            <table class="table text-nowrap mb-0 align-middle">
+                <thead class="text-dark fs-4">
+                    <tr>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Nome</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Inicio</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Fim</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Periodicidade</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Status</h6>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="listEventos"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade " id="eventoModal" tabindex="-1" aria-labelledby="eventoModalLabel" aria-hidden="true"
+    data-bs-backdrop="static" data-bs-keyboard="false" data-bs-focus="false">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <form id="formEvento">
+                <div class="modal-title p-4 pb-0">
+                    <h3> Evento </h3>
+                </div>
+                <div class="modal-body pb-0">
+                    <div id="conteudoEvento"></div>
+                </div>
+                <div class="modal-footer pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="tooltip"
+                        data-bs-title="Clique aqui para salvar" onclick="objEvento.save()">Salvar</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script id="listEventoTemplate" type="text/x-handlebars-template">
+    {{#each data}}
+        <tr>
+            <td>{{this.nome}}</td>
+            <td>{{#if this.data_inicio }} {{'formatDate' this.data_inicio}} {{else}}Não definido{{/if}}</td>
+            <td>{{#if this.data_fim }} {{'formatDate' this.data_fim}} {{else}}Não definido{{/if}}</td>
+            <td>{{#if this.periodicidade }} A cada {{this.periodicidade}} dias {{else}}Uma vez{{/if}}</td>
+            <td>{{this.status}}</td>
+            <td class="text-right">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#eventoModal" type="button" onclick="objEvento.edit('{{this.id}}')">
+                    <i class="ti ti-edit" ></i>
+                </button>
+                <button class="btn btn-danger" type="button" onclick="objEvento.delete('{{this.id}}')">
+                    <i class="ti ti-trash"></i>
+                </button>
+            </td>
+        </tr>
+    {{/each}}
+    {{#unless data}}
+        <tr>
+            <td colspan="4">
+                <p class="text-danger text-center">Nenhum dado encontrado</p>
+            </td>
+        </tr>
+    {{/unless}}
+</script>
+
+<script id="conteudoEventoTemplate" type="text/x-handlebars-template">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <input type="hidden" name="id" id="id" value="{{this.id}}">
+                    <div class="row mb-3">
+                        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                            <label for="nome" class="form-label">Nome</label>
+                            <input class="form-control" id="nome" name="nome" type="text" value="{{this.nome}}" />
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                            <label for="periodicidade" class="form-label">Periodicidade</label>
+                            <input class="form-control" id="periodicidade" name="periodicidade" title="O evento se repete a cada x dias" type="number" value="{{this.periodicidade}}"
+                                placeholder="O evento se repete a cada x dias" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                            <div class="form-group">
+                                <label class="form-label" for="dataInicio">Começa em...</label>
+                                <div class="input-group date" id="dataInicioEvento">
+                                    <input name="dataInicio" id="dataInicio" type="text"
+                                        value="{{'formatTimeStamp' this.data_inicio}}" class="form-control"
+                                        placeholder="MM/DD/YYYY hh:mm:ss" required />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                            <div class="form-group">
+                                <label class="form-label" for="dataFim">Termina em...</label>
+                                <div class="input-group date" id="dataFimEvento">
+                                    <input name="dataFim" id="dataFim" type="text"
+                                        value="{{'formatTimeStamp' this.data_fim}}" class="form-control"
+                                        placeholder="MM/DD/YYYY hh:mm:ss" required />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script src="../../resources/js/evento.js"></script>
+
+<script src="../../resources/libs/calendar/js/popper.js"></script>
+<script src="../../resources/libs/calendar/js/bootstrap.min.js"></script>
+<script src="../../resources/libs/calendar/js/moment-with-locales.min.js"></script>
+<script src="../../resources/libs/calendar/js/bootstrap-datetimepicker.min.js"></script>
+<script src="../../resources/libs/calendar/js/main.js"></script>
+
+
+<script>
+    var objEvento = new Evento();
+</script>

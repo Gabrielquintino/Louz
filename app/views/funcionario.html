@@ -1,0 +1,138 @@
+<nav class="navbar navbar-light bg-transparent mb-3">
+    <div class="container-fluid">
+        <a class="navbar-brand">Funcionarios</a>
+        <form class="d-flex">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#funcionarioModal">
+                Criar
+            </button>
+        </form>
+    </div>
+</nav>
+
+<!-- Lista de funcionarios -->
+<div class="card w-100">
+    <div class="card-body p-4">
+        <h5 class="card-title fw-semibold mb-4">Lista de Funcionarios</h5>
+        <div class="table-responsive">
+            <table class="table text-nowrap mb-0 align-middle">
+                <thead class="text-dark fs-4">
+                    <tr>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Nome</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Email</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Cargo</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Comissao</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Status</h6>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="listFuncionarios"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade " id="funcionarioModal" tabindex="-1" aria-labelledby="funcionarioModalLabel" aria-hidden="true"
+    data-bs-backdrop="static" data-bs-keyboard="false" data-bs-focus="false">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <form id="formFuncionario">
+                <div class="modal-title p-4 pb-0">
+                    <h3> Funcionario </h3>
+                </div>
+                <div class="modal-body pb-0">
+                    <div id="conteudoFuncionario"></div>
+                </div>
+                <div class="modal-footer pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="tooltip"
+                        data-bs-title="Clique aqui para salvar" onclick="objFuncionario.save()">Salvar</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>  
+
+<script id="listFuncionariosTemplate" type="text/x-handlebars-template">
+    {{#each data}}
+        <tr>
+            <td>{{this.nome}}</td>
+            <td>{{this.email}}</td>
+            <td>{{this.cargo}}</td>
+            <td>{{this.comissao}}</td>
+            <td>{{this.status}}</td>
+            <td class="text-right">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#funcionarioModal" type="button" onclick="objFuncionario.edit('{{this.id}}')">
+                    <i class="ti ti-edit" ></i>
+                </button>
+                <button class="btn btn-danger" type="button" onclick="objFuncionario.delete('{{this.id}}')">
+                    <i class="ti ti-trash"></i>
+                </button>
+            </td>
+        </tr>
+    {{/each}}
+    {{#unless data}}
+        <tr>
+            <td colspan="4">
+                <p class="text-danger text-center">Nenhum dado encontrado</p>
+            </td>
+        </tr>
+    {{/unless}}
+</script>
+
+<script id="conteudoFuncionarioTemplate" type="text/x-handlebars-template">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <input type="hidden" name="id" id="id" value="{{this.id}}">
+                    <div class="row mb-3">
+                        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                            <label for="nome" class="form-label">Nome</label>
+                            <input class="form-control" id="nome" name="nome" type="text" value="{{this.nome}}" />
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                            <label for="email" class="form-label">Email</label>
+                            <input class="form-control" id="email" name="email" title="" type="email" value="{{this.email}}"
+                                placeholder="" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                            <label for="cargo" class="form-label">Cargo</label>
+                            <div class="d-flex">
+                                <select class="form-control flex-grow-1 no-right-radius" id="cargo" name="cargo" value="{{this.cargo}}" aria-describedby="button-addon2">
+                                    <option value="">Selecione...</option>
+                                </select>
+                                <button class="btn btn-danger no-left-radius" type="button" title="Excluir cargo selecionado" onclick="">
+                                    <i class="ti ti-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                            <label for="comissao" class="form-label">Comissao</label>
+                            <input class="form-control" id="comissao" name="comissao" title="" type="comissao" value="{{this.comissao}}"
+                                placeholder="" />
+                        </div>
+                    </div>                    
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script src="../../resources/js/funcionario.js"></script>
+
+<script>
+    var objFuncionario = new Funcionario();
+</script>

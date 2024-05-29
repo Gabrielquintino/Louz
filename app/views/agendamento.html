@@ -1,0 +1,124 @@
+<nav class="navbar navbar-light bg-transparent mb-3">
+    <div class="container-fluid">
+        <a class="navbar-brand">Agendamentos</a>
+    </div>
+</nav>
+
+<!-- Lista de agendamentos -->
+<div class="card w-100">
+    <div class="card-body p-4">
+        <h5 class="card-title fw-semibold mb-4">Lista de Agendamentos</h5>
+        <div class="table-responsive">
+            <table class="table text-nowrap mb-0 align-middle">
+                <thead class="text-dark fs-4">
+                    <tr>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Cliente</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Evento</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Telefone</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Data</h6>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="listAgendamento"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade " id="agendamentoModal" tabindex="-1" aria-labelledby="agendamentoModalLabel" aria-hidden="true"
+    data-bs-backdrop="static" data-bs-keyboard="false" data-bs-focus="false">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <form id="formAgendamento">
+                <div class="modal-title p-4 pb-0">
+                    <h3> Agendamento </h3>
+                </div>
+                <div class="modal-body pb-0">
+                    <div id="conteudoAtendimento"></div>
+                </div>
+                <div class="modal-footer pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="tooltip"
+                        data-bs-title="Clique aqui para salvar" onclick="objAgendamento.save()">Salvar</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<script id="listAgendamentoTemplate" type="text/x-handlebars-template">
+    {{#each data}}
+        <tr>
+            <td>{{this.cliente}}</td>
+            <td>{{this.evento}}</td>
+            <td>{{this.telefone}}</td>
+            <td>{{'formatDate' this.data}}</td>
+            <td class="text-right">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#agendamentoModal" type="button" onclick="objAgendamento.edit('{{this.id}}')">
+                    <i class="ti ti-alarm" ></i>
+                </button>
+                <button class="btn btn-danger" type="button" onclick="objAgendamento.cancel('{{this.id}}')">
+                    <i class="ti ti-alarm-off"></i>
+                </button>
+            </td>
+        </tr>
+    {{/each}}
+    {{#unless data}}
+        <tr>
+            <td colspan="4">
+                <p class="text-danger text-center">Nenhum dado encontrado</p>
+            </td>
+        </tr>
+    {{/unless}}
+</script>
+
+<script id="conteudoAtendimentoTemplate" type="text/x-handlebars-template">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <span>Cliente: {{this.cliente}}</span> <br>
+                    <span>Telefone: {{this.telefone}}</span> <br>
+                    <span>Funcionario: {{this.funcionario}}</span> <br>
+                    <span>Evento: <b>{{this.evento}}</b></span> <br>     
+                </div>
+            </div>
+        </div>
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="form-group">
+                        <label class="form-label" for="agendamento">Agendado para...</label>
+                        <div class="input-group date" id="dateEvento">
+                            <input name="agendamento" id="agendamento" type="text" value="{{'formatTimeStamp' this.data}}"
+                                class="form-control" placeholder="MM/DD/YYYY hh:mm:ss"
+                                required />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<!-- Seus scripts personalizados -->
+<script src="../../resources/js/agendamento.js"></script>
+
+<script src="../../resources/libs/calendar/js/popper.js"></script>
+<script src="../../resources/libs/calendar/js/bootstrap.min.js"></script>
+<script src="../../resources/libs/calendar/js/moment-with-locales.min.js"></script>
+<script src="../../resources/libs/calendar/js/bootstrap-datetimepicker.min.js"></script>
+<script src="../../resources/libs/calendar/js/main.js"></script>
+
+<script>
+    var objAgendamento = new Agendamento();
+</script>

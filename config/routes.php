@@ -42,11 +42,11 @@ $rotas = [
     #endregion
 
     #region Cargos
-    '/cargos' => 'CargosController@index',
-    '/cargos/listagem' => 'CargosController@listagem',
-    '/cargos/save' => 'CargosController@save',
-    '/cargos/get' => 'CargosController@get',
-    '/cargos/delete' => 'CargosController@delete',
+    '/cargos' => 'CargoController@index',
+    '/cargos/listagem' => 'CargoController@listagem',
+    '/cargos/save' => 'CargoController@save',
+    '/cargos/get' => 'CargoController@get',
+    '/cargos/delete' => 'CargoController@delete',
     #endregion
 
     #region Eventos
@@ -56,6 +56,14 @@ $rotas = [
     '/eventos/get' => 'EventoController@get',
     '/eventos/delete' => 'EventoController@delete',
     #endregion
+
+    #region Eventos
+    '/agendamentos' => 'AgendamentoController@index',
+    '/agendamentos/listagem' => 'AgendamentoController@listagem',
+    '/agendamentos/save' => 'AgendamentoController@save',
+    '/agendamentos/get' => 'AgendamentoController@get',
+    '/agendamentos/delete' => 'AgendamentoController@delete',
+    #endregion    
 
     #region Funil
     '/funil' => 'FunilController@index',

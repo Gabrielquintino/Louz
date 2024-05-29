@@ -98,7 +98,6 @@ class AtendimentoController
             $result = $atendimentotModel->save($arrAttendance);
         }
 
-
         if (!empty($_POST['evento_id']) && !empty($_POST['dataHora'])) {
             $arrAgendameneto = [
                 'eventos_id' => $_POST['evento_id'],
@@ -127,6 +126,15 @@ class AtendimentoController
     }
 
     public function encerrar() {
-        
+        $atendimentotModel = new AtendimentoModel();
+
+        $arrAttendance = [
+            'id' => $_POST['id'],
+            'funcionarios_id' => $_POST['funcionarios_id'],
+            'status' => 'encerrado'
+        ];
+
+        // Salva o atendimento
+        $result = $atendimentotModel->save($arrAttendance);        
     }    
 }

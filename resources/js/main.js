@@ -3,8 +3,6 @@ class Main {
     validar(campo, formulario = '') {
         // Verifica se os campos estão preenchidos
         if (campo === '') {
-
-
             // Exibe alerta
 
             // Adiciona borda vermelha temporária
@@ -85,7 +83,7 @@ class Main {
         }
     }
 
-    confirmWithInputAndCallback(confirmText, inputText, confirmCallback) {
+    confirmWithInputAndCallback(confirmText, inputText, confirmCallback, deleteText = "excluir permanentemente") {
         Swal.fire({
             title: confirmText,
             text: inputText,
@@ -97,8 +95,8 @@ class Main {
             cancelButtonText: "Cancelar",
             inputValidator: (value) => {
                 // Validate input value
-                if (value !== "excluir permanentemente") {
-                    return 'Você precisa digitar "excluir permanentemente"!';
+                if (value !== deleteText) {
+                    return 'Você precisa digitar '+ deleteText + '!';
                 } else {
                     confirmCallback();
                     Swal.fire({
@@ -129,7 +127,7 @@ class Main {
     }
 
 
-    inicializarSelect2(idSelect2, dados, campoExibir, agrupar = false, campoAgrupar = null, dropdownParent = '') {
+    inicializarSelect2(idSelect2, dados, campoExibir, agrupar = false, campoAgrupar = null, dropdownParent = '', tags = false) {
         // Função para agrupar os dados se necessário
         function agruparDados(dados, campoAgrupar) {
           return dados.reduce((acc, item) => {
@@ -159,7 +157,8 @@ class Main {
         // Inicializa o Select2
         $(idSelect2).select2({
           data: data,
-          dropdownParent: $(dropdownParent)
+          dropdownParent: $(dropdownParent),
+          tags: tags
         });
     }
 }
