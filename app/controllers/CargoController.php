@@ -35,4 +35,13 @@ class CargoController
         echo json_encode($arrLista);
         return true;
     }
+
+    public function delete() {
+        $cargoModel = new CargoModel();
+        $arrData['success'] = true;
+        $arrData['data'] = $cargoModel->delete($_POST['id'], $_POST['newId']);
+
+        echo json_encode($arrData);
+        return true;
+    }
 }

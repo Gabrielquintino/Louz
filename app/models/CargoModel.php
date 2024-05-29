@@ -27,4 +27,27 @@ class CargoModel extends DatabaseConfig{
         return $result;
     }
 
+    public function delete($pId, $pNewId) {
+        $sql = "UPDATE ".DB_USUARIO.".`funcionarios` SET `cargos_id` = ? WHERE `cargos_id` = ?";
+
+        $pdo = $this->getConnection()->prepare($sql);
+
+        try {
+            $pdo->execute([$pNewId, $pId]);
+        } catch (Exception $err) {
+            throw new Exception($err);
+        }
+
+        $sql = "DELETE FROM ".DB_USUARIO.".cargos WHERE id = ?;";
+
+        $pdo = $this->getConnection()->prepare($sql);
+
+        try {
+            $pdo->execute([$pId]);
+            return ['success' => true, 'id' => $pId];
+        } catch (Exception $err) {
+            throw new Exception($err);
+        }
+    }
+
 }

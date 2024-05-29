@@ -2,7 +2,7 @@
     <div class="container-fluid">
         <a class="navbar-brand">Funcionarios</a>
         <form class="d-flex">
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#funcionarioModal">
+            <button type="button" class="btn btn-primary" onclick="objFuncionario.edit()" data-bs-toggle="modal" data-bs-target="#funcionarioModal">
                 Criar
             </button>
         </form>
@@ -111,10 +111,10 @@
                         <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
                             <label for="cargo" class="form-label">Cargo</label>
                             <div class="d-flex">
-                                <select class="form-control flex-grow-1 no-right-radius" id="cargo" name="cargo" value="{{this.cargo}}" aria-describedby="button-addon2">
-                                    <option value="">Selecione...</option>
+                                <select class="form-control flex-grow-1 no-right-radius" id="cargo" name="cargo" aria-describedby="button-addon2">
+                                    <option value="0">Selecione...</option>
                                 </select>
-                                <button class="btn btn-danger no-left-radius" type="button" title="Excluir cargo selecionado" onclick="">
+                                <button class="btn btn-danger no-left-radius" type="button" title="Excluir cargo selecionado" onclick="objFuncionario.deleteCargo()">
                                     <i class="ti ti-trash"></i>
                                 </button>
                             </div>

@@ -83,8 +83,8 @@ class EventoModel extends DatabaseConfig
         } else {
 
             $strNome = isset($arrData['nome']) ? mb_substr($arrData['nome'],0, 150) : null;
-            $dtInicio = isset($arrData['data_inicio']) ? DateTime::createFromFormat('d/m/Y H:i:s', $arrData['data_inicio'])->format('Y-m-d H:i:s') : null;
-            $dtFim = isset($arrData['data_fim']) ? DateTime::createFromFormat('d/m/Y H:i:s', $arrData['data_fim'])->format('Y-m-d H:i:s') : null;
+            $dtInicio = ( isset($arrData['data_inicio']) && !empty($arrData['data_inicio']) ) ? DateTime::createFromFormat('d/m/Y H:i:s', $arrData['data_inicio'])->format('Y-m-d H:i:s') : null;
+            $dtFim = ( isset($arrData['data_fim']) && !empty($arrData['data_fim']) ) ? DateTime::createFromFormat('d/m/Y H:i:s', $arrData['data_fim'])->format('Y-m-d H:i:s') : null;
             $intPeriodicidade = isset($arrData['periodicidade']) ? (int) $arrData['periodicidade'] : null;
             $strStatus = isset($arrData['status']) ? $arrData['status'] : 'ativo';
 

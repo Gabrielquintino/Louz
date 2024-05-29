@@ -29,7 +29,22 @@ class Evento {
         })
     }
 
-    edit(intId) {
+    edit(intId = null) {
+        if (intId == null) {
+            var template = document.getElementById('conteudoEventoTemplate').innerHTML;
+
+            var compiled_template = Handlebars.compile(template);
+
+            var rendered = compiled_template(null);
+
+            document.getElementById('conteudoEvento').innerHTML = rendered;
+
+            var objDateTime = new DateTime();
+            objDateTime.picker('#formEvento #dataInicioEvento');
+            objDateTime.picker('#formEvento #dataFimEvento');
+
+            return;
+        }
         $.ajax({
             url: '/eventos/get',
             type: 'POST',
@@ -39,8 +54,6 @@ class Evento {
             async: true,
             success: function (data) {
                 var objData = JSON.parse(data);
-
-                console.log(objData)
                 
                 var template = document.getElementById('conteudoEventoTemplate').innerHTML;
 

@@ -2,16 +2,18 @@ class Main {
     // Função para enviar dados para o servidor via AJAX usando jQuery
     validar(campo, formulario = '') {
         // Verifica se os campos estão preenchidos
-        if (campo === '') {
+        if (campo.value === '') {
             // Exibe alerta
 
             // Adiciona borda vermelha temporária
             var form = document.querySelector(formulario);
             var campos = form.querySelectorAll('input');
 
-            campos.forEach(function (campo) {
-                if (campo.value === '') {
-                    campo.classList.add('is-invalid');
+            campos.forEach(function (objCampo) {
+                if (objCampo.value == "" && objCampo.id == campo.id) {
+                    objCampo.classList.add('is-invalid');
+                } else {
+                    objCampo.classList.remove('is-invalid')
                 }
             });
             $('#preenchaCampos').show();

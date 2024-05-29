@@ -13,7 +13,7 @@ class FuncionarioModel extends DatabaseConfig
     public function listagem($booOnlyActive = true) : array {
 
         $strSqlFilter = $booOnlyActive ? "and f.status = 'ativo'" : " ";
-        $sql = "SELECT f.id, c.nome cargo, f.nome, f.email, c.comissao, f.status
+        $sql = "SELECT f.id, c.nome cargo, f.nome, f.email, f.comissao, f.status
         FROM ". DB_USUARIO .".funcionarios f 
         INNER JOIN ". DB_USUARIO .".cargos c on 
         c.id = f.cargos_id and c.status = 'ativo' 
@@ -32,7 +32,7 @@ class FuncionarioModel extends DatabaseConfig
     }
 
     public function get($pIntId) {
-        $sql = "SELECT f.id, c.nome cargo, f.nome, f.email, c.comissao, f.status
+        $sql = "SELECT f.id, c.id cargo_id, c.nome cargo, f.nome, f.email, f.comissao, f.status
         FROM ". DB_USUARIO .".funcionarios f 
         INNER JOIN ". DB_USUARIO .".cargos c on 
         c.id = f.cargos_id and c.status = 'ativo' 
@@ -59,12 +59,25 @@ class FuncionarioModel extends DatabaseConfig
             // Construindo a parte SET dinamicamente
             $setParts = [];
             foreach ($arrData as $key => $value) {
+                if ($key == "cargos_id") {
+                    if (!is_numeric($value) || $value == "0") {
+                        $sql = "INSERT INTO " . DB_USUARIO . ".cargos (`nome`, `status` ) VALUES (?, ?)";
+                        $pdo = $this->getConnection()->prepare($sql);
+            
+                        try {
+                            $pdo->execute([$value, 'ativo']);
+                            $arrData[$key] = $this->getConnection()->lastInsertId();
+                        } catch (Exception $err) {
+                            throw new Exception($err);
+                        }                        
+                    }
+                }
                 $setParts[] = "`$key` = ?";
             }
             $setClause = implode(", ", $setParts);
 
             // Construindo a query de UPDATE
-            $sql = "UPDATE " . DB_USUARIO . ".eventos SET $setClause WHERE id = ?";
+            $sql = "UPDATE " . DB_USUARIO . ".funcionarios SET $setClause WHERE id = ?";
             $pdo = $this->getConnection()->prepare($sql);
 
             // Adicionando o id ao final do array de dados
@@ -80,14 +93,46 @@ class FuncionarioModel extends DatabaseConfig
 
             $strNome = isset($arrData['nome']) ? mb_substr($arrData['nome'],0, 150) : null;
             $strEmail = isset($arrData['email']) ? mb_substr($arrData['email'],0, 150) : null;
+
             $strCargoId = $arrData['cargos_id'];
+            $strCargoNome = $arrData['cargos_id'];
+
+            if (!is_numeric($arrData['cargos_id']) || $arrData['cargos_id'] == "0") {
+                $sql = "INSERT INTO " . DB_USUARIO . ".cargos (`nome`, `status` ) VALUES (?, ?)";
+                $pdo = $this->getConnection()->prepare($sql);
+    
+                try {
+                    $pdo->execute([$arrData['cargos_id'], 'ativo']);
+                    $strCargoId = $this->getConnection()->lastInsertId();
+
+                    if ($strCargoId == "0") {
+                        $sql = "SELECT id FROM " . DB_USUARIO . ".cargos WHERE nome = '" . $strCargoNome . "'";
+                        $pdo = $this->getConnection()->prepare($sql);
+        
+                        try {
+                            $pdo->execute();
+                            $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
+                            if (!empty($result)) {
+                                $strCargoId = $result[0]["id"];
+                            }
+                        } catch (Exception $err) {
+                            throw new Exception($err);
+                        }
+                    }
+
+                } catch (Exception $err) {
+                    throw new Exception($err);
+                }                        
+            }
+
+            $floComissao = isset($arrData['comissao']) ? $arrData['comissao'] : null;
             $strStatus = isset($arrData['status']) ? $arrData['status'] : 'ativo';
 
-            $sql = "INSERT INTO " . DB_USUARIO . ".funcionarios (`nome`, `email`, `cargos_id`, `status` ) VALUES (?, ?, ?, ?)";
+            $sql = "INSERT INTO " . DB_USUARIO . ".funcionarios (`nome`, `email`, `cargos_id`, `comissao`, `status` ) VALUES (?, ?, ?, ?, ?)";
             $pdo = $this->getConnection()->prepare($sql);
 
             try {
-                $pdo->execute([$strNome, $strEmail, $strCargoId, $strStatus]);
+                $pdo->execute([$strNome, $strEmail, $strCargoId, $floComissao,  $strStatus]);
                 return $this->getConnection()->lastInsertId();
             } catch (Exception $err) {
                 throw new Exception($err);

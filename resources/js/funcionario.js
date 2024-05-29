@@ -29,7 +29,37 @@ class Funcionario {
         })
     }
 
-    edit(intId) {
+    edit(intId = null) {
+
+        function populaCargos(cargoSelected) {
+            $.ajax({
+                url: '/cargos/listagem',
+                type: 'POST',
+                async: true,
+                success: function (data) {
+                    var objData = JSON.parse(data);
+
+                    objMain.inicializarSelect2("#formFuncionario #cargo", objData.data, 'nome', false, null, "#funcionarioModal", true);
+
+                    $("#formFuncionario #cargo").val(cargoSelected);
+                    $("#formFuncionario #cargo").trigger('change');
+                }
+            })
+        }
+
+        if (intId == null) {
+            var template = document.getElementById('conteudoFuncionarioTemplate').innerHTML;
+
+            var compiled_template = Handlebars.compile(template);
+
+            var rendered = compiled_template(null);
+
+            document.getElementById('conteudoFuncionario').innerHTML = rendered;
+
+            populaCargos(0);
+            
+            return;
+        }
         $.ajax({
             url: '/funcionarios/get',
             type: 'POST',
@@ -48,34 +78,105 @@ class Funcionario {
 
                 document.getElementById('conteudoFuncionario').innerHTML = rendered;
 
-                $.ajax({
-                    url: '/cargos/listagem',
-                    type: 'POST',
-                    async: true,
-                    success: function (data) {
-                        var objData = JSON.parse(data);
+                const cargoSelected = objData.data.cargo_id;
 
-                        objMain.inicializarSelect2("#formFuncionario #cargo", objData.data, 'nome', false, null, "#funcionarioModal", true)
-                        
-                    }
-                })
-
-
-
-
-
-
-
-
+                populaCargos(cargoSelected);
             }
         })
     }
 
+    async deleteCargo() {
+        if ($("#formFuncionario #cargo").val() == '') {
+            Swal.fire({
+                title: "Ops!",
+                text: "Selecione um cargo para excluir",
+                icon: "erros"
+            })
+            return;
+        }
+        const cargoSelect = document.getElementById('cargo');
+        const selectedValue = cargoSelect.value;
+        
+        // Cria um novo select com as mesmas opções, exceto a selecionada
+        const newCargoSelect = document.createElement('select');
+        newCargoSelect.id = 'newCargo';
+        newCargoSelect.classList.add('form-control');
+
+        const h4 = document.createElement('h4');
+        h4.innerHTML = "Para excluir este cargo, e necessario migrar os funcionarios para um outro cargo. Selecione o novo cargo abaixo.";
+    
+        for (let option of cargoSelect.options) {
+            if (option.value !== selectedValue) {
+                const newOption = document.createElement('option');
+                newOption.value = option.value;
+                newOption.text = option.text;
+                newCargoSelect.appendChild(newOption);
+            }
+        }
+    
+        // Cria um contêiner div para o novo select
+        const container = document.createElement('div');
+        container.appendChild(h4);
+        container.appendChild(newCargoSelect);
+    
+        // Exibe o SweetAlert com o novo select
+        Swal.fire({
+            title: 'Atenção!',
+            html: container,
+            showCancelButton: true,
+            confirmButtonText: 'Confirmar',
+            cancelButtonText: 'Cancelar',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const selectedNewCargo = newCargoSelect.value;
+
+                if (selectedNewCargo == '0') {
+                    Swal.fire({
+                        title: "Ops!",
+                        text: "Escolha um novo cargo.",
+                        icon: "error"
+                    }).then((result) => {
+                        return;
+                    });
+                } else {
+                    $.ajax({
+                        url: '/cargos/delete',
+                        type: 'POST',
+                        data: {
+                            'id': selectedValue,
+                            'newId': selectedNewCargo
+                        },
+                        async: true,
+                        success: function (data) {
+                            Swal.fire({
+                                title: "Sucesso!",
+                                text: "Funcionario salvo com sucesso.",
+                                icon: "success"
+                            }).then((result) => {
+                                $('#formFuncionario #cargo').val(selectedNewCargo).trigger('change');
+                            });
+                        }
+                    })
+                }                
+            }
+        });
+
+
+    }
+
     save() {
 
-        objMain.validar(document.getElementById('#nome'), '#formFuncionario');
-        objMain.validar(document.getElementById('#email'), '#formFuncionario');
-        objMain.validar(document.getElementById('#cargo'), '#formFuncionario');
+        if (
+            !objMain.validar(document.getElementById('nome'), '#formFuncionario') || 
+            !objMain.validar(document.getElementById('email'), '#formFuncionario')
+        ) {
+            return false;
+        }
+
+        if ($('#formFuncionario #cargo').val() == 0) {
+            Swal.fire({title: "Ops!", text: "Selecione o cargo do funcionario", icon: "error"})
+            return false;
+        }
 
 
         $.ajax({
@@ -85,7 +186,7 @@ class Funcionario {
                 'id': $('#formFuncionario #id').val(),
                 'nome': $('#formFuncionario #nome').val(),
                 'email': $('#formFuncionario #email').val(),
-                'cargo': $('#formFuncionario #cargo').val(),
+                'cargos_id': $('#formFuncionario #cargo').val(),
                 'comissao': $('#formFuncionario #comissao').val()
             },
             async: true,
