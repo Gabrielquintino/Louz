@@ -30,10 +30,11 @@ class FuncionarioController
     }
 
     public function listagem() {
-        
         $funcionarioModel = new FuncionarioModel();
 
-        $result = $funcionarioModel->listagem(false);
+        $booOnlyActive = isset($_POST['onlyActive']) ? (bool) $_POST['onlyActive'] : false;
+
+        $result = $funcionarioModel->listagem($booOnlyActive);
 
         $arrLista['success'] = true;
         $arrLista['data'] = $result;

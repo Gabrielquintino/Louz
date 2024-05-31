@@ -4,6 +4,8 @@ class ChatBot {
         this.list();
     }
 
+    arrEventos = [];
+
     list() {
 
         $.ajax({
@@ -410,6 +412,196 @@ paper.on('element:pointerdblclick',
                     elementView.update();
                 }
             })
+        }
+        if (type == "Agendar") {
+
+            var selectEvento = document.createElement("select");
+            selectEvento.id = "eventosChatbot";
+            selectEvento.classList.add('form-control');
+            
+            $.ajax({
+                url: '/eventos/listagem',
+                type: 'POST',
+                success: function (data) {
+    
+                    var objData = JSON.parse(data)
+    
+                    var eventos = objData.data;
+
+                    var option = document.createElement("option");
+                    option.value = "";
+                    option.innerHTML = "Selecione o evento...";
+                    selectEvento.appendChild(option);
+
+                    eventos.forEach(element => {
+                        var option = document.createElement("option");
+                        option.value = element.id;
+                        option.innerHTML = element.nome;
+
+                        selectEvento.appendChild(option);
+                    });
+                }
+            })
+
+            Swal.fire({
+                title: "Selecione o evento a ser agendado",
+                html: selectEvento,
+                showCancelButton: true,
+                confirmButtonText: 'Inserir',
+                didOpen: () => {
+                    document.getElementById('eventosChatbot').value = elementView.model.attributes.attrs.bodyText.evento
+                },
+                preConfirm: () => {
+                    const evento = document.getElementById('eventosChatbot').value;
+                    // Verifica se o valor é válido
+                    if (!evento || evento == "") {
+                        Swal.showValidationMessage('Por favor, selecione um evento!');
+                    }
+                    return evento;
+                },
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Obtém o valor do texto digitado
+                    var inputValue = result.value;
+                    elementView.model.attributes.attrs.bodyText.evento = inputValue;
+                    // Atualiza a visualização do elemento
+                    elementView.update();
+                }
+            });
+        }
+        if (type == "Transferir") {
+            var selectCargos = document.createElement("select");
+            selectCargos.id = "cargosChatbot";
+            selectCargos.classList.add('form-control');
+            selectCargos.classList.add('mb-3');
+
+            $.ajax({
+                url: '/cargos/listagem',
+                type: 'POST',
+                success: function (data) {
+                    var objData = JSON.parse(data)
+                    var cargos = objData.data;
+
+                    var option = document.createElement("option");
+                    option.value = "";
+                    option.innerHTML = "Transferir para qualquer funcionario do cargo...";
+                    selectCargos.appendChild(option);
+
+                    cargos.forEach(element => {
+                        var option = document.createElement("option");
+                        option.value = element.id;
+                        option.innerHTML = element.nome;
+                        selectCargos.appendChild(option);
+                    });
+                }
+            })
+
+            var selectFuncionario = document.createElement("select");
+            selectFuncionario.id = "funcionariosChatbot";
+            selectFuncionario.classList.add('form-control');
+            
+            $.ajax({
+                url: '/funcionarios/listagem',
+                data: {
+                    onlyActive: true
+                },
+                type: 'POST',
+                success: function (data) {
+                    var objData = JSON.parse(data)
+                    var funcionarios = objData.data;
+
+                    var option = document.createElement("option");
+                    option.value = "";
+                    option.innerHTML = "Transferir para o funcionario...";
+                    selectFuncionario.appendChild(option);
+
+                    funcionarios.forEach(element => {
+                        var option = document.createElement("option");
+                        option.value = element.id;
+                        option.innerHTML = element.nome;
+                        selectFuncionario.appendChild(option);
+                    });
+                }
+            })
+
+            var div = document.createElement('div');
+            div.appendChild(selectCargos);
+            div.appendChild(selectFuncionario);
+
+            Swal.fire({
+                title: "Transfira o atendimento",
+                html: div,
+                showCancelButton: true,
+                confirmButtonText: 'Inserir',
+                didOpen: () => {
+                    document.getElementById('cargosChatbot').value = elementView.model.attributes.attrs.bodyText.evento
+                },
+                preConfirm: () => {
+                    const cargo = document.getElementById('cargosChatbot').value;
+                    const funcinario = document.getElementById("funcionariosChatbot").value
+
+                    // Verifica se o valor é válido
+                    if ((!cargo && cargo == "") || (!funcinario && funcinario == "")) {
+                        Swal.showValidationMessage('Por favor, transfira o atendimento para um funcinario ou um setor!');
+                    }
+
+                    return {cargo: cargo, funcinario: funcinario};                    
+                    
+                },
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Obtém o valor do texto digitado
+                    elementView.model.attributes.attrs.bodyText.setor = result.cargo;
+                    elementView.model.attributes.attrs.bodyText.funcionario = result.funcinario;
+
+                    // Atualiza a visualização do elemento
+                    elementView.update();
+                }
+            });
+        }
+        if (type == "Salvar") {
+            var selectSalvar = document.createElement("select");
+            selectSalvar.id = "selectSalvarChatbot";
+            selectSalvar.classList.add("form-control");
+
+            var option = document.createElement("option");
+            option.value = "";
+            option.innerHTML = "Selecione o campo a ser salvo...";
+
+            var arrOpcoes = ['nome', 'email', 'telefone', 'empresa', 'cargo'];
+
+            arrOpcoes.forEach(element => {
+                var option = document.createElement("option");
+                option.value = element;
+                option.innerHTML = element.charAt(0).toUpperCase() + element.slice(1);
+
+                selectSalvar.appendChild(option);
+            });
+            
+            Swal.fire({
+                title: "Selecione o campo a ser salvo",
+                html: selectSalvar,
+                showCancelButton: true,
+                confirmButtonText: 'Inserir',
+                didOpen: () => {
+                    document.getElementById('eventosChatbot').value = elementView.model.attributes.attrs.bodyText.evento
+                },
+                preConfirm: () => {
+                    const evento = document.getElementById('eventosChatbot').value;                    // Verifica se o valor é válido
+                    if (!evento || evento == "") {
+                        Swal.showValidationMessage('Por favor, selecione um evento!');
+                    }
+                    return evento;
+                },
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Obtém o valor do texto digitado
+                    var inputValue = result.value;
+                    elementView.model.attributes.attrs.bodyText.campo = inputValue;
+                    // Atualiza a visualização do elemento
+                    elementView.update();
+                }
+            });
         }
     }
 );
@@ -844,5 +1036,181 @@ draggableAnexo.on('cell:pointerdown', function (cellView, e, x, y) {
 });
 // #endregion
 
+// #endregion
 
+// #region Acoes
+var draggableContainerAcoes = new joint.dia.Graph;
+var draggableAcoes = new joint.dia.Paper({
+    el: document.getElementById('draggableAcoes'),
+    gridSize: 1,
+    width: 325,
+    height: 210,
+    model: draggableContainerAcoes,
+    interactive: false,
+    background: {
+        color: '#ecf8ec',
+        opacity: 0.3
+    },
+});
+
+
+// #region Agendar
+var agendar = new joint.shapes.standard.Image({
+    ports: {
+        groups: {
+            'in': portsIn,
+            'out': portsOut
+        }
+    }
+});
+agendar.resize(90, 70);
+agendar.position(20, 5);
+agendar.attr('root/title', 'Agendar');
+agendar.attr('label/text', 'Agendar');
+agendar.attr('background/fill', 'lightblue');
+agendar.attr('border/rx', 5);
+agendar.attr('bodyText/evento', '');
+agendar.attr('image/xlinkHref', '../../resources/images/ElementosJointJs/calendar-clock.png');
+agendar.addPorts([
+    {
+        group: 'in',
+    },
+    {
+        group: 'out',
+    }
+]);
+agendar.addTo(draggableContainerAcoes);
+
+// #endregion
+
+// #region Transferir
+var transferir = new joint.shapes.standard.Image({
+    ports: {
+        groups: {
+            'in': portsIn,
+            'out': portsOut
+        }
+    }
+});
+transferir.resize(90, 70);
+transferir.position(190, 5);
+transferir.attr('root/title', 'Transferir');
+transferir.attr('label/text', 'Transferir');
+transferir.attr('background/fill', 'lightorange');
+transferir.attr('border/rx', 5);
+transferir.attr('bodyText/funcionario', '');
+transferir.attr('bodyText/setor', '');
+transferir.attr('image/xlinkHref', '../../resources/images/ElementosJointJs/headset.png');
+transferir.addPorts([
+    {
+        group: 'in',
+    },
+    {
+        group: 'out',
+    }
+]);
+transferir.addTo(draggableContainerAcoes);
+// #endregion
+
+// #region Salvar dados
+var salvar = new joint.shapes.standard.Image({
+    ports: {
+        groups: {
+            'in': portsIn,
+            'out': portsOut
+        }
+    }
+});
+salvar.resize(90, 70);
+salvar.position(20, 100);
+salvar.attr('root/title', 'Salvar dados');
+salvar.attr('label/text', 'Salvar');
+salvar.attr('background/fill', 'lightorange');
+salvar.attr('border/rx', 5);
+salvar.attr('bodyText/campo', '');
+salvar.attr('image/xlinkHref', '../../resources/images/ElementosJointJs/device-floppy.png');
+salvar.addPorts([
+    {
+        group: 'in',
+    },
+    {
+        group: 'out',
+    }
+]);
+salvar.addTo(draggableContainerAcoes);
+// #endregion
+
+// #region Adicionar Tags
+var tags = new joint.shapes.standard.Image({
+    ports: {
+        groups: {
+            'in': portsIn,
+            'out': portsOut
+        }
+    }
+});
+tags.resize(90, 70);
+tags.position(190, 100);
+tags.attr('root/title', 'Adicionar tag');
+tags.attr('label/text', 'Adicionar tag');
+tags.attr('background/fill', 'lightorange');
+tags.attr('border/rx', 5);
+tags.attr('bodyText/tags', '');
+tags.attr('image/xlinkHref', '../../resources/images/ElementosJointJs/tags.png');
+tags.addPorts([
+    {
+        group: 'in',
+    },
+    {
+        group: 'out',
+    }
+]);
+tags.addTo(draggableContainerAcoes);
+
+draggableAcoes.on('cell:pointerdown', function (cellView, e, x, y) {
+    $('body').append('<div id="flyPaper" style="position:relative;opacity:0.4;pointer-event:none;"></div>');
+    var flyGraph = new joint.dia.Graph,
+        flyPaper = new joint.dia.Paper({
+            el: $('#flyPaper'),
+            model: flyGraph,
+            height: 100,
+            width: 110,
+            interactive: false
+        }),
+        flyShape = cellView.model.clone(),
+        pos = cellView.model.position(),
+        offset = {
+            x: x - pos.x,
+            y: y - pos.y
+        };
+
+    flyShape.position(15, 10);
+    flyShape.prop = 1;
+    flyGraph.addCell(flyShape);
+    $("#flyPaper").offset({
+        left: e.pageX - offset.x,
+        top: e.pageY - offset.y
+    });
+    $('body').on('mousemove.fly', function (e) {
+        $("#flyPaper").offset({
+            left: e.pageX - offset.x,
+            top: e.pageY - offset.y
+        });
+    });
+    $('body').on('mouseup.fly', function (e) {
+        var x = e.pageX,
+            y = e.pageY,
+            target = paper.$el.offset();
+
+        // Dropped over paper ?
+        if (x > target.left && x < target.left + paper.$el.width() && y > target.top && y < target.top + paper.$el.height()) {
+            var s = flyShape.clone();
+            s.position(x - target.left - offset.x, y - target.top - offset.y);
+            graph.addCell(s);
+        }
+        $('body').off('mousemove.fly').off('mouseup.fly');
+        flyShape.remove();
+        $('#flyPaper').remove();
+    });
+});
 // #endregion

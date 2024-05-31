@@ -2,7 +2,7 @@
     <div class="container-fluid">
         <a class="navbar-brand">CRM</a>
         <form class="d-flex">
-            <button type="button" class="btn btn-primary">
+            <button type="button" class="btn btn-primary" onclick="objCrm.edit()">
                 Novo
             </button>
         </form>
@@ -60,7 +60,7 @@
                             <a class="nav-link" id="simple-tab-1" data-bs-toggle="tab" href="#simple-tabpanel-1"
                                 role="tab" aria-controls="simple-tabpanel-1" aria-selected="false">Empresa</a>
                         </li>
-                        <li class="nav-item" role="presentation">
+                        <li class="nav-item" role="presentation" id="historicoCrm" style="display: none;">
                             <a class="nav-link" id="simple-tab-2" data-bs-toggle="tab" href="#simple-tabpanel-2"
                                 role="tab" aria-controls="simple-tabpanel-2" aria-selected="false"
                                 onclick="objCrm.listChat()">Historico</a>
@@ -70,36 +70,32 @@
                         <div class="tab-pane active px-3" id="simple-tabpanel-0" role="tabpanel"
                             aria-labelledby="simple-tab-0">
                             <div class="row mb-3">
-                                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 mb-3">
                                     <label for="nome" class="form-label">Nome</label>
                                     <input class="form-control" id="nome" name="nome" type="text" placeholder="Nome"
                                         aria-label="Nome do cliente">
                                 </div>
-                                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 mb-3">
                                     <label for="email" class="form-label">Email</label>
                                     <input class="form-control" id="email" type="email" name="email" placeholder="Email"
                                         aria-label="Email do cliente">
                                 </div>
-                                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 mb-3">
                                     <label for="telefone" class="form-label">Telefone</label>
                                     <input class="form-control" id="telefone" type="tel" name="telefone"
                                         placeholder="Telefone" aria-label="Telefone">
                                 </div>
-
-                            </div>
-                            <div class="row mb-3">
-                                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 mb-3" id="dataCadastro">
                                     <label for="data" class="form-label">Data de cadastro</label>
                                     <input class="form-control" id="data" type="date" name="data" placeholder="Data"
                                         aria-label="Data">
                                 </div>
-                                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+                                <div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4 mb-3">
                                     <label for="tags" class="form-label">Tags</label>
                                     <input class="form-control" id="tags" name="tags" type="text" value=""
                                         data-role="tagsinput" />
                                 </div>
                             </div>
-
 
                         </div>
                         <div class="tab-pane px-3" id="simple-tabpanel-1" role="tabpanel"
@@ -196,8 +192,8 @@
             <td>{{this.telefone}}</td>
             <td>{{'formatDate' this.data}}</td>
             <td class="d-flex" style="float: inline-end;">
-                <button class="btn btn-primary me-1" type="button" onclick="objCrm.edit('{{this.id}}')">
-                    <i class="ti ti-edit" data-bs-toggle="modal" data-bs-target="#crmModal"></i>
+                <button class="btn btn-primary me-1" type="button" data-bs-toggle="modal" data-bs-target="#crmModal" onclick="objCrm.edit('{{this.id}}')">
+                    <i class="ti ti-edit"></i>
                 </button>
                 <button class="btn btn-danger" type="button" onclick="objCrm.delete('{{this.id}}')">
                     <i class="ti ti-trash"></i>

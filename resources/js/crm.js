@@ -26,35 +26,36 @@ class Crm {
         })
     }
 
-    edit(intId) {
+    edit(intId = null) {
 
-        $.ajax({
-            url: '/crm/edit',
-            type: 'POST',
-            data: {
-                'id': intId
-            },
-            success: function (data) {
+        if (intId == null) {
+            $('#formCrm').find('input[type=text], input[type=email], input[type=number], input[type=password], input[type=tel], input[type=url], textarea').val('');
+            $('#dataCadastro').hide();
+            $('#crmModal').modal('show');
+        } else {
+            $.ajax({
+                url: '/crm/edit',
+                type: 'POST',
+                data: {
+                    'id': intId
+                },
+                success: function (data) {
 
-                var objData = JSON.parse(data);
-                console.log(objData);
+                    var objData = JSON.parse(data);
 
-                $('#formCrm #id').val(intId);
-                $('#formCrm #nome').val(objData.data.nome);
-                $('#formCrm #email').val(objData.data.email);
-                $('#formCrm #telefone').val(objData.data.telefone);
-                $('#formCrm #empresa').val(objData.data.empresa);
-                $('#formCrm #cargo').val(objData.data.cargo);
-
-
-                $('#formCrm #data').val(objData.data.data.split(" ")[0]);
-                $('.bootstrap-tagsinput input').val(objData.data.tags);
-                $('#formCrm #tags').val(objData.data.tags);
-
-                $('#formCrm #crmModal').modal('show');
-
-            }
-        })
+                    $('#formCrm #id').val(intId);
+                    $('#formCrm #nome').val(objData.data.nome);
+                    $('#formCrm #email').val(objData.data.email);
+                    $('#formCrm #telefone').val(objData.data.telefone);
+                    $('#formCrm #empresa').val(objData.data.empresa);
+                    $('#formCrm #cargo').val(objData.data.cargo);
+                    $('#formCrm #data').val(objData.data.data.split(" ")[0]);
+                    $('#dataCadastro').show();
+                    $('.bootstrap-tagsinput input').val(objData.data.tags);
+                    $('#formCrm #tags').val(objData.data.tags);
+                }
+            })   
+        }
     }
 
     save() {
@@ -111,6 +112,8 @@ class Crm {
                     var compiled_template = Handlebars.compile(template);
                     var rendered = compiled_template(objData.data);
                     document.getElementById('chat').innerHTML = rendered;
+
+                    $('#historicoCrm').show();
 
                     var chatContainer = document.getElementById('chat');
                     // Rola a barra de rolagem para a parte inferior
