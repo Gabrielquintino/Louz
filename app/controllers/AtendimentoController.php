@@ -37,11 +37,64 @@ class AtendimentoController
      */
     public function listagem() {
         $atendimentotModel = new AtendimentoModel();
+        $WhatsappApiModel = new WhatsappApiModel();
+        $usuarioInstanciaModel = new UsuarioInstanciaModel();
+        $clienteModel = new ClienteModel();
+        $chatBotModel = new ChatBotModel();
 
-        $result = $atendimentotModel->listagem();
+        $arrInstancia = $usuarioInstanciaModel->getInstanceByUser($_SESSION['user_id']);
+        $arrAtendimento = $atendimentotModel->listagem();
+
+        $page = isset($_POST['page']) ? $_POST['page'] : "1";
+
+        $arrConversas = [];
+
+        if (!empty($arrInstancia)) {
+            $arrConversas = $WhatsappApiModel->getChats($arrInstancia[0]["token"], $page, "10");
+        }
+
+        $arrTelefones = [];
+
+        foreach ($arrAtendimento as $key => $atendimento) {
+            array_push($arrTelefones, $atendimento["telefone"]);
+        }
+
+        if (property_exists($arrConversas, 'chats')) {
+            foreach ($arrConversas->chats as $key => $conversa) {
+                if (!in_array($conversa->id->user, $arrTelefones) ) { // Salva o cliente e o atendimento
+                    $arrParametrosCliente = [
+                        'nome' => $conversa->name,
+                        'email' => null,
+                        'telefone' => $conversa->id->user,
+    
+                    ];
+                    $intClientId = $clienteModel->save($arrParametrosCliente);
+    
+                    $objChatBot = $chatBotModel->getChatBot('default', "sim");
+    
+                    $arrParametrosAtendimento = [
+                        'chatbot_id' => $objChatBot["id"],
+                        'cliente_id' => $intClientId,
+                        'funcionarios_id' => 0,
+                        'mensagem' => "",
+                        'index' => "",
+                        'status' => 'encerrado',
+                        'data' => date('Y-m-d H:i:s')
+                    ];
+                    if ($conversa->unreadCount > 0) {
+                        $arrParametrosAtendimento['status'] = 'andamento';
+                    }
+                    $arrParametrosAtendimento['id'] = $atendimentotModel->save($arrParametrosAtendimento);
+    
+                    array_push($arrAtendimento, $arrParametrosAtendimento);
+                }
+
+                $arrAtendimento[$key]['unread'] = $conversa->unreadCount > 99 ? "99+" :  ($conversa->unreadCount > 0 ? $conversa->unreadCount . "+" : null) ;
+            }
+        }
 
         $arrLista['success'] = true;
-        $arrLista['data'] = $result;
+        $arrLista['data'] = $arrAtendimento;
 
         echo json_encode($arrLista);
         return true;
@@ -114,8 +167,8 @@ class AtendimentoController
                 'id' => $_POST['cliente_id'],
                 'tags' => $_POST['tags']
             ];
-            $clienteModal = new ClienteModel();
-            $clienteModal->save($arrCliente);
+            $clienteModel = new ClienteModel();
+            $clienteModel->save($arrCliente);
         }
 
         $arrLista['success'] = true;

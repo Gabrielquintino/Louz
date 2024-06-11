@@ -80,7 +80,7 @@ class ChatBotModel extends DatabaseConfig {
 
     public function getChatBot(string $strFilterType, string $strFilterValue) : array {
 
-        $sql = "SELECT * FROM " . DB_USUARIO . ".chatbot WHERE status = 'ativo' and ".$strFilterType." = ?";
+        $sql = "SELECT * FROM " . DB_USUARIO . ".chatbot WHERE status = 'ativo' AND `" . $strFilterType . "` = ?";
 
         $pdo = $this->getConnection()->prepare($sql);
 

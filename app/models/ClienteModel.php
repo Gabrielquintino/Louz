@@ -6,6 +6,7 @@ use App\Config\DatabaseConfig;
 use App\Controllers\UtilController;
 use Exception;
 use PDO;
+use PDOException;
 use stdClass;
 
 class ClienteModel extends DatabaseConfig
@@ -52,21 +53,35 @@ class ClienteModel extends DatabaseConfig
             }  
         } else {
 
-            $strNome = isset($arrData['nome']) ? mb_substr($arrData['nome'],0, 150) : null;
-            $strEmail = isset($arrData['email']) ? mb_substr($arrData['email'], 0, 150) : null;
-            $strTelefone = isset($arrData['telefone']) ? mb_substr($arrData['telefone'], 0, 15) : null;
-            $strCpf = isset($arrData['cpf']) ? mb_substr($arrData['cpf'], 0, 15): null;
-            $strCnpj = isset($arrData['cnpj']) ? mb_substr($arrData['cnpj'], 0, 15) : null;
-            $strTags = isset($arrData['tags']) ? ($arrData['tags']) : null;
-
-            $sql = "INSERT INTO " . DB_USUARIO . ".clientes (`nome`, `email`, `telefone`, `cpf`, `cnpj`, `tags` ) VALUES (?, ?, ?, ?, ?, ?)";
-            $pdo = $this->getConnection()->prepare($sql);
-
             try {
-                $pdo->execute([$strNome, $strEmail, $strTelefone, $strCpf, $strCnpj, $strTags]);
-                return $this->getConnection()->lastInsertId();
+                // Obtenha a conexão com o banco de dados
+                $pdo = $this->getConnection();
+                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); // Habilita o modo de erro do PDO
+            
+                // Sanitize and set variables
+                $strNome = isset($arrData['nome']) ? mb_substr($arrData['nome'], 0, 150) : null;
+                $strEmail = isset($arrData['email']) ? mb_substr($arrData['email'], 0, 150) : null;
+                $strTelefone = isset($arrData['telefone']) ? mb_substr($arrData['telefone'], 0, 15) : null;
+                $strCpf = isset($arrData['cpf']) ? mb_substr($arrData['cpf'], 0, 15) : null;
+                $strCnpj = isset($arrData['cnpj']) ? mb_substr($arrData['cnpj'], 0, 15) : null;
+                $strTags = isset($arrData['tags']) ? $arrData['tags'] : null;
+            
+                // Prepare and execute the SQL statement
+                $sql = "INSERT INTO " . DB_USUARIO . ".clientes (`nome`, `email`, `telefone`, `cpf`, `cnpj`, `tags` ) VALUES (?, ?, ?, ?, ?, ?)";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([$strNome, $strEmail, $strTelefone, $strCpf, $strCnpj, $strTags]);
+            
+                // Return the last inserted ID
+                return $pdo->lastInsertId();
+            
+            } catch (PDOException $e) {
+                // Log the error and throw an exception
+                error_log("Database error: " . $e->getMessage());
+                throw new Exception("Database error: " . $e->getMessage());
             } catch (Exception $err) {
-                throw new Exception($err);
+                // Log the error and throw an exception
+                error_log("General error: " . $err->getMessage());
+                throw new Exception("General error: " . $err->getMessage());
             }
 
         }

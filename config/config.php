@@ -13,8 +13,7 @@ define('ZAPI_INSTANCIA', '3CDEE4D883909025DD892A268ACD4084');
 define('ZAPI_TOKEN', 'AD4875DC0C46466DF2CF02FB');
 define('ZAPI_CLIENT_TOKEN', 'Fd6b1737dd30b461e8c92934b6ea28247S');
 
-
-
+define('WHATS_API', 'http://localhost:3000/');
 
 define('HTTP_HOST', 'http://gestao.local/');
 

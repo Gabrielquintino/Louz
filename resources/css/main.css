@@ -84,3 +84,14 @@
 .kanban-card.dragging {
     opacity: 0.5;
 }
+
+.card-atendimento {
+    min-height: 400px;
+    max-height: 400px;
+    overflow-y: auto
+}
+
+.card.active {
+    border: 2px solid #007bff;
+    box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+}

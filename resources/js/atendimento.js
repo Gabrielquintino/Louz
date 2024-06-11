@@ -4,11 +4,18 @@ class Atendimento {
         this.list();
     }
 
-    list() {
+    intPage = 0;
+
+    list(pIntPage = 1) {
+
+        this.intPage = pIntPage;
 
         $.ajax({
             url: '/atendimento/listagem',
             type: 'POST',
+            data: {
+                page: pIntPage
+            },
             async: false,
             success: function (data) {
 
@@ -25,52 +32,49 @@ class Atendimento {
                 //Overwrite the contents of #target with the renderer HTML
                 document.getElementById('listAtendimento').innerHTML = rendered;
 
+                setTimeout(function() {
+                    $('#atendimento-0').click();
+
+                }, 300)
             }
         })
     }
 
-    history(boolForceOpen = false) {
+    history(pIntId, pStrTelefone, boolForceOpen = false) {
 
-        var modal = document.querySelector('#atendimentotModal');
-        var strTelefone = $('#formAtendimento #telefone').val();
-        var intId = $('#formAtendimento #id').val();
+        $.ajax({
+            url: '/crm/history',
+            type: 'POST',
+            data: {
+                'id': parseInt(pIntId),
+                'telefone': pStrTelefone
+            },
+            success: function (data) {
+                var objData = JSON.parse(data);
+                if (objData) {
+                    var template = document.getElementById('chatAtendimentoTemplate').innerHTML;
+                    var compiled_template = Handlebars.compile(template);
+                    var rendered = compiled_template(objData.data);
+                    document.getElementById('chatAtendimento').innerHTML = rendered;
 
-        if ((modal.classList.contains('show') || boolForceOpen ) && strTelefone != '' && intId != '') {
-            $.ajax({
-                url: '/crm/history',
-                type: 'POST',
-                data: {
-                    'id': parseInt(intId),
-                    'telefone': strTelefone
-                },
-                success: function (data) {
-                    var objData = JSON.parse(data);
-                    if (objData) {
-                        var template = document.getElementById('chatAtendimentoTemplate').innerHTML;
-                        var compiled_template = Handlebars.compile(template);
-                        var rendered = compiled_template(objData.data);
-                        document.getElementById('chatAtendimento').innerHTML = rendered;
-
-                        var chatContainer = document.getElementById('chatAtendimento');
-                        // Rola a barra de rolagem para a parte inferior
-                        chatContainer.scrollTop = chatContainer.scrollHeight;
-                    }
-                },
-                error: function () {
-                    document.getElementById('chatAtendimento').innerHTML = "<h4 class='text-center text-danger'>Erro ao carregar mensagens.</h4>";
-                },
-                fail: function (jqXHR, textStatus, errorThrown) {
-                    console.log("Erro na requisição Ajax:", textStatus, errorThrown);
-                    var compiled_template = Handlebars.compile("<h4 class='text-center text-danger'>Erro ao carregar mensagens.</h4>");
-                    var rendered = compiled_template();
-                    document.getElementById('chat').innerHTML = rendered;
+                    var chatContainer = document.getElementById('chatAtendimento');
+                    // Rola a barra de rolagem para a parte inferior
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
                 }
-            });
-        }
+            },
+            error: function () {
+                document.getElementById('chatAtendimento').innerHTML = "<h4 class='text-center text-danger'>Erro ao carregar mensagens.</h4>";
+            },
+            fail: function (jqXHR, textStatus, errorThrown) {
+                console.log("Erro na requisição Ajax:", textStatus, errorThrown);
+                var compiled_template = Handlebars.compile("<h4 class='text-center text-danger'>Erro ao carregar mensagens.</h4>");
+                var rendered = compiled_template();
+                document.getElementById('chat').innerHTML = rendered;
+            }
+        });
     }
 
     edit(intId, clientId, strTelefone) {
-
 
         $('#formAtendimento #telefone').val(strTelefone);
         $('#formAtendimento #id').val(intId);
@@ -111,7 +115,7 @@ class Atendimento {
                 url: '/crm/edit',
                 type: 'POST',
                 data: {
-                    'id': $('#formAtendimento #clientId').val()
+                    'id': clientId
                 },
                 success: function (data) {
                     var objData = JSON.parse(data);
@@ -127,7 +131,7 @@ class Atendimento {
                 }
             })
 
-            this.history(true);
+            this.history(intId, strTelefone, true);
 
         } else {
             document.getElementById('chatAtendimento').innerHTML = "<h4 class='text-center text-danger' style='margin-top: 125px;'>Sem mensagens.</h4>";
@@ -271,5 +275,41 @@ class Atendimento {
 
             }
         })
+    }
+
+    destacar (pIntId, pClientId, pStrTelefone, card) {
+        var cards = document.querySelectorAll('#listAtendimento .card');
+        cards.forEach(function(card) {
+            card.classList.remove('active');
+        });
+        
+        // Add the 'active' class to the clicked card
+        card.classList.add('active');
+
+        setTimeout(() => {
+            this.edit(pIntId, pClientId, pStrTelefone)            
+        }, 300);
+    }
+
+    showActions() {
+
+        var chat = document.getElementById('chatAtendimentoConversa');
+        var btn = document.getElementById('btnShowActions');
+        var ico = document.getElementById('icoShowActions');
+
+        if ($('#chatAtendimentoAcoes').is(':visible')) {
+            $('#chatAtendimentoAcoes').hide()
+
+            chat.classList = "col-12 col-sm-12 col-md-12 col-lg-8 col-xl-8";
+            ico.classList = "ti ti-layout-sidebar-right-expand";
+            $('#btnShowActions').attr('title', 'Expandir ações');
+        } else {
+            chat.classList = "col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4"
+            $('#btnShowActions').attr('title', 'Esconder ações');
+
+            ico.classList = "ti ti-layout-sidebar-left-expand";
+
+            $('#chatAtendimentoAcoes').show();
+        }
     }
 }

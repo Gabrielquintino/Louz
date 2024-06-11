@@ -9,7 +9,7 @@ class WhatsappApiModel {
         $curl = curl_init();
         
         curl_setopt_array($curl, array(
-          CURLOPT_URL => 'http://localhost:3000/'.$pToken.'/qrcode',
+          CURLOPT_URL => WHATS_API. $pToken.'/qrcode',
           CURLOPT_RETURNTRANSFER => true,
           CURLOPT_ENCODING => '',
           CURLOPT_MAXREDIRS => 10,
@@ -48,7 +48,7 @@ class WhatsappApiModel {
         $curl = curl_init();
         
         curl_setopt_array($curl, array(
-          CURLOPT_URL => 'http://localhost:3000/'.$pToken.'/getClientInformation',            
+          CURLOPT_URL => WHATS_API. $pToken.'/getClientInformation',            
           CURLOPT_RETURNTRANSFER => true,
           CURLOPT_ENCODING => '',
           CURLOPT_MAXREDIRS => 10,
@@ -78,7 +78,7 @@ class WhatsappApiModel {
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-          CURLOPT_URL => 'http://localhost:3000/'.$pToken.'/disconnectInstance',
+          CURLOPT_URL => WHATS_API. $pToken.'/disconnectInstance',
           CURLOPT_RETURNTRANSFER => true,
           CURLOPT_ENCODING => '',
           CURLOPT_MAXREDIRS => 10,
@@ -104,7 +104,7 @@ class WhatsappApiModel {
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => 'http://localhost:3000/'.$pToken.'/sendTextMessage',
+            CURLOPT_URL => WHATS_API. $pToken.'/sendTextMessage',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -137,7 +137,7 @@ class WhatsappApiModel {
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => 'http://localhost:3000/'.$pToken.'/sendFile',
+            CURLOPT_URL => WHATS_API. $pToken.'/sendFile',
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -172,7 +172,7 @@ class WhatsappApiModel {
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-        CURLOPT_URL => 'http://localhost:3000/'.$pInstancia.'/getChatById',
+        CURLOPT_URL => WHATS_API. $pInstancia.'/getChatById',
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_ENCODING => '',
         CURLOPT_MAXREDIRS => 10,
@@ -204,4 +204,47 @@ class WhatsappApiModel {
         echo $response;
 
     }
+
+    public function getChats(string $pInstancia, string $pPage, string $pLimit) {
+        // Validação simples para garantir que page e limit não estejam vazios
+        if (empty($pPage) || empty($pLimit)) {
+            throw new Exception("Page and limit parameters cannot be empty");
+        }
+    
+        $curl = curl_init();
+    
+        $postData = json_encode([
+            "onlyUnread" => true,
+            "page" => (int)$pPage,
+            "limit" => (int)$pLimit
+        ]);
+    
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => WHATS_API . $pInstancia . '/getChats',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'GET',
+            CURLOPT_POSTFIELDS => $postData,
+            CURLOPT_HTTPHEADER => array(
+                'Content-Type: application/json'
+            ),
+        ));
+    
+        $response = curl_exec($curl);
+    
+        if ($response !== false) {
+            $objResponse = json_decode($response);
+            curl_close($curl);
+            return $objResponse;
+        } else {
+            $error = curl_error($curl);
+            curl_close($curl);
+            throw new Exception("Error Processing Request: " . $error, 1);
+        }
+    }
+    
 }

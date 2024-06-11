@@ -6,6 +6,7 @@ use App\Config\DatabaseConfig;
 use App\Controllers\UtilController;
 use Exception;
 use PDO;
+use PDOException;
 use stdClass;
 
 class AtendimentoModel extends DatabaseConfig
@@ -89,19 +90,31 @@ class AtendimentoModel extends DatabaseConfig
                 throw new Exception($err);
             }
         } else {
-            $sql = "INSERT INTO " . DB_USUARIO . ".atendimentos (`chatbot_id`, `cliente_id`, `funcionarios_id`, `mensagem`, `index`, `status` ) VALUES (?, ?, ?, ?, ?) 
-            ON DUPLICATE KEY UPDATE
-            `mensagem` = VALUES(`mensagem`), 
-            `status` = VALUES(`status`),
-            `index` = VALUES(`index`)";
-    
-            $pdo = $this->getConnection()->prepare($sql);
-    
             try {
-                $pdo->execute([$arrData['chatbot_id'], $arrData['cliente_id'], $arrData['funcionarios_id'], $arrData['mensagem'], $arrData['index'], $arrData['status']]);
-                return $this->getConnection()->lastInsertId();
+                // Obtenha a conexão com o banco de dados
+                $pdo = $this->getConnection();
+                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); // Habilita o modo de erro do PDO
+            
+                // Prepare and execute the SQL statement
+                $sql = "INSERT INTO " . DB_USUARIO . ".atendimentos (`chatbot_id`, `cliente_id`, `funcionarios_id`, `mensagem`, `index`, `status` ) VALUES (?, ?, ?, ?, ?, ?) 
+                ON DUPLICATE KEY UPDATE
+                `mensagem` = VALUES(`mensagem`), 
+                `status` = VALUES(`status`),
+                `index` = VALUES(`index`)";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([$arrData['chatbot_id'], $arrData['cliente_id'], $arrData['funcionarios_id'], $arrData['mensagem'], $arrData['index'], $arrData['status']]);
+            
+                // Return the last inserted ID
+                return $pdo->lastInsertId();
+            
+            } catch (PDOException $e) {
+                // Log the error and throw an exception
+                error_log("Database error: " . $e->getMessage());
+                throw new Exception("Database error: " . $e->getMessage());
             } catch (Exception $err) {
-                throw new Exception($err);
+                // Log the error and throw an exception
+                error_log("General error: " . $err->getMessage());
+                throw new Exception("General error: " . $err->getMessage());
             }
         }
     }
