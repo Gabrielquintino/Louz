@@ -71,6 +71,7 @@ class Atendimento {
 
     edit(intId, clientId, strTelefone) {
 
+
         $('#formAtendimento #telefone').val(strTelefone);
         $('#formAtendimento #id').val(intId);
         $('#formAtendimento #clientId').val(clientId);
@@ -102,8 +103,10 @@ class Atendimento {
             }
         })
 
-        if (intId != null) {
 
+        objMain.limparFormulario('formAtendimento');
+
+        if (intId != null) {
             $.ajax({
                 url: '/crm/edit',
                 type: 'POST',

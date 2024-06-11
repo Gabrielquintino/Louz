@@ -6,6 +6,7 @@ use App\Models\AtendimentoModel;
 use App\Models\AvaliacaoModel;
 use App\Models\ChatBotModel;
 use App\Models\ClienteModel;
+use App\Models\EtapaModel;
 use App\Models\UsuarioInstanciaModel;
 use App\Models\WhatsappApiModel;
 use Exception;
@@ -26,6 +27,39 @@ class CrmController
             // Redireciona
             header("Location: /");
         }
+    }
+
+    public function kanbam() {
+        $etapaModel = new EtapaModel();
+        $arrEtapas = $etapaModel->list();
+
+        $arrLog = $etapaModel->log();
+
+        $arrList['success'] = true;
+        $arrList['etapas'] = $arrEtapas;
+        $arrList['log'] = $arrLog;
+
+
+        echo json_encode($arrList);
+        return true;
+    }
+
+    public function saveEtapa() {
+        $etapaModel = new EtapaModel();
+        $etapaModel->save($_POST);
+        
+        $arrList['success'] = true;
+        echo json_encode($arrList);
+        return true;
+    }
+
+    public function saveKanbam() {
+        $etapaModel = new EtapaModel();
+        $etapaModel->saveLog($_POST['clientId'], $_POST['etapaId']);
+
+        $arrList['success'] = true;
+        echo json_encode($arrList);
+        return true;
     }
 
     public function list()
@@ -69,6 +103,21 @@ class CrmController
 
         echo json_encode($arrList);
         return true;
+    }
+
+    public function deleteEtapa()
+    {
+        $etapaModel = new EtapaModel();
+        try {
+            $etapaModel->delete($_POST['etapaId'], $_POST['newEtapaId'], $_POST['booTemClinte']);
+
+            $arrList['success'] = true;
+    
+            echo json_encode($arrList);
+            return true;
+        } catch (Exception $err) {
+            throw new Exception($err);
+        }
     }
 
     public function history()

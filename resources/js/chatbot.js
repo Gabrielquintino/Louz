@@ -6,6 +6,8 @@ class ChatBot {
 
     arrEventos = [];
 
+    arrChatbots = [];
+
     list() {
 
         $.ajax({
@@ -26,6 +28,30 @@ class ChatBot {
 
                 //Overwrite the contents of #target with the renderer HTML
                 document.getElementById('listChatBot').innerHTML = rendered;
+
+                this.arrChatbots = objData1.data
+
+                document.getElementById('executar').addEventListener('change', function() {
+                    if (this.value == "chatbot") {
+                        $('#divData').hide();
+                        $('#divChatbot').show();
+                        var select = document.getElementById('chatbotId');
+                        console.log(objData1)
+                        objData1.data.forEach(function(item) {
+                            var opcao = document.createElement('option')
+                            opcao.value = item.id;
+                            opcao.innerHTML = item.nome;
+                            select.appendChild(opcao);
+                        })
+                    } else if (this.value == "dias") {
+                        $('#divChatbot').hide();
+                        $('#divData').show();
+                        
+                    } else {
+                        $('#divData').hide();
+                        $('#divChatbot').hide();
+                    }
+                });
 
             }
         })
@@ -65,9 +91,11 @@ class ChatBot {
                 type: 'POST',
                 data: {
                     nome: $('#nome').val(),
-                    phone: integracao,
-                    objJson: arrObjJsonCompressed,
-                    arrOrder: arrOrderCompressed,
+                    integration_phone: integracao,
+                    executado: $('#executar').val(),
+                    executado_descricao: $('#dias').val(),
+                    json: arrObjJsonCompressed,
+                    arr_ordem: arrOrderCompressed,
                     id: $('#idChatBot').val()
                 },
                 success: function (data) {
@@ -102,6 +130,12 @@ class ChatBot {
 
     edit(intId) {
 
+        objMain.limparFormulario('formChatBot');
+
+        if (intId == null) {
+            return;
+        }
+
         $.ajax({
             url: '/chatbot/get',
             type: 'POST',
@@ -116,12 +150,38 @@ class ChatBot {
                 $('#nome').val(objData.data.nome)
                 $('#selListIntegrations').val(objData.data.integration_phone)
                 $('#idChatBot').val(objData.data.id)
+                $('#executar').val(objData.data.executado)
+                $('#dias').val(objData.data.executado_descricao)
+
+                if (objData.data.executado == "chatbot") {
+                    $('#divData').hide();
+                    $('#divChatbot').show();
+                } else if (objData.data.executado == "dias") {
+                    $('#divChatbot').hide();
+                    $('#divData').show();                    
+                } else {
+                    $('#divData').hide();
+                    $('#divChatbot').hide();
+                }
+
 
                 setTimeout(function () {
                     graph.fromJSON(JSON.parse(objData.data.json))
                 }, 4000)
 
                 $('#chatbotModal').modal('show');
+
+                setTimeout(() => {
+                    var selectElement = document.getElementById('chatbotId');
+                    if (this.arrChatbots != null) {
+                        for (var i = 0; i < this.arrChatbots.length; i++) {
+                            if (selectElement.options[i].value === intId) {
+                                selectElement.remove(i);
+                                break; // Break the loop once the option is found and removed
+                            }
+                        }
+                    }
+                }, 3000);
             }
         })
     }
@@ -449,7 +509,9 @@ paper.on('element:pointerdblclick',
                 showCancelButton: true,
                 confirmButtonText: 'Inserir',
                 didOpen: () => {
-                    document.getElementById('eventosChatbot').value = elementView.model.attributes.attrs.bodyText.evento
+                    setTimeout(function () {
+                        document.getElementById('eventosChatbot').value = elementView.model.attributes.attrs.bodyText.evento
+                    }, 1000)
                 },
                 preConfirm: () => {
                     const evento = document.getElementById('eventosChatbot').value;
@@ -534,14 +596,17 @@ paper.on('element:pointerdblclick',
                 showCancelButton: true,
                 confirmButtonText: 'Inserir',
                 didOpen: () => {
-                    document.getElementById('cargosChatbot').value = elementView.model.attributes.attrs.bodyText.evento
+                    setTimeout(function () {
+                        document.getElementById('cargosChatbot').value = elementView.model.attributes.attrs.bodyText.setor;
+                        document.getElementById('funcionariosChatbot').value = elementView.model.attributes.attrs.bodyText.funcionario;
+                    }, 1000)
                 },
                 preConfirm: () => {
                     const cargo = document.getElementById('cargosChatbot').value;
                     const funcinario = document.getElementById("funcionariosChatbot").value
 
                     // Verifica se o valor é válido
-                    if ((!cargo && cargo == "") || (!funcinario && funcinario == "")) {
+                    if ((!funcinario || funcinario == "") && (!cargo || cargo == "")) {
                         Swal.showValidationMessage('Por favor, transfira o atendimento para um funcinario ou um setor!');
                     }
 
@@ -550,9 +615,10 @@ paper.on('element:pointerdblclick',
                 },
             }).then((result) => {
                 if (result.isConfirmed) {
+                    console.log(result)
                     // Obtém o valor do texto digitado
-                    elementView.model.attributes.attrs.bodyText.setor = result.cargo;
-                    elementView.model.attributes.attrs.bodyText.funcionario = result.funcinario;
+                    elementView.model.attributes.attrs.bodyText.setor = result.value.cargo;
+                    elementView.model.attributes.attrs.bodyText.funcionario = result.value.funcinario;
 
                     // Atualiza a visualização do elemento
                     elementView.update();
@@ -568,7 +634,7 @@ paper.on('element:pointerdblclick',
             option.value = "";
             option.innerHTML = "Selecione o campo a ser salvo...";
 
-            var arrOpcoes = ['nome', 'email', 'telefone', 'empresa', 'cargo'];
+            var arrOpcoes = ['nome', 'email', 'telefone', 'cpf', 'cnpj', 'empresa', 'cargo'];
 
             arrOpcoes.forEach(element => {
                 var option = document.createElement("option");
@@ -584,14 +650,16 @@ paper.on('element:pointerdblclick',
                 showCancelButton: true,
                 confirmButtonText: 'Inserir',
                 didOpen: () => {
-                    document.getElementById('eventosChatbot').value = elementView.model.attributes.attrs.bodyText.evento
+                    setTimeout(function () {
+                        document.getElementById('selectSalvarChatbot').value = elementView.model.attributes.attrs.bodyText.campo
+                    }, 1000)
                 },
                 preConfirm: () => {
-                    const evento = document.getElementById('eventosChatbot').value;                    // Verifica se o valor é válido
-                    if (!evento || evento == "") {
-                        Swal.showValidationMessage('Por favor, selecione um evento!');
+                    const campo = document.getElementById('selectSalvarChatbot').value;                    // Verifica se o valor é válido
+                    if (!campo || campo == "") {
+                        Swal.showValidationMessage('Por favor, selecione um campo!');
                     }
-                    return evento;
+                    return campo;
                 },
             }).then((result) => {
                 if (result.isConfirmed) {
@@ -602,6 +670,53 @@ paper.on('element:pointerdblclick',
                     elementView.update();
                 }
             });
+        }
+        if (type == "Adicionar tag") {
+            var inputTag = document.createElement("input");
+            inputTag.id = "chatbotTag";
+            inputTag.value = "";
+            inputTag.placeholder = "exemplo 1, exemplo 2";
+            inputTag.classList.add('form-control');
+
+            var labelTag = document.createElement('label');
+            labelTag.classList.add('form-label');
+            labelTag.classList.add('w-100');
+            labelTag.htmlFor = "chatbotTag";
+            labelTag.textContent = "Digite as tags separadas por virgulas";
+
+            var div = document.createElement("div");
+            div.classList.add("input-group");
+
+            labelTag.appendChild(inputTag);
+            div.appendChild(labelTag);
+            
+            Swal.fire({
+                title: "Adicione as tags ao cliente",
+                html: div,
+                showCancelButton: true,
+                confirmButtonText: 'Inserir',
+                didOpen: () => {
+                    setTimeout(function () {
+                        document.getElementById('chatbotTag').value = elementView.model.attributes.attrs.bodyText.tags
+                    }, 1000)
+                },
+                preConfirm: () => {
+                    const evento = document.getElementById('chatbotTag').value;                    // Verifica se o valor é válido
+                    if (!evento || evento == "") {
+                        Swal.showValidationMessage('Por favor, insira ao menos uma tag!');
+                    }
+                    return evento;
+                },
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Obtém o valor do texto digitado
+                    var inputValue = result.value;
+                    elementView.model.attributes.attrs.bodyText.tags = inputValue;
+                    // Atualiza a visualização do elemento
+                    elementView.update();
+                }
+            });
+
         }
     }
 );

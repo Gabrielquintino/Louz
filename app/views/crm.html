@@ -2,6 +2,17 @@
     <div class="container-fluid">
         <a class="navbar-brand">CRM</a>
         <form class="d-flex">
+
+            <input type="radio" class="btn-check " name="options-base" id="option5" autocomplete="off" checked>
+            <label class="btn me-2" for="option5" title="Estilo Kanbam" onclick="objCrm.kanbam()">
+                <i class="ti ti-layout-kanban"></i>
+            </label>
+
+            <input type="radio" class="btn-check " name="options-base" id="option6" autocomplete="off">
+            <label class="btn me-2" for="option6" title="Estilo lista" onclick="objCrm.list()">
+                <i class="ti ti-list"></i>
+            </label>
+
             <button type="button" class="btn btn-primary" onclick="objCrm.edit()">
                 Novo
             </button>
@@ -9,9 +20,28 @@
     </div>
 </nav>
 
+<div class="card" id="kanbamClients">
+    <div class="card-body p-2">
+        <nav class="navbar navbar-light bg-transparent mb-3">
+            <div class="container-fluid">
+                <h5 class="card-title fw-semibold">Kanbam de clientes</h5>
+
+                <button type="button" class="btn btn-primary float-end" onclick="objCrm.editKanbamStep()">
+                    Nova etapa
+                </button>
+            </div>
+        </nav>
+        <div class="kanban-container">
+            <div id="kanbam" class="kanban-board">
+                <div id="kanbam" class="kanban-board"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Lista de clientes -->
-<div class="card w-100">
-    <div class="card-body p-4">
+<div class="card w-100" id="listClients">
+    <div class="card-body p-2">
         <h5 class="card-title fw-semibold mb-4">Lista de clientes</h5>
         <div class="table-responsive">
             <table class="table text-nowrap mb-0 align-middle">
@@ -118,28 +148,29 @@
 
                             <div class="row">
                                 <div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6">
-                                        <section class="mt-2">
-                                            <div class="container py-2">
-                                                <div class="row d-flex justify-content-center">
-                                                    <div class="col-12 px-0">
-                                                        <div class="card mb-0" id="chat1" style="border-radius: 15px;">
-                                                            <div class="card-header d-flex justify-content-between align-items-center p-3 bg-info text-white border-bottom-0"
-                                                                style="border-top-left-radius: 15px; border-top-right-radius: 15px;">
-                                                                <i class="fas fa-angle-left"></i>
-                                                                <p class="mb-0 fw-bold">Atendimento</p>
-                                                                <i class="fas fa-times"></i>
-                                                            </div>
-                                                            <div class="card-body">
+                                    <section class="mt-2">
+                                        <div class="container py-2">
+                                            <div class="row d-flex justify-content-center">
+                                                <div class="col-12 px-0">
+                                                    <div class="card mb-0" id="chat1" style="border-radius: 15px;">
+                                                        <div class="card-header d-flex justify-content-between align-items-center p-3 bg-info text-white border-bottom-0"
+                                                            style="border-top-left-radius: 15px; border-top-right-radius: 15px;">
+                                                            <i class="fas fa-angle-left"></i>
+                                                            <p class="mb-0 fw-bold">Atendimento</p>
+                                                            <i class="fas fa-times"></i>
+                                                        </div>
+                                                        <div class="card-body">
 
-                                                                <div id="chat" style="max-height: 350px;overflow-y: auto;"></div>
-
+                                                            <div id="chat" style="max-height: 350px;overflow-y: auto;">
                                                             </div>
+
                                                         </div>
                                                     </div>
                                                 </div>
-
                                             </div>
-                                        </section>
+
+                                        </div>
+                                    </section>
 
                                 </div>
                                 <div class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6">
@@ -183,6 +214,63 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="kanbamEtapaModal" aria-labelledby="kabamEtapaModalLabel" tabindex="-1" aria-hidden="true"
+    data-bs-backdrop="static" data-bs-keyboard="false" data-bs-focus="false">
+    <div class="modal-dialog modal-sm">
+        <form id="formEtapaKanbam" action="">
+            <div class="modal-content" id="kanbamEtapaContent"></div>
+        </form>
+    </div>
+</div>
+
+<script id="kanbamTemplate" type="text/x-handlebars-template">
+    {{#each etapas}}
+    <div class="kanban-column" id="etapa-{{this.order}}">
+        <div class="kanban-column-header">
+            <span>
+                <i class="ti ti-settings float-end" title="Configurar Etapa" data-bs-toggle="modal" data-bs-target="#kanbamEtapaModal" onclick="objCrm.editKanbamStep('{{@key}}')" style="cursor: pointer;"></i>
+            </span>
+            <h3>{{this.nome}}</h3>
+        </div>
+        <div class="kanban-column-content" id="coluna-{{this.order}}">
+        </div>
+    </div>
+    {{/each}}
+</script>
+
+<script id="kanbamEtapaContentTemplate" type="text/x-handlebars-template">
+    <div class="modal-header pb-0">
+        <h5 class="modal-title" id="kanbamModalTitle">Etapa</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    </div>
+    <div class="modal-body">
+        <input type="hidden" name="id" id="id">
+        <div class="row">
+            <div class="col-12 mb-2">
+                <label for="nomeEtapa" class="form-label mb-2">Nome</label>
+                <input type="text" class="form-control" id="nomeEtapa" name="nomeEtapa" value="{{this.nome}}">
+            </div>
+            <div class="col-12 mb-2">
+                <label for="chatbot" class="form-label">Executa o chatbot</label>
+                <select class="atendimento-select2 form-control" id="chatbot" name="chatbot" >
+                    <option value="">Selecione...</option>
+                </select>
+            </div>
+            <div class="col-12 mb-0">
+                <label for="ordemEtapa" class="form-label mb-2">Ordem</label>
+                <input type="number" min="0" class="form-control" id="ordemEtapa" name="ordemEtapa" value="{{this.order}}">
+            </div>
+        </div>
+    
+    </div>
+    <div class="modal-footer">
+        <button type="button" id="excluirEtapa" class="btn btn-danger" data-bs-toggle="tooltip" data-bs-title="Clique aqui para salvar"
+            onclick="objCrm.deleteEtapa('{{this.id}}')">Excluir</button>
+        <button type="button" class="btn btn-primary" data-bs-toggle="tooltip" data-bs-title="Clique aqui para salvar"
+            onclick="objCrm.saveEtapa()">Salvar</button>
+    </div>
+</script>
 
 <script id="listCrmTemplate" type="text/x-handlebars-template">
     {{#each data}}
@@ -276,8 +364,12 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
 <script src="../../resources/js/handlebarsHelpers.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+
 
 <script src="../../resources/js/crm.js"></script>
 <script>
-    var objCrm = new Crm();
+    const objCrm = new Crm();
 </script>

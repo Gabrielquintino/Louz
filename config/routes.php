@@ -70,10 +70,14 @@ $rotas = [
     #endregion
     #region CRM
     '/crm' => 'CrmController@index',
+    '/crm/kanbam' => 'CrmController@kanbam',
+    '/crm/saveKanbam' => 'CrmController@saveKanbam',
+    '/crm/saveEtapa' => 'CrmController@saveEtapa',
     '/crm/list' => 'CrmController@list',
     '/crm/save' => 'CrmController@save',
     '/crm/edit' => 'CrmController@edit',
     '/crm/delete' => 'CrmController@delete',
+    '/crm/deleteEtapa' => 'CrmController@deleteEtapa',
     '/crm/history' => 'CrmController@history',
 
     #endregion

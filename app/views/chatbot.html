@@ -2,7 +2,7 @@
     <div class="container-fluid">
         <a class="navbar-brand">ChatBot</a>
         <form class="d-flex">
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#chatbotModal">
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#chatbotModal" onclick="objChatBot.edit(null)">
                 Criar
             </button>
         </form>
@@ -62,17 +62,37 @@
                         <form id="formChatBot" action="">
                             <input type="hidden" id="idChatBot">
                             <div class="row mb-0">
-                                <div class="col">
+                                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mb-2">
+                                    <label class="input-text" for="nome">Nome do chatbot</label>
                                     <input class="form-control" id="nome" type="text" placeholder="Nome do chatbot"
                                         aria-label="Nome do chatbot">
                                 </div>
-                                <div class="col">
-                                    <div class="input-group mb-0">
-                                        <label class="input-group-text" for="selListIntegrations">Integrações</label>
-                                        <select class="form-select" id="selListIntegrations">
-                                            <option selected>Escolha...</option>
-                                        </select>
-                                    </div>
+                                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mb-2">
+                                    <label class="input-text" for="selListIntegrations">Integrações</label>
+                                    <select class="form-select" id="selListIntegrations">
+                                        <option selected>Escolha...</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mb-2">
+                                    <label for="executar">Executar o chatbot quando</label>
+                                    <select name="excutar" id="executar" class="form-select">
+                                        <option value="">Seleione...</option>
+                                        <option value="mensagem">Ao receber uma mensagem</option>
+                                        <option value="etapa">Ao ser movido de etapa</option>
+                                        <option value="transferido">Ao ser transferido</option>
+                                        <option value="chatbot">Ao terminar o chatbot...</option>
+                                        <option value="dias">A cada...</option>
+                                    </select>
+                                </div>
+                                <div id="divChatbot" class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mb-2" style="display: none;">
+                                    <label for="chatbotId">Escolha o chatbot</label>
+                                    <select name="chatbotId" id="chatbotId" class="form-select">
+                                        <option value="">Seleione...</option>
+                                    </select>                                    
+                                </div>
+                                <div id="divData" class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mb-2" style="display: none;">
+                                    <label for="dias">Intervalo de dias</label>
+                                    <input type="number" name="dias" id="dias" class="form-control" min="0" max="365">
                                 </div>
                             </div>
                         </form>

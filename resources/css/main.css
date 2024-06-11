@@ -32,3 +32,55 @@
 .bootstrap-tagsinput {
     min-height: 39px;
 }
+
+.kanban-container {
+    overflow-x: auto; /* Permite rolagem horizontal dentro do container */
+    padding: 10px;
+}
+
+.kanban-board {
+    display: flex;
+    gap: 10px;
+    /*min-width: 1200px; /* Define uma largura mínima para garantir a rolagem */
+}
+
+.kanban-column {
+    background-color: #f4f4f4;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 200px;
+    min-width: 200px;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    white-space: normal; /* Permite quebra de linha dentro das colunas */
+    padding: 0;
+}
+
+.kanban-column-header {
+    background-color: #f4f4f4;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.kanban-column-content {
+    flex: 1;
+    padding: 10px;
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+.kanban-card {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    cursor: grab;
+}
+
+.kanban-card.dragging {
+    opacity: 0.5;
+}

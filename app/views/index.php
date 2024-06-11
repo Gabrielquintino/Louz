@@ -4,13 +4,17 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Louz Free</title>
-    <link rel="shortcut icon" type="image/png" href="../../resources/images/logos/favicon.png" />
+    <title>Iqon talk</title>
+    <link rel="shortcut icon" type="image/png" href="../../resources/images/logos/iqon/favicon-16x16.png" />
     <link rel="stylesheet" href="../../resources/css/styles.min.css" />
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.css" />
     <link rel="stylesheet" href="../../resources/css/chat.css" />
     <link rel="stylesheet" href="../../resources/css/main.css" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dosis:wght@200..800&display=swap" rel="stylesheet">
 
 
     <link rel="stylesheet" href="../../resources/libs/calendar/css/bootstrap-datetimepicker.min.css">
@@ -45,7 +49,7 @@
             <div>
                 <div class="brand-logo d-flex align-items-center justify-content-between">
                     <a href="./index" class="text-nowrap logo-img">
-                        <img src="../../resources/images/logos/dark-logo.svg" width="180" alt="" />
+                        <img src="../../resources/images/logos/iqon/iqontalk-dark.png" width="80" alt="" />
                     </a>
                     <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
                         <i class="ti ti-x fs-8"></i>
@@ -186,7 +190,7 @@
                             </a>
                         </li> -->
                     </ul>
-                    <div class="unlimited-access hide-menu bg-light-primary position-relative mb-7 mt-5 rounded">
+                    <!-- <div class="unlimited-access hide-menu bg-light-primary position-relative mb-7 mt-5 rounded">
                         <div class="d-flex">
                             <div class="unlimited-access-title me-3">
                                 <h6 class="fw-semibold fs-4 mb-6 text-dark w-85">Upgrade to pro</h6>
@@ -196,7 +200,7 @@
                                 <img src="../../resources/images/backgrounds/rocket.png" alt="" class="img-fluid">
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                 </nav>
                 <!-- End Sidebar navigation -->
             </div>

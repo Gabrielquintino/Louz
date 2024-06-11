@@ -2,10 +2,286 @@
 class Crm {
 
     constructor() {
-        this.list();
+        this.kanbam();
+    }
+
+    etapasLength = 0;
+    arrEtapas = {};
+
+    kanbam() {
+        $('#listClients').hide();
+        $('#kanbamClients').show();
+
+        $.ajax({
+            url: '/crm/kanbam',
+            type: 'POST',
+            data: {},
+            success: function (data) {
+                var objData = JSON.parse(data);
+                var template = document.getElementById('kanbamTemplate').innerHTML;
+                var compiled_template = Handlebars.compile(template);
+                var rendered = compiled_template(objData);
+                document.getElementById('kanbam').innerHTML = rendered;
+
+                this.etapasLength = objData.etapas.length;
+                this.arrEtapas = objData.etapas;
+
+                var arrLog = objData.log
+                arrLog.forEach(dados => {
+                    console.log(dados)
+                    var kanbanCard = document.createElement("div");
+                    kanbanCard.id = dados.id;
+                    kanbanCard.classList.add("kanban-card");
+                    kanbanCard.setAttribute("draggable", "true");
+
+                    var nomeElement = document.createElement("h5");
+                    nomeElement.textContent = dados.nome;
+
+                    var emailElement = document.createElement("p");
+                    emailElement.textContent = "Email: " + dados.email;
+                    emailElement.style.fontSize = "small";
+
+                    var telefoneElement = document.createElement("p");
+                    telefoneElement.textContent = "Telefone: " + dados.telefone;
+                    telefoneElement.style.fontSize = "small";
+
+                    var tagsElement = document.createElement("p");
+                    tagsElement.textContent = "Tags: " + dados.tags;
+                    tagsElement.style.fontSize = "small";
+
+                    kanbanCard.appendChild(nomeElement);
+                    kanbanCard.appendChild(emailElement);
+                    kanbanCard.appendChild(telefoneElement);
+                    kanbanCard.appendChild(tagsElement);
+
+                    var coluna = document.querySelector("#coluna-" + dados.etapa_order);
+                    coluna.appendChild(kanbanCard);
+                });
+
+                objData.etapas.forEach(etapa => {
+                    var colunaContent = document.getElementById('coluna-' + etapa.order);
+                    new Sortable(colunaContent, {
+                        group: 'shared',
+                        animation: 150,
+                        ghostClass: 'dragging',
+                        onEnd: function (/**Event*/evt) {
+                            var itemEl = evt.item;  // O elemento que foi movido
+                            var targetColumn = itemEl.parentNode;  // A coluna de destino
+                            var clientId = itemEl.id
+                            var etapaId = targetColumn.id.match(/\d+/)[0];
+
+                            objCrm.saveKanbam(clientId, etapaId)
+                        }
+                    });
+                });
+            }.bind(this)
+        })
+    }
+
+    editKanbamStep(pEtapaId = null) {
+        if (pEtapaId == null) {
+            var template = document.getElementById('kanbamEtapaContentTemplate').innerHTML;
+            var compiled_template = Handlebars.compile(template);
+            var rendered = compiled_template();
+            document.getElementById('kanbamEtapaContent').innerHTML = rendered;
+    
+            var ordem = document.getElementById('ordemEtapa');
+            ordem.setAttribute("max", objCrm.etapasLength + 1);
+    
+            $('#kanbamEtapaModal').modal('show')
+    
+    
+            $.ajax({
+                url: '/chatbot/listagem',
+                type: 'POST',
+                success: function (data) {
+    
+                    var objData = JSON.parse(data)
+    
+                    var chatbots = objData.data;
+    
+                    objMain.inicializarSelect2('#formEtapaKanbam #chatbot', chatbots, "nome", true, '', '#kanbamEtapaModal');
+                }
+            })
+
+            $('#excluirEtapa').hide();
+
+            document.getElementById('kanbamModalTitle').innerHTML = "Nova Etapa";
+        } else {
+
+            var template = document.getElementById('kanbamEtapaContentTemplate').innerHTML;
+            var compiled_template = Handlebars.compile(template);
+            var rendered = compiled_template(this.arrEtapas[pEtapaId]);
+            document.getElementById('kanbamEtapaContent').innerHTML = rendered;
+    
+            var ordem = document.getElementById('ordemEtapa');
+            ordem.setAttribute("max", objCrm.etapasLength + 1);
+
+            $('#excluirEtapa').show();
+    
+            $('#kanbamEtapaModal').modal('show')
+    
+    
+            $.ajax({
+                url: '/chatbot/listagem',
+                type: 'POST',
+                success: function (data) {
+    
+                    var objData = JSON.parse(data)
+    
+                    var chatbots = objData.data;
+    
+                    objMain.inicializarSelect2('#formEtapaKanbam #chatbot', chatbots, "nome", true, '', '#kanbamEtapaModal');
+                }
+            })
+
+            document.getElementById('kanbamModalTitle').innerHTML = "Editar Etapa";
+
+            setTimeout(() => {
+                $('#chatbot').val(this.arrEtapas[pEtapaId].chatbot_id).trigger('change');
+            }, 200);
+        }
+    }
+
+    saveEtapa() {
+
+        if (
+            !objMain.validar(document.getElementById('nomeEtapa'), '#formEtapaKanbam') ||
+            !objMain.validar(document.getElementById('chatbot'), '#formEtapaKanbam') ||
+            !objMain.validar(document.getElementById('ordemEtapa'), '#formEtapaKanbam')
+        ) {
+            return false;
+        }
+        $.ajax({
+            url: '/crm/saveEtapa',
+            type: 'POST',
+            data: {
+                nome: $('#nomeEtapa').val(),
+                chatbot_id: $('#chatbot').val(),
+                order: $('#ordemEtapa').val()
+            },
+            success: function (data) {
+                Swal.fire({
+                    title: "Sucesso!",
+                    text: "Nova etapa cadastrada com sucesso.",
+                    icon: "success"
+                }).then((result) => {
+                    location.reload();
+                });
+            }
+        }) 
+    }
+
+    deleteEtapa(pEtapaId) {
+
+        var clientesNaColuna = $('#coluna-' + pEtapaId).html();
+        var booTemClinte = clientesNaColuna != '\n        ';
+        var txtSucesso = "";
+        var txtAviso = "";
+
+        if (booTemClinte) {
+            txtSucesso = "Etapa excluída e clientes movidos para nova etapa."
+            var select = document.createElement('select');
+            select.classList.add('form-control');
+            select.id = "migrarParaEtapa";
+            var option = document.createElement('option');
+            option.value = "";
+            option.innerHTML = "Selecione..."
+            select.appendChild(option);
+    
+            this.arrEtapas.forEach(etapa => {
+                if (etapa.id != pEtapaId) {
+                    var option = document.createElement('option');
+                    option.value = etapa.id;
+                    option.innerHTML = etapa.nome;
+                    select.appendChild(option);
+                } else {
+                    etapaNome = etapa.nome
+                }
+            })
+    
+            var selectElement = select.outerHTML;
+
+            txtAviso = `
+                <h4>Selecione uma outra etapa para migrar os clientes em ` + etapaNome + ` </h4>
+            ` + selectElement;
+        } else {
+            txtSucesso = "Etapa excluída com sucesso."
+            selectElement = "";
+        }
+
+        var etapaNome = "";
+        
+        Swal.fire({
+            title: "Atenção esta ação é irreversivel",
+            html: txtAviso,
+            showCancelButton: true,
+            confirmButtonText: 'Confirmar',
+            cancelButtonText: 'Cancelar',
+            preConfirm: () => {
+                var opcao = null
+                if (booTemClinte) {
+                    opcao = document.getElementById('migrarParaEtapa').value;
+                }
+                if (booTemClinte && opcao == '') {
+                    Swal.showValidationMessage('Por favor, escolha uma nova etapa para os clientes.');
+                } else {
+                    return opcao;
+                }
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+
+                $.ajax({
+                    url: '/crm/deleteEtapa',
+                    type: 'POST',
+                    data: {
+                        newEtapaId: result.value,
+                        etapaId: pEtapaId,
+                        booTemClinte: booTemClinte
+                    },
+                    success: function (data) {            
+                        Swal.fire({
+                            title: "Sucesso!",
+                            text: txtSucesso,
+                            icon: "success"
+                        })
+
+                        setTimeout(() => {
+                            location.reload();
+                        }, 200);
+                    }
+                })
+
+            }
+        })
+    }
+
+    saveKanbam(pClientId, pEtapaId) {
+
+        // TODO:: verificar no log se possui mais que dez registros para o clienteId, se tiver... so deixa os ultimos dez
+
+        $.ajax({
+            url: '/crm/saveKanbam',
+            type: 'POST',
+            data: {
+                clientId: pClientId,
+                etapaId: pEtapaId
+            },
+            success: function (data) {
+                Swal.fire({
+                    title: "Sucesso!",
+                    text: "Cliente movido para nova etapa.",
+                    icon: "success"
+                })
+            }
+        })
     }
 
     list() {
+        $('#kanbamClients').hide();
+        $('#listClients').show();
+
         $.ajax({
             url: '/crm/list',
             type: 'POST',

@@ -128,7 +128,6 @@ class Main {
         $('body').css('pointer-events', 'auto');
     }
 
-
     inicializarSelect2(idSelect2, dados, campoExibir, agrupar = false, campoAgrupar = null, dropdownParent = '', tags = false) {
         // Função para agrupar os dados se necessário
         function agruparDados(dados, campoAgrupar) {
@@ -161,6 +160,26 @@ class Main {
           data: data,
           dropdownParent: $(dropdownParent),
           tags: tags
+        });
+    }
+
+    limparFormulario(pFormulario) {
+        var form = document.getElementById(pFormulario);
+
+        // Limpar todos os inputs do formulário
+        var inputs = form.querySelectorAll('input');
+        inputs.forEach(function(input) {
+            if (input.type === 'checkbox' || input.type === 'radio') {
+                input.checked = false;
+            } else {
+                input.value = '';
+            }
+        });
+
+        // Limpar todos os selects do formulário
+        var selects = form.querySelectorAll('select');
+        selects.forEach(function(select) {
+            select.selectedIndex = ""; // Define para a primeira opção
         });
     }
 }

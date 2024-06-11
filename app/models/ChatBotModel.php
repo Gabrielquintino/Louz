@@ -40,30 +40,37 @@ class ChatBotModel extends DatabaseConfig {
     }
 
     public function save($arrData) {
+        if (isset($arrData['id']) && !empty($arrData['id'])) {
 
-        $nome = $arrData['nome'];
-        $phone = $arrData['phone'];
-        $objJson = ($arrData['objJson']);
-        $arrOrder = ($arrData['arrOrder']);
-        $id = $arrData['id'];
-
-        if (isset($arrData['id']) && !empty($arrData['id']) ) {
-            $sql = "UPDATE " . $_SESSION["db_usuario"] . ".chatbot SET `nome` = ?, `integration_phone` = ?, `json` = ?, `arr_ordem` = ? WHERE id = ?";
-            $pdo = $this->getConnection()->prepare($sql);
+            $intId = $arrData['id'];
+            unset($arrData['id']);
             
+            // Construindo a parte SET dinamicamente
+            $setParts = [];
+            foreach ($arrData as $key => $value) {
+                $setParts[] = "`$key` = ?";
+            }
+            $setClause = implode(", ", $setParts);
+
+            // Construindo a query de UPDATE
+            $sql = "UPDATE " . DB_USUARIO . ".chatbot SET $setClause WHERE id = ?";
+            $pdo = $this->getConnection()->prepare($sql);
+
+            // Adicionando o id ao final do array de dados
+            $arrData[] = $intId;
+
             try {
-                $pdo->execute([$nome, $phone, $objJson, $arrOrder, $id]); // Substitua $id pelo valor do ID que você deseja atualizar
-                return ['success' => true, 'id' => $id];
+                $pdo->execute(array_values($arrData)); // Certificando-se de usar os valores do array
+                return ['success' => true, 'id' => $intId];
             } catch (Exception $err) {
                 throw new Exception($err);
             }
-            
         } else {
-            $sql = "INSERT INTO " . $_SESSION["db_usuario"] . ".chatbot (`nome`, `integration_phone`, `json`, `arr_ordem`) VALUES (?, ?, ?, ?)";
+            $sql = "INSERT INTO " . $_SESSION["db_usuario"] . ".chatbot (`nome`, `integration_phone`, `executado`, `executado_descricao`,  `json`, `arr_ordem`) VALUES (?, ?, ?, ?, ?, ?)";
             $pdo = $this->getConnection()->prepare($sql);
 
             try {
-                $pdo->execute([$nome, $phone, $objJson, $arrOrder]);
+                $pdo->execute([$arrData['nome'], $arrData['integration_phone'], $arrData['executado'], $arrData['executado_descricao'], $arrData['json'], $arrData['arr_ordem']]);
                 return ['success' => true, 'id' => $this->getConnection()->lastInsertId()];
             } catch (Exception $err) {
                 throw new Exception($err);
