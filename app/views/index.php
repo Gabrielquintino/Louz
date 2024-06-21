@@ -58,28 +58,12 @@
                 <!-- Sidebar navigation-->
                 <nav class="sidebar-nav scroll-sidebar" data-simplebar="">
                     <ul id="sidebarnav">
-                        <li class="nav-small-cap">
-                            <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-                            <span class="hide-menu">Home</span>
-                        </li>
                         <li class="sidebar-item">
                             <a class="sidebar-link" href="./index" aria-expanded="false">
                                 <span>
                                     <i class="ti ti-layout-dashboard"></i>
                                 </span>
                                 <span class="hide-menu">Dashboard</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a class="sidebar-link" href="./integracao" aria-expanded="false">
-                                <span class="icon-item-icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-whatsapp" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                        <path d="M3 21l1.65 -3.8a9 9 0 1 1 3.4 2.9l-5.05 .9"></path>
-                                        <path d="M9 10a.5 .5 0 0 0 1 0v-1a.5 .5 0 0 0 -1 0v1a5 5 0 0 0 5 5h1a.5 .5 0 0 0 0 -1h-1a.5 .5 0 0 0 0 1"></path>
-                                    </svg>
-                                </span>
-                                <span class="hide-menu">Integrações</span>
                             </a>
                         </li>
                         <li class="sidebar-item">
@@ -104,20 +88,28 @@
                                 <span class="hide-menu">Atendimentos</span>
                             </a>
                         </li>
-                        <!-- <li class="sidebar-item">
-                            <a class="sidebar-link" href="./funil" aria-expanded="false">
-                                <span>
-                                    <i class="ti ti-filter"></i>
-                                </span>
-                                <span class="hide-menu">Funil</span>
-                            </a>
-                        </li> -->
                         <li class="sidebar-item">
                             <a class="sidebar-link" href="./crm" aria-expanded="false">
                                 <span>
                                     <i class="ti ti-heart-handshake"></i>
                                 </span>
                                 <span class="hide-menu">CRM</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a class="sidebar-link" href="./produtos" aria-expanded="false">
+                                <span>
+                                    <i class="ti ti-package"></i>
+                                </span>
+                                <span class="hide-menu">Produtos</span>
+                            </a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a class="sidebar-link" href="./vendas" aria-expanded="false">
+                                <span>
+                                <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-cash-register"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M21 15h-2.5c-.398 0 -.779 .158 -1.061 .439c-.281 .281 -.439 .663 -.439 1.061c0 .398 .158 .779 .439 1.061c.281 .281 .663 .439 1.061 .439h1c.398 0 .779 .158 1.061 .439c.281 .281 .439 .663 .439 1.061c0 .398 -.158 .779 -.439 1.061c-.281 .281 -.663 .439 -1.061 .439h-2.5" /><path d="M19 21v1m0 -8v1" /><path d="M13 21h-7c-.53 0 -1.039 -.211 -1.414 -.586c-.375 -.375 -.586 -.884 -.586 -1.414v-10c0 -.53 .211 -1.039 .586 -1.414c.375 -.375 .884 -.586 1.414 -.586h2m12 3.12v-1.12c0 -.53 -.211 -1.039 -.586 -1.414c-.375 -.375 -.884 -.586 -1.414 -.586h-2" /><path d="M16 10v-6c0 -.53 -.211 -1.039 -.586 -1.414c-.375 -.375 -.884 -.586 -1.414 -.586h-4c-.53 0 -1.039 .211 -1.414 .586c-.375 .375 -.586 .884 -.586 1.414v6m8 0h-8m8 0h1m-9 0h-1" /><path d="M8 14v.01" /><path d="M8 17v.01" /><path d="M12 13.99v.01" /><path d="M12 17v.01" /></svg>
+                                </span>
+                                <span class="hide-menu">Vendas</span>
                             </a>
                         </li>
                         <li class="sidebar-item">
@@ -138,13 +130,13 @@
                         </li>
 
                         <li class="sidebar-item">
-                            <a class="sidebar-link" href="./funcionarios" aria-expanded="false">
-                                <span>
-                                    <i class="ti ti-users"></i>
+                            <a id="linkConfiguracoes" class="sidebar-link" href="./configuracoes?page=integracao" aria-expanded="false">
+                                <span class="icon-item-icon">
+                                    <i class="ti ti-settings"></i>
                                 </span>
-                                <span class="hide-menu">Funcionários</span>
+                                <span class="hide-menu">Configurações</span>
                             </a>
-                        </li>                        
+                        </li>
 
                         <li class="sidebar-item dropdown">
                             <a class="sidebar-link dropdown-toggle" href="#" id="relatoriosDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -157,38 +149,6 @@
                                 <li><a class="dropdown-item" href="#">Relatório 3</a></li>
                             </ul>
                         </li>
-                        <!-- <li class="sidebar-item">
-                            <a class="sidebar-link" href="./fornecedores" aria-expanded="false">
-                                <span>
-                                    <i class="ti ti-building-store"></i>
-                                </span>
-                                <span class="hide-menu">Fornecedores</span>
-                            </a>
-                        </li> -->
-                        <!-- <li class="sidebar-item">
-                            <a class="sidebar-link" href="./produtos" aria-expanded="false">
-                                <span>
-                                    <i class="ti ti-box"></i>
-                                </span>
-                                <span class="hide-menu">Produtos</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a class="sidebar-link" href="./estoque" aria-expanded="false">
-                                <span>
-                                    <i class="ti ti-stack-3"></i>
-                                </span>
-                                <span class="hide-menu">Estoque</span>
-                            </a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a class="sidebar-link" href="./vendas" aria-expanded="false">
-                                <span>
-                                    <i class="ti ti-coin"></i>
-                                </span>
-                                <span class="hide-menu">Vendas</span>
-                            </a>
-                        </li> -->
                     </ul>
                     <!-- <div class="unlimited-access hide-menu bg-light-primary position-relative mb-7 mt-5 rounded">
                         <div class="d-flex">

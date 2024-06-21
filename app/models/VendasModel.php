@@ -9,7 +9,7 @@ use Exception;
 use PDO;
 use stdClass;
 
-class EventoModel extends DatabaseConfig
+class VendasModel extends DatabaseConfig
 {
     public function listagem() : array {
         $sql = "SELECT * FROM ". DB_USUARIO .".eventos WHERE status = 'ativo'";

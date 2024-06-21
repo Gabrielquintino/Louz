@@ -131,4 +131,42 @@ class ClienteModel extends DatabaseConfig
             throw new Exception($err);
         }   
     }
+
+    public function adicionarTag($pClienteId, $pNovaTag) {
+        // Seleciona as tags atuais
+        $sql = "SELECT tags FROM " . DB_USUARIO . ".clientes WHERE id = :clienteId";
+        $pdo = $this->getConnection();
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(':clienteId', $pClienteId, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        // Busca as tags
+        $tags = $stmt->fetchColumn();
+    
+        // Verifica se as tags são nulas e inicializa como uma string vazia se for o caso
+        if ($tags === null) {
+            $tags = '';
+        }
+    
+        // Converte as tags para um array
+        $tagsArray = $tags ? explode(', ', $tags) : [];
+    
+        // Adiciona a nova tag se ela ainda não existir
+        if (!in_array($pNovaTag, $tagsArray)) {
+            $tagsArray[] = $pNovaTag;
+        }
+    
+        // Converte o array de volta para uma string
+        $tagsAtualizadas = implode(', ', $tagsArray);
+    
+        // Atualiza o campo tags no banco de dados
+        $sql = "UPDATE " . DB_USUARIO . ".clientes SET tags = :tags WHERE id = :clienteId";
+        $stmt = $pdo->prepare($sql);
+        $stmt->bindParam(':tags', $tagsAtualizadas, PDO::PARAM_STR);
+        $stmt->bindParam(':clienteId', $pClienteId, PDO::PARAM_INT);
+        $stmt->execute();
+    }
+    
+    
+    
 }

@@ -30,15 +30,18 @@ class AgendamentoModel extends DatabaseConfig
         }
     }
 
-    public function save(array $arrData) : int {
+    public function save(array $arrData, $booFormatDate = true) : int {
 
-
-        // Cria um objeto DateTime a partir do formato específico
-        $dateTime = DateTime::createFromFormat('d/m/Y H:i:s', $arrData['data']);
 
         // Verifica se a data foi convertida corretamente
-        if ($dateTime === false) {
-            throw new Exception("Erro ao converter a data");
+        if ($booFormatDate) {
+            // Cria um objeto DateTime a partir do formato específico
+            $dateTime = DateTime::createFromFormat('d/m/Y H:i:s', $arrData['data']);
+            if (!$dateTime) {
+                throw new Exception("Erro ao converter a data");
+            }
+        } else {
+            $dateTime = $arrData['data'];
         }
 
         $sql = "INSERT INTO `".DB_USUARIO."`.`agendamentos` (`eventos_id`, `clientes_id`, `atendimentos_id`, `data`) VALUES (?, ?, ?, ?);";

@@ -46,7 +46,7 @@ class AtendimentoModel extends DatabaseConfig
         $strFilterType = implode(" AND ", $strFilters);
         
         // Construir a query SQL
-        $sql = "SELECT * FROM " . DB_USUARIO . ".atendimentos WHERE " . $strFilterType;
+        $sql = "SELECT * FROM " . DB_USUARIO . ".atendimentos WHERE " . $strFilterType . " ORDER BY id DESC LIMIT 1";
         $pdo = $this->getConnection()->prepare($sql);
         
         // Associar os valores dos filtros aos placeholders
@@ -63,7 +63,7 @@ class AtendimentoModel extends DatabaseConfig
         }
     }
 
-    public function save(array $arrData) : int {
+    public function save(array $arrData) {
 
         if (isset($arrData['id'])) {
             $intId = $arrData['id'];

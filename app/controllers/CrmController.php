@@ -135,7 +135,13 @@ class CrmController
         $instanciaWpp = new WhatsappApiModel();
         $objChat = $instanciaWpp->getChatById($arrInstancia[0]["token"], $_POST['telefone']);
 
+        $strContactPhoto = "";
+        $strClientPhoto = "";
+
+
         if (!empty($objChat) && property_exists($objChat, 'messages')) {
+            $strContactPhoto = $objChat->contactPhoto;
+            $strClientPhoto = $objChat->clientPhoto;
             foreach ($objChat->messages as $key => $message) {
                 $objMessage = new stdClass();
                 if ($message->type == 'chat') {
@@ -160,7 +166,9 @@ class CrmController
         
         $arrList['data'] = [
             'avaliacoes' => $arrData,
-            'chat' => $arrChat
+            'chat' => $arrChat,
+            'contactPhoto' => $strContactPhoto,
+            'clientPhoto' => $strClientPhoto
         ];
 
         echo json_encode($arrList);

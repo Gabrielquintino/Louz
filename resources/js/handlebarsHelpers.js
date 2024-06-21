@@ -62,3 +62,7 @@ Handlebars.registerHelper('extractPhoneNumber', (filePath) => {
     const phoneNumber = filePath.match(/\d+/)[0];
     return phoneNumber;
 });
+
+Handlebars.registerHelper("setVar", function(varName, varValue, options) {
+  options.data.root[varName] = varValue;
+});

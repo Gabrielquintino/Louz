@@ -32,19 +32,20 @@ class Evento {
     edit(intId = null) {
         if (intId == null) {
             var template = document.getElementById('conteudoEventoTemplate').innerHTML;
-
+    
             var compiled_template = Handlebars.compile(template);
-
+    
             var rendered = compiled_template(null);
-
+    
             document.getElementById('conteudoEvento').innerHTML = rendered;
-
+    
             var objDateTime = new DateTime();
             objDateTime.picker('#formEvento #dataInicioEvento');
             objDateTime.picker('#formEvento #dataFimEvento');
-
+    
             return;
         }
+    
         $.ajax({
             url: '/eventos/get',
             type: 'POST',
@@ -56,57 +57,114 @@ class Evento {
                 var objData = JSON.parse(data);
                 
                 var template = document.getElementById('conteudoEventoTemplate').innerHTML;
-
+    
                 var compiled_template = Handlebars.compile(template);
-
+    
                 var rendered = compiled_template(objData.data);
-
+    
                 document.getElementById('conteudoEvento').innerHTML = rendered;
-
+    
                 var objDateTime = new DateTime();
                 objDateTime.picker('#formEvento #dataInicioEvento');
                 objDateTime.picker('#formEvento #dataFimEvento');
+    
+                // Preencher os campos de dias e horários da semana
+                if (objData.data.dias_semana && objData.data.horarios_semana) {
+                    var diasSemana = objData.data.dias_semana.split(', ');
+                    var horariosSemana = JSON.parse(objData.data.horarios_semana);
+    
+                    diasSemana.forEach(function(dia) {
+                        dia = dia.toLowerCase();
+                        if (document.getElementById(dia)) {
+                            document.getElementById(dia).checked = true;
+                            if (horariosSemana[dia.charAt(0).toUpperCase() + dia.slice(1)]) {
+                                var horarios = horariosSemana[dia.charAt(0).toUpperCase() + dia.slice(1)].split('-');
+                                if (horarios[0]) {
+                                    document.querySelector(`input[name='${dia}_inicio']`).value = horarios[0];
+                                }
+                                if (horarios[1]) {
+                                    document.querySelector(`input[name='${dia}_fim']`).value = horarios[1];
+                                }
+                            }
+                        }
+                    });
+                }
             }
         })
     }
+    
 
     save() {
 
-        objMain.validar(document.getElementById('#dataInicioEvento'), '#nome');
+        var valid = true;
+        var errorMessage = "";
 
-
-        var data = $('#formEvento #dataInicioEvento').val()
-        var dataFornecida = new Date(data);
-        var dataAtual = new Date();
-        if (dataFornecida < dataAtual) {
-            Swal.fire({
-                title: "Ops!",
-                text: "A data de iníncio é menor que a data atual.",
-                icon: "error"
-            })
+        // Validação de data de início e fim do evento
+        var dataInicio = $('#dataInicio').val();
+        var dataFim = $('#dataFim').val();
+        if (new Date(dataInicio) < new Date()) {
+            valid = false;
+            errorMessage += "A data de início é menor que a data atual.\n";
+        }
+        if (new Date(dataFim) < new Date()) {
+            valid = false;
+            errorMessage += "A data final é menor que a data atual.\n";
         }
 
-        var data = $('#formEvento #dataFimEvento').val()
-        var dataFornecida = new Date(data);
-        var dataAtual = new Date();
-        if (dataFornecida < dataAtual) {
-            Swal.fire({
-                title: "Ops!",
-                text: "A data final é menor que a data atual.",
-                icon: "error"
-            })
+        // Validação dos dias da semana e horários
+        var diasSelecionados = $('input[name="dias_semana[]"]:checked');
+        if (diasSelecionados.length === 0) {
+            valid = false;
+            errorMessage += "Selecione pelo menos um dia da semana.\n";
         }
+
+        diasSelecionados.each(function() {
+            var dia = $(this).val();
+            var inicio = $('input[name="' + dia + '_inicio"]').val();
+            var fim = $('input[name="' + dia + '_fim"]').val();
+
+            if (!inicio || !fim) {
+                valid = false;
+                errorMessage += "Preencha os horários de início e fim para " + dia + ".\n";
+            } else if (inicio >= fim) {
+                valid = false;
+                errorMessage += "O horário de fim deve ser maior que o horário de início para " + dia + ".\n";
+            }
+        });
+
+        if (!valid) {
+            Swal.fire({
+                title: "Erro!",
+                text: errorMessage,
+                icon: "error"
+            });
+            return;
+        }
+
+        // Dados para envio
+        var dados = {
+            'id': $('#id').val(),
+            'nome': $('#nome').val(),
+            'data_inicio': $('#dataInicio').val(),
+            'data_fim': $('#dataFim').val(),
+            'periodicidade': $('#periodicidade').val(),
+            'duracao_horas': $('#duracao_horas').val(),
+            'dias_semana': [],
+            'horarios_semana': {}
+        };
+
+        diasSelecionados.each(function() {
+            var dia = $(this).val();
+            var inicio = $('input[name="' + dia + '_inicio"]').val();
+            var fim = $('input[name="' + dia + '_fim"]').val();
+            dados.dias_semana.push(dia);
+            dados.horarios_semana[dia] = [inicio, fim];
+        });
 
         $.ajax({
             url: '/eventos/save',
             type: 'POST',
-            data: {
-                'id': $('#formEvento #id').val(),
-                'nome': $('#formEvento #nome').val(),
-                'data_inicio': $('#formEvento #dataInicio').val(),
-                'data_fim': $('#formEvento #dataFim').val(),
-                'periodicidade': $('#formEvento #periodicidade').val()
-            },
+            data: dados,
             async: true,
             success: function (data) {
                 Swal.fire({
@@ -117,7 +175,7 @@ class Evento {
                     location.reload();
                 });
             }
-        })
+        });
 
     }
 

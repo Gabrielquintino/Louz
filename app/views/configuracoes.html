@@ -1,0 +1,93 @@
+<div class="page-wrapper" id="main-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full" data-sidebar-position="fixed" data-header-position="fixed">
+    <!-- Sidebar Start -->
+    <aside class="left-sidebar">
+        <!-- Sidebar scroll-->
+        <div>
+            <!-- Sidebar navigation-->
+            <nav class="sidebar-nav scroll-sidebar p-2">
+                <ul id="sidebarnav">
+                    <li class="nav-small-cap">
+                        <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+                        <span class="hide-menu">Configurações</span>
+                    </li>
+                    <li class="sidebar-item">
+                        <a id="linkIntegracoes" class="sidebar-link" href="./configuracoes?page=integracao" aria-expanded="false">
+                            <span class="icon-item-icon">
+                                <i class="ti ti-server-cog"></i>
+                            </span>
+                            <span class="hide-menu">Integrações</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="./configuracoes?page=funcionarios" aria-expanded="false">
+                            <span>
+                                <i class="ti ti-users"></i>
+                            </span>
+                            <span class="hide-menu">Funcionários</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="./configuracoes?page=permissoes" aria-expanded="false">
+                            <span class="icon-item-icon">
+                                <i class="ti ti-lock"></i>
+                            </span>
+                            <span class="hide-menu">Permissões</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a class="sidebar-link" href="./configuracoes?page=conta" aria-expanded="false">
+                            <span>
+                                <i class="ti ti-user"></i>
+                            </span>
+                            <span class="hide-menu">Minha conta</span>
+                        </a>
+                    </li>
+
+
+                </ul>
+
+            </nav>
+            <!-- End Sidebar navigation -->
+        </div>
+        <!-- End Sidebar scroll-->
+    </aside>
+
+    <!--  Main wrapper -->
+    <div class="body-wrapper">
+
+        <div class="container-fluid pt-4">
+            <?php
+            // Inclui o arquivo especificado pela variável $html
+            if (isset($_GET['page'])) {
+                $page = $_GET['page'];
+                // Mapeia o valor do parâmetro para o arquivo HTML correspondente
+                switch ($page) {
+                    case 'integracao':
+                        include 'integracao.html';
+                        break;
+                    case 'funcionarios':
+                        include 'funcionario.html';
+                        break;
+                    case 'permissoes':
+                        include 'permissoes.html';
+                        break;
+                    case 'conta':
+                        include 'conta.html';
+                        break;
+                    default:
+                        echo 'Página não encontrada.';
+                        break;
+                }
+            } else {
+                echo 'Bem-vindo! Selecione uma opção no menu.';
+            }
+            ?>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    var link = document.getElementById('linkConfiguracoes');
+    link.classList.add('active');
+</script>

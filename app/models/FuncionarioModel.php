@@ -10,15 +10,20 @@ use stdClass;
 
 class FuncionarioModel extends DatabaseConfig
 {
-    public function listagem($booOnlyActive = true) : array {
+    public function listagem($booOnlyActive = true, $pCargoId = null) : array {
 
         $strSqlFilter = $booOnlyActive ? "and f.status = 'ativo'" : " ";
+
+        if (!empty($pCargoId) && $booOnlyActive) {
+            $strSqlFilter .= " and f.cargos_id = " . $pCargoId;
+        }
+
         $sql = "SELECT f.id, c.nome cargo, f.nome, f.email, f.comissao, f.status
         FROM ". DB_USUARIO .".funcionarios f 
         INNER JOIN ". DB_USUARIO .".cargos c on 
         c.id = f.cargos_id and c.status = 'ativo' 
         WHERE 1 = 1 " . $strSqlFilter .
-        "ORDER BY c.nome;";
+        " ORDER BY c.nome;";
         $pdo = $this->getConnection()->prepare($sql);
         
         try {

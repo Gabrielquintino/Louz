@@ -60,6 +60,20 @@ class Atendimento {
                     var chatContainer = document.getElementById('chatAtendimento');
                     // Rola a barra de rolagem para a parte inferior
                     chatContainer.scrollTop = chatContainer.scrollHeight;
+
+
+                    var myPhoto = document.getElementsByClassName('photo-fromMe')
+                    var contactPhoto = document.getElementsByClassName('photo-client')
+
+                    myPhoto.forEach(function(photo){
+                        photo.src = objData.data.clientPhoto
+                    })
+
+                    contactPhoto.forEach(function(photo){
+                        photo.src = objData.data.contactPhoto
+                    })
+
+
                 }
             },
             error: function () {
@@ -74,41 +88,47 @@ class Atendimento {
         });
     }
 
-    edit(intId, clientId, strTelefone) {
+    async edit(intId, clientId, strTelefone) {
 
-        $('#formAtendimento #telefone').val(strTelefone);
-        $('#formAtendimento #id').val(intId);
-        $('#formAtendimento #clientId').val(clientId);
+        var template = document.getElementById('detalhesClienteTemplate').innerHTML;
+        var compiled_template = Handlebars.compile(template);
+        var rendered = compiled_template(null);
+        document.getElementById('detalhesCliente').innerHTML = rendered;
 
+        objMain.limparFormulario('formAtendimento');
 
-        $.ajax({
+        await $.ajax({
             url: '/funcionarios/listagem',
             type: 'POST',
+            async: false,
             success: function (data) {
 
                 var objData = JSON.parse(data)
 
                 var funcionarios = objData.data;
 
-                objMain.inicializarSelect2('#formAtendimento #funcionarios', funcionarios, "nome", true, 'cargo', '#atendimentotModal');
+                objMain.inicializarSelect2('#formAtendimento #funcionarios', funcionarios, "nome", true, 'cargo', '#offcanvasRight');
             }
         })
 
-        $.ajax({
+        await $.ajax({
             url: '/eventos/listagem',
             type: 'POST',
+            async: false,
             success: function (data) {
 
                 var objData = JSON.parse(data)
 
                 var eventos = objData.data;
 
-                objMain.inicializarSelect2('#formAtendimento #evento', eventos, "nome", true, '', '#atendimentotModal');
+                objMain.inicializarSelect2('#formAtendimento #evento', eventos, "nome", false, null, '#offcanvasRight');
             }
         })
 
+        $('#formAtendimento #telefone').val(strTelefone);
+        $('#formAtendimento #id').val(intId);
+        $('#formAtendimento #clientId').val(clientId);
 
-        objMain.limparFormulario('formAtendimento');
 
         if (intId != null) {
             $.ajax({
@@ -119,6 +139,15 @@ class Atendimento {
                 },
                 success: function (data) {
                     var objData = JSON.parse(data);
+                    var template = document.getElementById('chatAtendimentoAcoesTemplate').innerHTML;
+                    var compiled_template = Handlebars.compile(template);
+                    var rendered = compiled_template(objData.data);
+                    document.getElementById('chatAtendimentoAcoes').innerHTML = rendered;
+
+                    var objDateTime = new DateTime();
+                    objDateTime.picker('#id_0');
+                    $('#formAtendimento #tags').tagsinput()
+
                     if (objData.data.tags) {
                         var tagsArray = objData.data.tags.split(',');
                         $('#formAtendimento #originalTags').val(objData.data.tags);
@@ -144,11 +173,14 @@ class Atendimento {
         var eventoId = $('#formAtendimento #evento ').val();
         var dataHora = $('#formAtendimento #agendamento').val();
         var funcionario = $('#formAtendimento #funcionarios').val();
+        var observacao = $('#formAtendimento #observacao').val();
+
 
         if (
             $('#formAtnedimento #funcionarios').val() == undefined &&
             $('#formAtendimento #agendamento').val() == '' &&
-            $('#formAtendimento #originalTags').val() == $('#formAtendimento #tags').val()
+            $('#formAtendimento #originalTags').val() == $('#formAtendimento #tags').val() &&
+            $('#formAtendimento #observacao').val() == ''
         ) {
             Swal.fire({
                 title: "Ops!",
@@ -190,6 +222,7 @@ class Atendimento {
                 'evento_id': eventoId,
                 'dataHora': dataHora,
                 'funcionarios_id': funcionario,
+                'observacao': observacao,
                 'tags': $('#formAtendimento #tags').val(),
                 'boolTag': boolTag
             },
@@ -230,9 +263,11 @@ class Atendimento {
     }
 
     sendMessage() {
-        var strMessage = $('#formAtendimento #message').val();
+        var strMessage = $('#message').val();
         var strTelefone = $('#formAtendimento #telefone').val();
 
+        var img = document.getElementsByClassName('photo-fromMe');
+        var src = img[0].src
 
         $.ajax({
             url: '/atendimento/sendMessage',
@@ -265,11 +300,11 @@ class Atendimento {
                         <p class="text-end mb-0" style="font-size: xx-small;">` + dataAgora + `</p>
                     </div>
 
-                    <img src="../../resources/images/profile/chatbot.png" alt="avatar 1"
-                        style="width: 45px; height: 100%;">
+                    <img src="` + src + `" alt="avatar 1"
+                        style="width: 45px; height: 100%; border-radius: 100%">
                 </div>`;
 
-                $('#formAtendimento #message').val('')
+                $('#message').val('')
                 var chatContainer = document.getElementById('chatAtendimento');
                 chatContainer.scrollTop = chatContainer.scrollHeight;
 
@@ -302,10 +337,10 @@ class Atendimento {
 
             chat.classList = "col-12 col-sm-12 col-md-12 col-lg-8 col-xl-8";
             ico.classList = "ti ti-layout-sidebar-right-expand";
-            $('#btnShowActions').attr('title', 'Expandir ações');
+            $('#btnShowActions').attr('title', 'Expandir detalhes');
         } else {
             chat.classList = "col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4"
-            $('#btnShowActions').attr('title', 'Esconder ações');
+            $('#btnShowActions').attr('title', 'Esconder detalhes');
 
             ico.classList = "ti ti-layout-sidebar-left-expand";
 

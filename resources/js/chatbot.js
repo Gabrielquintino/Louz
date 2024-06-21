@@ -36,7 +36,6 @@ class ChatBot {
                         $('#divData').hide();
                         $('#divChatbot').show();
                         var select = document.getElementById('chatbotId');
-                        console.log(objData1)
                         objData1.data.forEach(function(item) {
                             var opcao = document.createElement('option')
                             opcao.value = item.id;
@@ -336,28 +335,25 @@ paper.on('element:pointerdblclick',
     async function (elementView, evt, x, y) {
 
         var cell = elementView.model;
-        var sourceElement = null; // Declare a variável fora do escopo do loop para que ela seja acessível fora dele
+        var arrSourceElements = []; // Declare a variável fora do escopo do loop para que ela seja acessível fora dele
+        var arrTargetElements = []; // Declare a variável fora do escopo do loop para que ela seja acessível fora dele
+
 
         if (cell.isElement()) {
             var connectedLinks = graph.getConnectedLinks(cell, { inbound: true, outbound: true });
             connectedLinks.forEach(function (link) {
                 if (link.get('target').id === cell.id) {
-                    sourceElement = graph.getCell(link.get('source').id);
+                    arrSourceElements.push(graph.getCell(link.get('source').id).id)
+                } else {
+                    arrTargetElements.push(graph.getCell(link.get('target').id).id)
                 }
             });
-        }
 
-        if (sourceElement && sourceElement.isElement() &&
-            sourceElement.attributes.attrs.hasOwnProperty('bodyText') &&
-            sourceElement.attributes.attrs.bodyText.hasOwnProperty('opcao') &&
-            sourceElement.attributes.attrs.bodyText.hasOwnProperty('valor')) {
-            elementView.model.attributes.attrs.bodyText.previousElement = {
-                opcao: sourceElement.attributes.attrs.bodyText.opcao,
-                valor: sourceElement.attributes.attrs.bodyText.valor,
-                prevId: sourceElement.id
-            };
-            console.log(elementView);
+            elementView.model.attributes.attrs.bodyText.previousElements = arrSourceElements;
+            elementView.model.attributes.attrs.bodyText.nextElements = arrTargetElements;
             elementView.update();
+
+            console.log(elementView);
         }
 
         var type = elementView.model.attributes.attrs.label.text;
@@ -615,7 +611,6 @@ paper.on('element:pointerdblclick',
                 },
             }).then((result) => {
                 if (result.isConfirmed) {
-                    console.log(result)
                     // Obtém o valor do texto digitado
                     elementView.model.attributes.attrs.bodyText.setor = result.value.cargo;
                     elementView.model.attributes.attrs.bodyText.funcionario = result.value.funcinario;

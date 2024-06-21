@@ -79,14 +79,49 @@ $rotas = [
     '/crm/delete' => 'CrmController@delete',
     '/crm/deleteEtapa' => 'CrmController@deleteEtapa',
     '/crm/history' => 'CrmController@history',
-
     #endregion
+
     #region Fornecedores
     '/fornecedores' => 'FornecedoresController@index',
-    #region
+    #endregion
+
+    #region Produtos
     '/produtos' => 'ProdutosController@index',
+    '/produtos/listagem' => 'ProdutosController@listagem',
+    '/produtos/get' => 'ProdutosController@get',
+    '/produtos/save' => 'ProdutosController@save',
+    '/produtos/delete' => 'ProdutosController@delte',
+    #endregion
     '/estoque' => 'EstoqueController@index',
+
+    #region Vendas
     '/vendas' => 'VendasController@index',
+    '/vendas/listagem' => 'VendasController@listagem',
+    '/vendas/get' => 'VendasController@get',
+    '/vendas/save' => 'VendasController@save',
+    '/vendas/delete' => 'VendasController@delete',
+    #endregion
+
+    '/configuracoes' => 'ConfigController@index',
+
+    #region Permissões
+    '/permissoes' => 'PermissoesController@index',
+    '/permissoes/listagem' => 'PermissoesController@listagem',
+    '/permissoes/get' => 'PermissoesController@get',
+    '/permissoes/save' => 'PermissoesController@save',
+    '/permissoes/delete' => 'PermissoesController@delete',
+    #endregion
+
+    #region Minha conta
+    '/conta' => 'ContaController@index',
+    '/conta/listagem' => 'ContaController@listagem',
+    '/conta/get' => 'ContaController@get',
+    '/conta/save' => 'ContaController@save',
+    '/conta/delete' => 'ContaController@delete',
+    #endregion
+
+
+
 
 
 

@@ -45,19 +45,19 @@
     data-bs-backdrop="static" data-bs-keyboard="false" data-bs-focus="false">
     <div class="modal-dialog modal-md">
         <div class="modal-content">
-            <form id="formEvento">
-                <div class="modal-title p-4 pb-0">
-                    <h3> Evento </h3>
-                </div>
-                <div class="modal-body pb-0">
-                    <div id="conteudoEvento"></div>
-                </div>
-                <div class="modal-footer pt-0">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                    <button type="button" class="btn btn-primary" data-bs-toggle="tooltip"
-                        data-bs-title="Clique aqui para salvar" onclick="objEvento.save()">Salvar</button>
-                </div>
-            </form>
+           
+            <div class="modal-title p-4 pb-0">
+                <h3> Evento </h3>
+            </div>
+            <div class="modal-body pb-0">
+                <div id="conteudoEvento"></div>
+            </div>
+            <div class="modal-footer pt-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-primary" data-bs-toggle="tooltip"
+                    data-bs-title="Clique aqui para salvar" onclick="objEvento.save()">Salvar</button>
+            </div>
+            
 
         </div>
     </div>
@@ -91,48 +91,94 @@
 </script>
 
 <script id="conteudoEventoTemplate" type="text/x-handlebars-template">
-    <div class="row">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <input type="hidden" name="id" id="id" value="{{this.id}}">
-                    <div class="row mb-3">
-                        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
-                            <label for="nome" class="form-label">Nome</label>
-                            <input class="form-control" id="nome" name="nome" type="text" value="{{this.nome}}" />
+    <form id="formEvento">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body p-2">
+                        <input type="hidden" name="id" id="id" value="{{this.id}}">
+                        <div class="row mb-3">
+                            <div class="col-12">
+                                <label for="nome" class="form-label">Nome</label>
+                                <input class="form-control" id="nome" name="nome" type="text" value="{{this.nome}}" />
+                            </div>
                         </div>
-                        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
-                            <label for="periodicidade" class="form-label">Periodicidade</label>
-                            <input class="form-control" id="periodicidade" name="periodicidade" title="O evento se repete a cada x dias" type="number" value="{{this.periodicidade}}"
-                                placeholder="O evento se repete a cada x dias" />
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
-                            <div class="form-group">
-                                <label class="form-label" for="dataInicio">Começa em...</label>
-                                <div class="input-group date" id="dataInicioEvento">
-                                    <input name="dataInicio" id="dataInicio" type="text"
-                                        value="{{'formatTimeStamp' this.data_inicio}}" class="form-control"
-                                        placeholder="MM/DD/YYYY hh:mm:ss" required />
+                        <div class="row mb-3">
+                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                <div class="form-group">
+                                    <label class="form-label" for="dataInicio">Começa em...</label>
+                                    <div class="input-group date" id="dataInicioEvento">
+                                        <input name="dataInicio" id="dataInicio" type="text"
+                                            value="{{'formatTimeStamp' this.data_inicio}}" class="form-control"
+                                            placeholder="MM/DD/YYYY hh:mm:ss" required />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                <div class="form-group">
+                                    <label class="form-label" for="dataFim">Termina em...</label>
+                                    <div class="input-group date" id="dataFimEvento">
+                                        <input name="dataFim" id="dataFim" type="text"
+                                            value="{{'formatTimeStamp' this.data_fim}}" class="form-control"
+                                            placeholder="MM/DD/YYYY hh:mm:ss" required />
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
-                            <div class="form-group">
-                                <label class="form-label" for="dataFim">Termina em...</label>
-                                <div class="input-group date" id="dataFimEvento">
-                                    <input name="dataFim" id="dataFim" type="text"
-                                        value="{{'formatTimeStamp' this.data_fim}}" class="form-control"
-                                        placeholder="MM/DD/YYYY hh:mm:ss" required />
-                                </div>
+                        <div class="row mb-3">
+                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mb-0">
+                                <label class="form-label" for="duracao_horas">Duração (em horas):</label>
+                                <input type="number" id="duracao_horas" class="form-control" name="duracao_horas" required>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mb-0">
+                                <label for="periodicidade" class="form-label">Periodicidade</label>
+                                <input class="form-control" id="periodicidade" name="periodicidade" title="O evento se repete a cada x dias" type="number" value="{{this.periodicidade}}"
+                                    placeholder="O evento se repete a cada x dias" />
+                            </div>
+                        </div>
+                        <div class="row mb-0">
+                            <div class="col-12 col-sm-12 col-md-12 col-lg-12 col-xl-12 mb-0">
+                                
+                                <label class='form-label' for="dias_semana">Dias da Semana:</label><br>
+                                <ul>
+                                    <?php
+                                    $diasDaSemana = [
+                                        'Segunda' => 'segunda',
+                                        'Terça' => 'terca',
+                                        'Quarta' => 'quarta',
+                                        'Quinta' => 'quinta',
+                                        'Sexta' => 'sexta',
+                                        'Sábado' => 'sabado',
+                                        'Domingo' => 'domingo'
+                                    ];
+                                    foreach ($diasDaSemana as $diaNome => $diaValor) {
+                                        echo "<li class='mb-2'>
+                                                <div class='row'>
+                                                    <div class='col-12'>
+                                                        <div class='form-check ms-2'>
+                                                            <input class='form-check-input' type='checkbox' id='{$diaValor}' name='dias_semana[]' value='{$diaValor}'>
+                                                            <label class='form-check-label' for='{$diaValor}'>{$diaNome}</label>
+                                                        </div>
+                                                    </div>
+                                                    <div class='col-12 d-flex'>
+                                                        <!-- <label class='form-label' for='comeca'>Começa</label> -->
+                                                        <input class='form-control w-50 ms-2' id='comeca' type='time' title='Começa' name='{$diaValor}_inicio'>
+                                                        <!-- <label class='form-label' for='termina'>Termina</label> -->
+                                                        <input class='form-control w-50 ms-2' id='termina' type='time' title='Termina' name='{$diaValor}_fim'>
+                                                    </div>
+                                                </div>
+                                            </li>";
+                                    }
+                                    ?>
+                                </ul>
+
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </form>
 </script>
 
 <script src="../../resources/js/evento.js"></script>

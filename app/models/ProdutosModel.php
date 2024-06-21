@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use App\Config\DatabaseConfig;
@@ -9,34 +8,20 @@ use Exception;
 use PDO;
 use stdClass;
 
-class EventoModel extends DatabaseConfig
+class ProdutosModel extends DatabaseConfig
 {
-    public function listagem() : array {
-        $sql = "SELECT * FROM ". DB_USUARIO .".eventos WHERE status = 'ativo'";
+
+    public function listagem() {
+        $sql = "SELECT * FROM `".DB_USUARIO."`.produtos";
         $pdo = $this->getConnection()->prepare($sql);
-        
+    
         try {
             $pdo->execute();
             $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
+            return $result;
         } catch (Exception $err) {
             throw new Exception($err);
         }
-
-        return $result;
-    }
-
-    public function get($pIntId) : array {
-        $sql = "SELECT * FROM ". DB_USUARIO .".eventos WHERE status = 'ativo' and id = ?";
-        $pdo = $this->getConnection()->prepare($sql);
-        
-        try {
-            $pdo->execute([$pIntId]);
-            $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
-        } catch (Exception $err) {
-            throw new Exception($err);
-        }
-
-        return $result;        
     }
 
     public function save($arrData) : int {
@@ -124,28 +109,37 @@ class EventoModel extends DatabaseConfig
     
         return [];
     }
-    
 
-    public function delete($pIntId) : bool {
-        $sql = "DELETE FROM ".DB_USUARIO.".agendamentos WHERE eventos_id = ?";
-        $pdo = $this->getConnection()->prepare($sql);
-        try {
-            $pdo->execute([$pIntId]);
-        } catch (Exception $err) {
-            throw new Exception($err);
-            return false;
-        }
 
-        $sql = "DELETE FROM " . DB_USUARIO . ".eventos WHERE id = ?";
+    public function get($intId) {
+
+        $sql = "SELECT * FROM " . DB_USUARIO . ".produtos WHERE id = ". $intId;
+
         $pdo = $this->getConnection()->prepare($sql);
 
         try {
-            $pdo->execute([$pIntId]); // Substitua $id pelo valor do ID que você deseja excluir
+            $pdo->execute();
+            $result = $pdo->fetch(PDO::FETCH_ASSOC);
+            if ($result) {
+                return $result; // Retorna os dados encontrados
+            } else {
+                return [];
+            }
         } catch (Exception $err) {
             throw new Exception($err);
-            return false;
+        }        
+    }
+
+    public function delete($intId) {
+        $sql = "DELETE FROM ".DB_USUARIO.".produtos WHERE id = ?;";
+
+        $pdo = $this->getConnection()->prepare($sql);
+
+        try {
+            $pdo->execute([$intId]);
+            return ['success' => true, 'id' => $intId];
+        } catch (Exception $err) {
+            throw new Exception($err);
         }
-        
-        return true;
     }
 }

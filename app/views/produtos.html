@@ -1,0 +1,123 @@
+<nav class="navbar navbar-light bg-transparent mb-3">
+    <div class="container-fluid">
+        <a class="navbar-brand">Produtos</a>
+        <form class="d-flex">
+            <button type="button" class="btn btn-primary" onclick="objProduto.edit()" data-bs-toggle="modal" data-bs-target="#produtoModal">
+                Criar
+            </button>
+        </form>
+    </div>
+</nav>
+
+<!-- Lista de Produtos -->
+<div class="card w-100">
+    <div class="card-body p-4">
+        <h5 class="card-title fw-semibold mb-4">Lista de Produtos</h5>
+        <div class="table-responsive">
+            <table class="table text-nowrap mb-0 align-middle">
+                <thead class="text-dark fs-4">
+                    <tr>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Nome</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Descrição</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Valor</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Status</h6>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="listProdutos"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade " id="produtoModal" tabindex="-1" aria-labelledby="produtoModalLabel" aria-hidden="true"
+    data-bs-backdrop="static" data-bs-keyboard="false" data-bs-focus="false">
+    <div class="modal-dialog modal-md">
+        <div class="modal-content">
+            <form id="formProduto">
+                <div class="modal-title p-4 pb-0">
+                    <h3> Produto </h3>
+                </div>
+                <div class="modal-body pb-0">
+                    <div id="conteudoProduto"></div>
+                </div>
+                <div class="modal-footer pt-0">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" data-bs-toggle="tooltip"
+                        data-bs-title="Clique aqui para salvar" onclick="objProduto.save()">Salvar</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>  
+
+<script id="listProdutosTemplate" type="text/x-handlebars-template">
+    {{#each data}}
+        <tr>
+            <td>{{this.nome}}</td>
+            <td>{{this.descricao}}</td>
+            <td>{{this.valor}}</td>
+            <td>{{this.status}}</td>
+            <td class="text-right">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ProdutoModal" type="button" onclick="objProduto.edit('{{this.id}}')">
+                    <i class="ti ti-edit" ></i>
+                </button>
+                <button class="btn btn-danger" type="button" onclick="objProduto.delete('{{this.id}}')">
+                    <i class="ti ti-trash"></i>
+                </button>
+            </td>
+        </tr>
+    {{/each}}
+    {{#unless data}}
+        <tr>
+            <td colspan="4">
+                <p class="text-danger text-center">Nenhum dado encontrado</p>
+            </td>
+        </tr>
+    {{/unless}}
+</script>
+
+<script id="conteudoProdutoTemplate" type="text/x-handlebars-template">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <input type="hidden" name="id" id="id" value="{{this.id}}">
+                    <div class="row mb-3">
+                        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                            <label for="nome" class="form-label">Nome</label>
+                            <input class="form-control" id="nome" name="nome" type="text" value="{{this.nome}}" />
+                        </div>
+                        <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                            <label for="valor" class="form-label">Valor</label>
+                            <input class="form-control" id="valor" name="valor" title="" type="text" value="{{this.valor}}"
+                                placeholder="" />
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <label for="descricao" class="form-label">Descrição</label>
+                            <textarea class="form-control" id="descricao" name="descricao" title="" value="{{this.descricao}}"
+                                placeholder="" > </textarea>
+                        </div>
+                    </div>                    
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script src="../../resources/js/produtos.js"></script>
+
+<script>
+    var objProduto = new Produto();
+</script>

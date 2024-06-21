@@ -4,9 +4,9 @@
 
         <div class="buttons">
             <button class="btn btn-primary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
-                Ver detalhes
+                Ações
             </button>
-            <button id="btnShowActions" class="btn btn-primary" type="button" onclick="objAtendimento.showActions()" title="Expandir ações">
+            <button id="btnShowActions" class="btn btn-primary" type="button" onclick="objAtendimento.showActions()" title="Expandir detalhes">
                 <i id="icoShowActions" class="ti ti-layout-sidebar-right-expand" style="font-size: larger;"></i>
             </button>
         </div>
@@ -21,13 +21,18 @@
 
 <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
     <div class="offcanvas-header">
-      <h5 class="offcanvas-title" id="offcanvasRightLabel">Detalhes do Cliente</h5>
-      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        <h5 class="offcanvas-title" id="offcanvasRightLabel">Ações do atendimento</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
-    <div class="offcanvas-body">
-      ...
+    <div id="detalhesCliente" class="offcanvas-body">
+
     </div>
-  </div>
+    <div class="offcanvas-footer p-3" style="text-align: end;">
+        <button type="button" id="encerrar" class="btn btn-danger" onclick="objAtendimento.encerrar()">Encerrar</button>
+        <button type="button" class="btn btn-primary" data-bs-toggle="tooltip"
+            data-bs-title="Clique aqui para salvar" onclick="objAtendimento.save()">Salvar</button>
+    </div>
+</div>
 
 <!-- Lista de atendimentos -->
  <div class="row">
@@ -38,7 +43,7 @@
             </div>
             <div class="card-footer">
                 <div class="input-group mb-0">
-                    <input type="text" class="form-control" id="message" placeholder="Pesquisar"
+                    <input type="text" class="form-control" id="search" placeholder="Pesquisar"
                         aria-label="Pesquisar cliente" aria-describedby="button-addon2">
                     <button class="btn btn-success" type="button" id="button-addon2" onclick="">
                         <svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-search"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M21 21l-6 -6" /></svg>
@@ -50,7 +55,7 @@
     </div>
     <div id="chatAtendimentoConversa" class="col-12 col-sm-12 col-md-12 col-lg-8 col-xl-8">
         <div class="card w-100">
-            <div class="card-body card-atendimento">
+            <div class="card-body card-atendimento" style="overflow-y: unset !important;">
                 <div id="chatAtendimento" style="max-height: 350px; min-height: 350px; overflow-y: auto;"></div>
             </div>
             <div class="card-footer">
@@ -73,56 +78,11 @@
         </div>
     </div>
     <div id="chatAtendimentoAcoes" class="col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4" style="display: none;">
-        <div class="card w-100">
-            <div class="card-body card-atendimento">
-                <form id="formAtendimento">
-                    <input type="hidden" name="telefone" id="telefone" style="display: none;">
-                    <input type="hidden" name="id" id="id" style="display: none;">
-                    <input type="hidden" name="clientId" id="clientId" style="display: none;">
-                    <input type="hidden" name="originalTags" id="originalTags" style="display: none;">
-                    <div class="row">
-                        <div class="col-12 mb-2">
-                            <label for="funcionarios" class="form-label">Transferir para...</label>
-                            <select class="atendimento-select2 form-control" id="funcionarios" name="funcionarios">
-                                <option value="">Selecione...</option>
-                            </select>
-                        </div>
-                        <div class="col-12 mb-2">
-                            <label for="evento" class="form-label">Evento</label>
-                            <select class="atendimento-select2 form-control" name="evento" id="evento">
-                                <option value="">Selecione...</option>
-                            </select>
-                        </div>
-                        <div class="col-12 mb-2">
-                            <div class="form-group">
-                                <label class="form-label" for="agendamento">Agendar</label>
-                                <div class="input-group date" id="id_0">
-                                    <input name="agendamento" id="agendamento" type="text" value=""
-                                        class="form-control" placeholder="MM/DD/YYYY hh:mm:ss"
-                                        required />
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12 mb-2">
-                            <label for="tags" class="form-label">Tags</label>
-                            <input class="form-control" id="tags" name="tags" type="text" value=""
-                                data-role="tagsinput" />
-                        </div>
-                        <div class="col-12">
-                            <label for="observacao" class="form-label">Observação</label>
-                            <textarea name="observacao" id="observacao" class="form-control"></textarea>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="card-footer" style="text-align: end;">
-                <button type="button" id="encerrar" class="btn btn-danger" onclick="objAtendimento.encerrar()">Encerrar</button>
-                <button type="button" class="btn btn-primary" data-bs-toggle="tooltip"
-                    data-bs-title="Clique aqui para salvar" onclick="objAtendimento.save()">Salvar</button>
-            </div>
-        </div>
-    </div>
 
+
+
+
+    </div>
  </div>
 
 
@@ -189,15 +149,15 @@
                     <p class="text-end mb-0" style="font-size: xx-small;">{{this.data}}</p>
                 </div>
 
-                <img src="../../resources/images/profile/chatbot.png"
+                <img class="photo-fromMe"
                     alt="avatar 1"
-                    style="width: 45px; height: 100%;">
+                    style="width: 45px; height: 100%; border-radius: 100%; margin-left: 10px;">
             </div>
         {{else}}
             <div class="d-flex flex-row justify-content-start mb-4">
-                <img src="../../resources/images/profile/avatar.png"
+                <img class="photo-client" src=""
                     alt="avatar 1"
-                    style="width: 45px; height: 100%;">
+                    style="width: 45px; height: 100%; border-radius: 100%">
                 <div class="p-3 ms-3"
                     style="border-radius: 15px; background-color: rgba(57, 192, 237,.2);">
                     <p class="small mb-0">{{this.message}}</p>
@@ -209,6 +169,105 @@
     {{#unless chat}}
         <h4 class="text-danger text-center" style="margin-top: 125px;">Nenhuma mensagem encontrada</h4>
     {{/unless}}
+</script>
+
+<script id="detalhesClienteTemplate" type="text/x-handlebars-template">
+
+    <div class="card-body">
+        <form id="formAtendimento">
+            <input type="hidden" name="telefone" id="telefone" style="display: none;">
+            <input type="hidden" name="id" id="id" style="display: none;">
+            <input type="hidden" name="clientId" id="clientId" style="display: none;">
+            <input type="hidden" name="originalTags" id="originalTags" style="display: none;">
+            <div class="row">
+                <div class="col-12 mb-2">
+                    <label for="funcionarios" class="form-label">Transferir para...</label>
+                    <select class="atendimento-select2 form-control" id="funcionarios" name="funcionarios">
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+                <div class="col-12 mb-2">
+                    <label for="evento" class="form-label">Evento</label>
+                    <select class="atendimento-select2 form-control" name="evento" id="evento">
+                        <option value="">Selecione...</option>
+                    </select>
+                </div>
+                <div class="col-12 mb-2">
+                    <div class="form-group">
+                        <label class="form-label" for="agendamento">Agendar</label>
+                        <div class="input-group date" id="id_0">
+                            <input name="agendamento" id="agendamento" type="text" value=""
+                                class="form-control" placeholder="MM/DD/YYYY hh:mm:ss"
+                                required />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 mb-2">
+                    <label for="tags" class="form-label">Tags</label>
+                    <input class="form-control" id="tags" name="tags" type="text" value=""
+                        data-role="tagsinput" />
+                </div>
+                <div class="col-12">
+                    <label for="observacao" class="form-label">Observação</label>
+                    <textarea name="observacao" id="observacao" class="form-control"></textarea>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</script>
+
+<script id="chatAtendimentoAcoesTemplate" type="text/x-handlebars-template">
+    <div class="card ">
+        <div class="card-atendimento">
+            <div class="card-body">
+                <div class="text-center">
+                    <img src="" class="photo-client" alt="..." style="width: 100px; height: 100%; border-radius: 100%"> <br>
+                    <span class="fs-5">
+                        <b>{{this.nome}}</b>
+                    </span> <br>
+                    {{this.telefone}}
+                </div>
+            </div>
+    
+            <div class="card-body">
+                <div class="card-title">Status</div>
+                <p>{{this.status}}</p>
+            </div>
+    
+            <div class="card-body">
+                <div class="card-title">
+                    Email
+                </div>
+                <p>{{this.email}}</p>
+            </div>
+    
+            <div class="card-body">
+                <div class="card-title">
+                    Empresa
+                </div>
+                <p>{{this.empresa}}</p>
+            </div>
+    
+            <div class="card-body">
+                <div class="card-title">
+                    Cargo
+                </div>
+                <p>{{this.cargo}}</p>
+            </div>
+
+            <div class="card-body">
+                <div class="card-title">
+                    Observações
+                </div>
+                <p>{{this.obs}}</p>
+            </div>
+
+        </div>
+        <div class="card-footer">
+            <div class="text-center"><div class="card-title">Informações do cliente</div></div>
+        </div>
+    </div>
 </script>
 
 <!-- Seus scripts personalizados -->
@@ -223,6 +282,4 @@
 
 <script>
 var objAtendimento = new Atendimento();
-var objDateTime = new DateTime();
-objDateTime.picker('#id_0');
 </script>
