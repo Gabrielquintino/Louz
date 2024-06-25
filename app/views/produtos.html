@@ -68,7 +68,7 @@
             <td>{{this.valor}}</td>
             <td>{{this.status}}</td>
             <td class="text-right">
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#ProdutoModal" type="button" onclick="objProduto.edit('{{this.id}}')">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#produtoModal" type="button" onclick="objProduto.edit('{{this.id}}')">
                     <i class="ti ti-edit" ></i>
                 </button>
                 <button class="btn btn-danger" type="button" onclick="objProduto.delete('{{this.id}}')">
@@ -106,7 +106,7 @@
                     <div class="row">
                         <div class="col-12">
                             <label for="descricao" class="form-label">Descrição</label>
-                            <textarea class="form-control" id="descricao" name="descricao" title="" value="{{this.descricao}}"
+                            <textarea class="form-control" id="descricao" name="descricao" title=""
                                 placeholder="" > </textarea>
                         </div>
                     </div>                    

@@ -1,1 +1,219 @@
-<h1>Venda</h1>
+<nav class="navbar navbar-light bg-transparent mb-3">
+    <div class="container-fluid">
+        <a class="navbar-brand">Vendas</a>
+        <form class="d-flex">
+            <button type="button" class="btn btn-primary" onclick="objVenda.edit()" data-bs-toggle="modal" data-bs-target="#vendaModal">
+                Registrar
+            </button>
+        </form>
+    </div>
+</nav>
+
+<!-- Lista de Vendas -->
+<div class="card w-100">
+    <div class="card-body p-4">
+        <h5 class="card-title fw-semibold mb-4">Lista de vendas</h5>
+        <div class="table-responsive">
+            <table class="table text-nowrap mb-0 align-middle">
+                <thead class="text-dark fs-4">
+                    <tr>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Cliente</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Evento</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Produto</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Total</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Data</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Funcionário</h6>
+                        </th>
+                        <th class="border-bottom-0">
+                            <h6 class="fw-semibold mb-0">Status</h6>
+                        </th>
+                        <th>
+                            &nbsp;
+                        </th>
+                    </tr>
+                </thead>
+                <tbody id="listVendas"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade " id="vendaModal" tabindex="-1" aria-labelledby="vendaModalLabel" aria-hidden="true"
+    data-bs-backdrop="static" data-bs-keyboard="false" data-bs-focus="false">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-title p-4 pb-0">
+                Venda
+            </div>
+            <div class="modal-body pb-0">
+                <div id="conteudoVenda"></div>
+            </div>
+            <div class="modal-footer pt-0">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button type="button" class="btn btn-primary" data-bs-toggle="tooltip"
+                    data-bs-title="Clique aqui para salvar" onclick="objVenda.save()">Salvar</button>
+            </div>
+        </div>
+    </div>
+</div>  
+
+<script id="listVendasTemplate" type="text/x-handlebars-template">
+    {{#each data}}
+        <tr>
+            <td>{{this.cliente}}</td>
+            <td>
+                {{#if this.evento}}
+                    {{this.evento}}
+                {{else}}
+                    ---
+                {{/if}}
+            </td>
+            <td>
+                {{#if this.produto}}
+                    {{this.produto}}
+                {{else}}
+                ---
+                {{/if}}
+            </td>
+            <td>R$ {{this.total}} no {{this.pagamento}}</td>
+            <td>{{ 'formatDate' this.data}}</td>
+            <td>{{this.funcionario}}</td>
+            <td>{{this.status}}</td>
+            <td class="text-right">
+                <button class="btn btn-primary" data-bs-toggle="modal" type="button" onclick="objVenda.edit('{{this.id}}')" data-bs-target="#vendaModal">
+                    <i class="ti ti-edit" ></i>
+                </button>
+                <button class="btn btn-danger" type="button" onclick="objVenda.delete('{{this.id}}')">
+                    <i class="ti ti-trash"></i>
+                </button>
+            </td>
+        </tr>
+    {{/each}}
+    {{#unless data}}
+        <tr>
+            <td colspan="7">
+                <p class="text-danger text-center">Nenhum dado encontrado</p>
+            </td>
+        </tr>
+    {{/unless}}
+</script>
+
+<script id="conteudoVendaTemplate" type="text/x-handlebars-template">
+    <form id="formVenda">
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <input type="hidden" name="id" id="id">
+                        <div class="row mb-3">
+                            <div class="col-12 col-sm-12 col-md-6 col-lg-6">
+                                <label for="evento" class="form-label">Evento</label>
+                                <select class="select2 form-control" name="evento" id="evento">
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-6 col-lg-6">
+                                <label for="produto" class="form-label">Produto</label>
+                                <select class="select2 form-control" name="produto" id="produto" onchange="objVenda.aplicaValor()">
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-12 col-sm-12 col-md-6 col-lg-6">
+                                <label for="cliente" class="form-label">Cliente</label>
+                                <select class="atendimento-select2 form-control" id="cliente" name="cliente">
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-6 col-lg-6">
+                                <label for="funcionarios" class="form-label">Realizada por...</label>
+                                <select class="atendimento-select2 form-control" id="funcionarios" name="funcionarios">
+                                    <option value="">Selecione...</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mb-3">
+                                <label for="condicao" class="form-label">Meio de pagamento</label>
+                                <select class="form-control" id="condicao" name="condicao" onchange="objVenda.escondeParcela()">
+                                    <option value="">Selecione...</option>
+                                    <option value="credito">Crédito</option>
+                                    <option value="debito">Débito</option>
+                                    <option value="dinheiro">Dinheiro</option>
+                                    <option value="pix">Pix</option>
+                                </select>
+                            </div>
+
+                            <div class="col-12 col-sm-12 col-md-6 col-lg-6" id="parcelas" style="display: none;">
+                                <label for="parcelas" class="form-label">Parcelas</label>
+                                <input class="form-control" id="parcelas" name="parcelas" title="" type="number" value="{{this.condicao}}"
+                                    placeholder="" />
+                            </div>
+
+                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mb-3">
+                                <div class="form-group">
+                                    <label class="form-label" for="data">Data</label>
+                                    <div class="input-group date" id="dataVenda">
+                                        <input name="data" id="data" type="text" value=""
+                                            class="form-control" placeholder="MM/DD/YYYY hh:mm:ss"
+                                            required />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                <label for="valor" class="form-label">Valor</label>
+                                <input class="form-control" id="valor" name="valor" disabled title="" type="number" value="{{this.valor}}"
+                                    placeholder="" />
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                <label for="desconto" class="form-label">Desconto em %</label>
+                                <input class="form-control" type="number" name="desconto" id="desconto" min="0" onchange="objVenda.aplicaValor()">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                <label for="qtdItens" class="form-label">Quantidade de itens</label>
+                                <input class="form-control" type="number" name="qtdItens" id="qtdItens" min="1" onchange="objVenda.aplicaValor()">
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6">
+                                <label for="status" class="form-label">Status</label>
+                                <select class="select2 form-control" id="status" name="status">
+                                    <option value="">Selecione...</option>
+                                    <option value="concluida">Concluída</option>
+                                    <option value="estornada">Estornada</option>
+                                    <option value="aguardando_pagamento">Aguardando pagamento</option>
+                                    <option value="chargeback">Chargeback</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</script>
+
+<script src="../../resources/js/vendas.js"></script>
+<script src="../../resources/libs/calendar/js/popper.js"></script>
+<script src="../../resources/libs/calendar/js/bootstrap.min.js"></script>
+<script src="../../resources/libs/calendar/js/moment-with-locales.min.js"></script>
+<script src="../../resources/libs/calendar/js/bootstrap-datetimepicker.min.js"></script>
+<script src="../../resources/libs/calendar/js/main.js"></script>
+<script>
+    var objVenda = new Venda();
+</script>

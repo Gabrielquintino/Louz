@@ -1,4 +1,6 @@
 Handlebars.registerHelper('formatDate', (dateString) => {
+    if (dateString == "0000-00-00 00:00:00")
+        return dateString;
     const options = {
         day: '2-digit',
         month: '2-digit',
@@ -30,6 +32,11 @@ Handlebars.registerHelper('formatDate', (dateString) => {
 });
 
 Handlebars.registerHelper('formatTimeStamp', (dateString) => {
+    if (dateString == "0000-00-00 00:00:00")
+        return dateString;
+
+    console.log(dateString)
+
     const options = {
         day: '2-digit',
         month: '2-digit',

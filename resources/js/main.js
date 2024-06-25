@@ -161,6 +161,8 @@ class Main {
           dropdownParent: $(dropdownParent),
           tags: tags
         });
+
+        console.log(idSelect2)
     }
 
     limparFormulario(pFormulario) {
@@ -181,5 +183,26 @@ class Main {
         selects.forEach(function(select) {
             select.selectedIndex = ""; // Define para a primeira opção
         });
+    }
+
+    convertToDecimal(str) {
+        // Substitui a vírgula por ponto
+        str = str.replace(',', '.');
+    
+        // Tenta converter a string para um número flutuante
+        let num = parseFloat(str);
+        
+        // Verifica se a conversão foi bem-sucedida
+        if (isNaN(num)) {
+            throw new Error('A string fornecida não pode ser convertida para um número.');
+        }
+    
+        // Usa toFixed para limitar a precisão a 2 casas decimais
+        num = num.toFixed(2);
+    
+        // Converte o resultado para um número novamente
+        num = parseFloat(num);
+    
+        return num;
     }
 }

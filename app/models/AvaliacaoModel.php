@@ -13,8 +13,8 @@ class AvaliacaoModel extends DatabaseConfig{
     public function listClientFeedbacks(int $pIntId) : array {
         $sql = "
         SELECT 
-        c.id cliente_id, c.nome, a.nota, v.id as id_venda, p.nome as produto, v.total as valor_venda, v.status as status_venda, 
-        at.id as id_atendimento, ch.nome as chatbot_nome, a.data as data_avaliacao, at.data as data_atendimento, at.status as status_atendimento
+        c.id cliente_id, c.nome, a.nota,
+        at.id as id_atendimento, ch.nome as chatbot_nome, a.data as data_avaliacao, at.data_inicio as data_atendimento, at.status as status_atendimento
         FROM db_femyap3b.avaliacoes a
         INNER JOIN db_femyap3b.clientes c ON
             c.id = a.clientes_id
@@ -22,10 +22,6 @@ class AvaliacaoModel extends DatabaseConfig{
             at.id = a.atendimentos_id
         LEFT JOIN db_femyap3b.chatbot ch ON
             ch.id = at.chatbot_id
-        LEFT JOIN db_femyap3b.vendas v ON
-            v.id = a.vendas_id
-        LEFT JOIN db_femyap3b.produtos p ON
-            p.id = v.produtos_id
         where a.clientes_id = :clientId
                    
         ";

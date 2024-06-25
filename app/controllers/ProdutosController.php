@@ -43,14 +43,36 @@ class ProdutosController
     }
 
     public function get() {
-        
+        $produtosModel = new ProdutosModel();
+
+        $result = $produtosModel->get($_POST['id']);
+
+        $arrLista['success'] = true;
+        $arrLista['data'] = $result;
+
+        echo json_encode($arrLista);
+        return true;
     }
 
     public function save() {
-        
+        $produtosModel = new ProdutosModel();
+        $produtosModel->save($_POST);
+
+        $arrLista['success'] = true;
+
+        echo json_encode($arrLista);
+        return true;
     }    
 
     public function delete() {
-        
+        $produtosModel = new ProdutosModel();
+
+        $result = $produtosModel->delete($_POST['id']);
+
+        $arrLista['success'] = true;
+        $arrLista['data'] = $result;
+
+        echo json_encode($arrLista);
+        return true;
     }
 }

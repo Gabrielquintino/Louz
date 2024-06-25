@@ -62,7 +62,7 @@ class CrmController
         return true;
     }
 
-    public function list()
+    public function listagem()
     {
         $clientModel = new ClienteModel();
 

@@ -1,99 +1,150 @@
 <!--  Header End -->
-<div class="container-fluid">
-  <!--  Row 1 -->
-  <div class="row">
-    <div class="col-lg-8 d-flex align-items-strech">
-      <div class="card w-100">
-        <div class="card-body">
-          <div class="d-sm-flex d-block align-items-center justify-content-between mb-9">
-            <div class="mb-3 mb-sm-0">
-              <h5 class="card-title fw-semibold">Vendas</h5>
-            </div>
-            <div>
-              <select class="form-select">
-                <option value="1">March 2023</option>
-                <option value="2">April 2023</option>
-                <option value="3">May 2023</option>
-                <option value="4">June 2023</option>
-              </select>
-            </div>
-          </div>
-          <div id="chart"></div>
-        </div>
-      </div>
-    </div>
-    <div class="col-lg-4">
-      <div class="row">
-        <div class="col-lg-12">
-          <!-- Yearly Breakup -->
-          <div class="card overflow-hidden">
-            <div class="card-body p-4">
-              <h5 class="card-title mb-9 fw-semibold">Yearly Breakup</h5>
-              <div class="row align-items-center">
-                <div class="col-8">
-                  <h4 class="fw-semibold mb-3">$36,358</h4>
-                  <div class="d-flex align-items-center mb-3">
-                    <span
-                      class="me-1 rounded-circle bg-light-success round-20 d-flex align-items-center justify-content-center">
-                      <i class="ti ti-arrow-up-left text-success"></i>
-                    </span>
-                    <p class="text-dark me-1 fs-3 mb-0">+9%</p>
-                    <p class="fs-3 mb-0">last year</p>
-                  </div>
-                  <div class="d-flex align-items-center">
-                    <div class="me-4">
-                      <span class="round-8 bg-primary rounded-circle me-2 d-inline-block"></span>
-                      <span class="fs-2">2023</span>
-                    </div>
-                    <div>
-                      <span class="round-8 bg-light-primary rounded-circle me-2 d-inline-block"></span>
-                      <span class="fs-2">2023</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-4">
-                  <div class="d-flex justify-content-center">
-                    <div id="breakup"></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-12">
-          <!-- Monthly Earnings -->
-          <div class="card">
-            <div class="card-body">
-              <div class="row alig n-items-start">
-                <div class="col-8">
-                  <h5 class="card-title mb-9 fw-semibold"> Monthly Earnings </h5>
-                  <h4 class="fw-semibold mb-3">$6,820</h4>
-                  <div class="d-flex align-items-center pb-1">
-                    <span
-                      class="me-2 rounded-circle bg-light-danger round-20 d-flex align-items-center justify-content-center">
-                      <i class="ti ti-arrow-down-right text-danger"></i>
-                    </span>
-                    <p class="text-dark me-1 fs-3 mb-0">+9%</p>
-                    <p class="fs-3 mb-0">last year</p>
-                  </div>
-                </div>
-                <div class="col-4">
-                  <div class="d-flex justify-content-end">
-                    <div
-                      class="text-white bg-secondary rounded-circle p-6 d-flex align-items-center justify-content-center">
-                      <i class="ti ti-currency-dollar fs-6"></i>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div id="earning"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="row">
+<div id="dashboard" class="container">
+	<div class="row mb-3">
+		<div class="col-12">
+			<nav class="navbar">
+				<div class="container-fluid">
+					<a class="navbar-brand"></a>
+					<form id="formDashboard" class="d-flex" role="search">
+						<select class="form-select" name="data" id="data" onchange="objDashboard.list($(this).val(), true)" >
+							<option value="hoje">Hoje</option>
+							<option value="ultimosSeteDias">Últimos 7 dias</option>
+							<option value="esseMes">Esse mês</option>
+							<option value="trimestral">Trimestral</option>
+						</select>
+					</form>
+				</div>
+			</nav>
+		</div>
+	</div>
+	<div class="row d-flex align-items-stretch">
+		<div class="col-12 col-sm-12 col-md-6 col-lg-9 col-xl-9 pb-0">
+			<div class="row">
+				<div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+					<div class="card dashboard-card">
+						<div class="card-header py-2">
+							<h6 class="mb-0">Total Atendimentos</h6>
+						</div>
+						<div class="card-body py-1">
+							<h3 class="text-center" id="totalAtendimentos">0</h3>
+						</div>
+					</div>
+				</div>
+				<div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+					<div class="card dashboard-card">
+						<div class="card-header py-2">
+							<h6 class="mb-0">Clientes em Atendimento</h6>
+						</div>
+						<div class="card-body py-1">
+							<h3 class="text-center" id="clienteAtendimento">0</h3>
+						</div>
+					</div>
+				</div>
+				<div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+					<div class="card dashboard-card">
+						<div class="card-header py-2">
+							<h6 class="mb-0">Clientes em Espera</h6>
+						</div>
+						<div class="card-body py-1">
+							<h3 class="text-center" id="clienteEspera">0</h3>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+          <div class="card dashboard-card">
+						<div class="card-header py-2">
+							<h6 class="mb-0">Atendimentos finalizados</h6>
+						</div>
+						<div class="card-body py-1">
+							<h3 class="text-center" id="atendimentoFinalizado">0</h3>
+						</div>
+					</div>
+				</div>
+				<div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+					<div class="card dashboard-card">
+						<div class="card-header py-2">
+							<h6 class="mb-0">TMA - Minutos</h6>
+						</div>
+						<div class="card-body py-1">
+							<h3 class="text-center" id="tma">0</h3>
+						</div>
+					</div>
+				</div>
+				<div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+					<div class="card dashboard-card">
+						<div class="card-header py-2">
+							<h6 class="mb-0">Tempo Espera</h6>
+						</div>
+						<div class="card-body py-1">
+							<h3 class="text-center" id="tempoEspera">0</h3>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-12 col-sm-12 col-md-6 col-lg-4 col-xl-4">
+
+					<div class="card dashboard-card">
+						<div class="card-header py-2">
+							<h6 class="mb-0">Nota Atendimento</h6>
+						</div>
+						<div class="card-body py-1">
+							<h3 class="text-center" id="notaAtendimento">0</h3>
+						</div>
+					</div>
+
+					<div class="card dashboard-card">
+						<div class="card-header py-2">
+							<h6 class="mb-0">Produto mais vendido</h6>
+						</div>
+						<div class="card-body py-1">
+							<h3 class="text-center" id="produtoMaisVendido" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" >NA</h3>
+						</div>
+					</div>
+
+          <div class="card dashboard-card pb-0 mb-0">
+						<div class="card-header py-2">
+							<h6 class="mb-0">Melhor vendedor</h6>
+						</div>
+						<div class="card-body py-1">
+							<h3 class="text-center" id="melhorVendedor" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" >NA</h3>
+						</div>
+					</div>
+
+				</div>
+				<div class="col-12 col-sm-12 col-md-6 col-lg-8 col-xl-8">
+					<div class="card dashboard-card pb-0 mb-0">
+						<div class="card-header py-2">
+							<h6 class="mb-0">Vendas por dia</h6>
+						</div>
+						<div class="card-body py-2">
+							<canvas id="myChart" width="800" height="400"></canvas>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-12 col-sm-12 col-md-6 col-lg-3 col-xl-3">
+			<div class="card dashboard-card h-100">
+				<div class="card-body">
+					<h6>Total Vendas</h6>
+					<h3 class="mb-5" id="totalVendas">0</h3>
+
+					<h6">Faturamento</h6>
+					<h3 class="mb-5" id="faturamento">R$ 0</h3>
+
+					<h6>Ticket Médio</h6>
+					<h3 class="mb-5" id="ticketMedio">R$ 0</h3>
+
+					<h6>Conversão</h6>
+					<h3 class="mb-0" id="conversao">0%</h3>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- <div class="row">
     <div class="col-lg-4 d-flex align-items-stretch">
       <div class="card w-100">
         <div class="card-body p-4">
@@ -269,11 +320,20 @@
         </div>
       </div>
     </div>
-  </div>
+  </div> -->
 
-  <div class="py-6 px-6 text-center">
-    <p class="mb-0 fs-4">Desenvolvido por <a href="#" target="_blank"
-        class="pe-1 text-primary text-decoration-underline">QuantumCode.site</a></p>
-  </div>
+	<div class="py-6 px-6 text-center">
+		<p class="mb-0 fs-4">Desenvolvido por <a href="#" target="_blank"
+				class="pe-1 text-primary text-decoration-underline">IQonSolutions.com</a></p>
+	</div>
 </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+
+<script src="../../resources/js/dashboard.js"></script>
+
+<script>
+	var objDashboard = new Dashboard();
+</script>

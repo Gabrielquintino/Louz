@@ -1,211 +1,132 @@
-$(function () {
+class Dashboard {
+
+	constructor() {
+		var select = $('#formDashboard #data').val()
+		this.list(select);
+	}
+
+	async list(strData, booDestroy = false) {
+
+        await $.ajax({
+            url: '/atendimento/noPeriodo',
+            data: {
+                'data': strData
+            },
+            type: 'POST',
+            async: false,
+            success: function (data) {
+                var objData = JSON.parse(data)
+
+                $('#dashboard #totalAtendimentos').html(objData.data[0].qt_total)
+                $('#dashboard #clienteAtendimento').html(objData.data[0].qt_andamento)
+                $('#dashboard #clienteEspera').html(objData.data[0].qt_espera)
+                $('#dashboard #notaAtendimento').html(objData.data[0].avg_avaliacao)
+                $('#dashboard #tma').html(objData.data[0].avg_media)
+                $('#dashboard #tempoEspera').html(objData.data[0].avg_espera)
+                $('#dashboard #atendimentoFinalizado').html(objData.data[0].qt_encerrado)
+                $('#dashboard #totalVendas').html(objData.data[0].qt_vendas)
+                $('#dashboard #faturamento').html(objData.data[0].faturamento)
+                $('#dashboard #ticketMedio').html(objData.data[0].ticket_medio)
+                $('#dashboard #melhorVendedor').html(objData.data[0].melhor_funcionario)
+                var divFuncionario = document.getElementById('melhorVendedor').parentElement;
+                divFuncionario.title = objData.data[0].melhor_funcionario
 
 
-  // =====================================
-  // Profit
-  // =====================================
-  var chart = {
-    series: [
-      { name: "Earnings this month:", data: [355, 390, 300, 350, 390, 180, 355, 390] },
-      { name: "Expense this month:", data: [280, 250, 325, 215, 250, 310, 280, 250] },
-    ],
+                $('#dashboard #produtoMaisVendido').html(objData.data[0].produto_mais_vendido)
+                var divProduto = document.getElementById('produtoMaisVendido').parentElement;
+                divProduto.title = objData.data[0].produto_mais_vendido
 
-    chart: {
-      type: "bar",
-      height: 345,
-      offsetX: -15,
-      toolbar: { show: true },
-      foreColor: "#adb0bb",
-      fontFamily: 'inherit',
-      sparkline: { enabled: false },
-    },
+                var floConversao = 0;
+                if (objData.data[0].qt_vendas != 0 && objData.data[0].qt_encerrado != 0 ) {
+                    floConversao = ( (objData.data[0].qt_vendas * 100) / objData.data[0].qt_encerrado ).toFixed(2);                    
+                }
 
-
-    colors: ["#5D87FF", "#49BEFF"],
-
-
-    plotOptions: {
-      bar: {
-        horizontal: false,
-        columnWidth: "35%",
-        borderRadius: [6],
-        borderRadiusApplication: 'end',
-        borderRadiusWhenStacked: 'all'
-      },
-    },
-    markers: { size: 0 },
-
-    dataLabels: {
-      enabled: false,
-    },
-
-
-    legend: {
-      show: false,
-    },
-
-
-    grid: {
-      borderColor: "rgba(0,0,0,0.1)",
-      strokeDashArray: 3,
-      xaxis: {
-        lines: {
-          show: false,
-        },
-      },
-    },
-
-    xaxis: {
-      type: "category",
-      categories: ["16/08", "17/08", "18/08", "19/08", "20/08", "21/08", "22/08", "23/08"],
-      labels: {
-        style: { cssClass: "grey--text lighten-2--text fill-color" },
-      },
-    },
-
-
-    yaxis: {
-      show: true,
-      min: 0,
-      max: 400,
-      tickAmount: 4,
-      labels: {
-        style: {
-          cssClass: "grey--text lighten-2--text fill-color",
-        },
-      },
-    },
-    stroke: {
-      show: true,
-      width: 3,
-      lineCap: "butt",
-      colors: ["transparent"],
-    },
-
-
-    tooltip: { theme: "light" },
-
-    responsive: [
-      {
-        breakpoint: 600,
-        options: {
-          plotOptions: {
-            bar: {
-              borderRadius: 3,
+                $('#dashboard #conversao').html(floConversao + "%");
             }
-          },
+        })
+
+        await $.ajax({
+            url: '/vendas/noPeriodo',
+            data: {
+                'data': strData
+            },
+            type: 'POST',
+            success: function (data) {
+                var objData = JSON.parse(data);
+                console.log(objData);
+        
+                if (objData.data.length === 0) {
+                    // Caso não haja dados, exibir uma mensagem ou tratar conforme necessário
+                    console.log('Nenhum dado disponível para exibir.');
+                    return;
+                }
+        
+                // Preparar arrays para labels (dias de venda) e dados (total de vendas)
+                const labels = [];
+                const dataPoints = [];
+        
+                objData.data.forEach(item => {
+                    // Formatar a data usando Moment.js para o formato desejado
+                    const formattedDate = moment(item.venda_dia).format('DD/MM/YY');
+                    labels.push(formattedDate); // Adiciona o dia de venda formatado ao array de labels
+                    dataPoints.push(parseFloat(item.total_vendas)); // Converte total_vendas para float e adiciona ao array de dados
+                });
+        
+                // Verificar se há um gráfico existente e destruí-lo se necessário
+                var ctx = document.getElementById('myChart').getContext('2d');
+                if (booDestroy) {
+                    window.myChart.destroy();
+                }
+        
+                // Configurações do novo gráfico
+                window.myChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels, // Labels com os dias de venda formatados
+                        datasets: [{
+                            label: 'Vendas por Dia',
+                            data: dataPoints, // Dados com os totais de vendas
+                            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                // Define o máximo do eixo Y baseado nos dados de vendas
+                                suggestedMax: Math.max(...dataPoints) + 10
+                            }
+                        }
+                    }
+                });   
+            },
+            error: function (error) {
+                console.error('Erro ao obter dados:', error);
+                // Tratar o erro conforme necessário
+            }
+        });
+        
+        
+        
+        
+        
+	}
+
+    async loadSalesData() {
+        try {
+            // Substitua pela sua URL de API no backend que retorna os dados de vendas agrupados por dia
+            const apiUrl = '/api/vendas-por-dia';
+
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+
+
+
+        } catch (error) {
+            console.error('Erro ao carregar dados:', error);
         }
-      }
-    ]
+    }
 
-
-  };
-
-  var chart = new ApexCharts(document.querySelector("#chart"), chart);
-  chart.render();
-
-
-  // =====================================
-  // Breakup
-  // =====================================
-  var breakup = {
-    color: "#adb5bd",
-    series: [38, 40, 25],
-    labels: ["2022", "2021", "2020"],
-    chart: {
-      width: 180,
-      type: "donut",
-      fontFamily: "Plus Jakarta Sans', sans-serif",
-      foreColor: "#adb0bb",
-    },
-    plotOptions: {
-      pie: {
-        startAngle: 0,
-        endAngle: 360,
-        donut: {
-          size: '75%',
-        },
-      },
-    },
-    stroke: {
-      show: false,
-    },
-
-    dataLabels: {
-      enabled: false,
-    },
-
-    legend: {
-      show: false,
-    },
-    colors: ["#5D87FF", "#ecf2ff", "#F9F9FD"],
-
-    responsive: [
-      {
-        breakpoint: 991,
-        options: {
-          chart: {
-            width: 150,
-          },
-        },
-      },
-    ],
-    tooltip: {
-      theme: "dark",
-      fillSeriesColor: false,
-    },
-  };
-
-  var chart = new ApexCharts(document.querySelector("#breakup"), breakup);
-  chart.render();
-
-
-
-  // =====================================
-  // Earning
-  // =====================================
-  var earning = {
-    chart: {
-      id: "sparkline3",
-      type: "area",
-      height: 60,
-      sparkline: {
-        enabled: true,
-      },
-      group: "sparklines",
-      fontFamily: "Plus Jakarta Sans', sans-serif",
-      foreColor: "#adb0bb",
-    },
-    series: [
-      {
-        name: "Earnings",
-        color: "#49BEFF",
-        data: [25, 66, 20, 40, 12, 58, 20],
-      },
-    ],
-    stroke: {
-      curve: "smooth",
-      width: 2,
-    },
-    fill: {
-      colors: ["#f3feff"],
-      type: "solid",
-      opacity: 0.05,
-    },
-
-    markers: {
-      size: 0,
-    },
-    tooltip: {
-      theme: "dark",
-      fixed: {
-        enabled: true,
-        position: "right",
-      },
-      x: {
-        show: false,
-      },
-    },
-  };
-  new ApexCharts(document.querySelector("#earning"), earning).render();
-})
+}

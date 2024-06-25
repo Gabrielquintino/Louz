@@ -7,12 +7,26 @@ use App\Controllers\UtilController;
 use DateTime;
 use Exception;
 use PDO;
+use PDOException;
 use stdClass;
 
 class VendasModel extends DatabaseConfig
 {
     public function listagem() : array {
-        $sql = "SELECT * FROM ". DB_USUARIO .".eventos WHERE status = 'ativo'";
+
+        $strOrderBy = " ORDER BY v.data DESC ";
+
+        $sql = "
+            SELECT v.id, c.nome cliente, e.nome evento, p.nome produto, f.nome funcionario, v.pagamento, v.condicao, v.total, v.desconto, v.qtd_itens, v.data, v.status
+            FROM ". DB_USUARIO .".vendas v
+            INNER JOIN ". DB_USUARIO .".clientes c ON
+            c.id = v.cliente_id
+            LEFT JOIN ". DB_USUARIO .".eventos e ON
+            e.id = v.evento_id
+            LEFT JOIN ". DB_USUARIO .".produtos	p ON
+            p.id = v.produtos_id
+            LEFT JOIN ". DB_USUARIO .".funcionarios f ON
+            f.id = v.funcionario_id " . $strOrderBy;
         $pdo = $this->getConnection()->prepare($sql);
         
         try {
@@ -26,7 +40,7 @@ class VendasModel extends DatabaseConfig
     }
 
     public function get($pIntId) : array {
-        $sql = "SELECT * FROM ". DB_USUARIO .".eventos WHERE status = 'ativo' and id = ?";
+        $sql = "SELECT * FROM ". DB_USUARIO .".vendas WHERE id = ?";
         $pdo = $this->getConnection()->prepare($sql);
         
         try {
@@ -39,104 +53,101 @@ class VendasModel extends DatabaseConfig
         return $result;        
     }
 
-    public function save($arrData) : int {
-
-        // Processar dias da semana
-        $diasSemana = isset($arrData['dias_semana']) ? $arrData['dias_semana'] : [];
-    
-        // Processar horários da semana
-        $horariosSemana = [];
-        foreach ($diasSemana as $dia) {
-            if (isset($arrData['horarios_semana'][$dia])) {
-                $inicio = isset($arrData['horarios_semana'][$dia][0]) ? $arrData['horarios_semana'][$dia][0] : null;
-                $fim = isset($arrData['horarios_semana'][$dia][1]) ? $arrData['horarios_semana'][$dia][1] : null;
-                if ($inicio && $fim) {
-                    $horariosSemana[ucfirst($dia)] = $inicio . '-' . $fim;
-                } else {
-                    $horariosSemana[ucfirst($dia)] = "-";
+    public function save(array $arrData, bool $booFormatDate = true) : int {
+        try {
+            // Verifica se a data deve ser formatada
+            if ($booFormatDate) {
+                $dataString = $arrData['data'];
+                $timeData = DateTime::createFromFormat('d/m/Y H:i:s', $dataString);
+                if (!$timeData) {
+                    throw new Exception("Erro ao converter a data.");
                 }
+                // Obtém a data formatada no formato 'Y-m-d H:i:s'
+                $formattedDate = $timeData->format('Y-m-d H:i:s');
             } else {
-                $horariosSemana[ucfirst($dia)] = "-";
+                $formattedDate = $arrData['data']; // Se não precisar formatar, assume-se que já está no formato correto
             }
-        }
     
-        if (isset($arrData['id']) && !empty($arrData['id'])) {
-    
-            $intId = $arrData['id'];
-            unset($arrData['id']);
-            
-            // Construindo a parte SET dinamicamente
-            $setParts = [];
-            foreach ($arrData as $key => $value) {
-                if ($key == 'data_inicio') {
-                    if (DateTime::createFromFormat('d/m/Y H:i:s', $arrData['data_inicio']) !== false) {
-                        $arrData['data_inicio'] = DateTime::createFromFormat('d/m/Y H:i:s', $arrData['data_inicio'])->format('Y-m-d H:i:s');
-                    } else {
-                        $arrData['data_inicio'] = null;   
+            // Prepara os dados para inserção ou atualização
+            if (isset($arrData['id']) && !empty($arrData['id'])) {
+                // Atualização
+                $intId = $arrData['id'];
+                unset($arrData['id']);
+                
+                // Construindo a parte SET dinamicamente
+                $setParts = [];
+                foreach ($arrData as $key => $value) {
+                    if ($key == "data") {
+                        $arrData[$key] = $formattedDate;
                     }
-                } elseif ($key == 'data_fim') {
-                    if (DateTime::createFromFormat('d/m/Y H:i:s', $arrData['data_fim']) !== false) {
-                        $arrData['data_fim'] = DateTime::createFromFormat('d/m/Y H:i:s', $arrData['data_fim'])->format('Y-m-d H:i:s');
+                    if (!empty($value)) {
+                        $setParts[] = "`$key` = ?";
                     } else {
-                        $arrData['data_fim'] = null;   
+                        unset($arrData[$key]);
                     }
                 }
+                $setClause = implode(", ", $setParts);
     
-                $setParts[] = "`$key` = ?";
-            }
-            $setClause = implode(", ", $setParts);
+                // Construindo a query de UPDATE
+                $sql = "UPDATE " . DB_USUARIO . ".vendas SET $setClause WHERE id = ?";
+                $pdo = $this->getConnection()->prepare($sql);
     
-            // Construindo a query de UPDATE
-            $sql = "UPDATE " . DB_USUARIO . ".eventos SET $setClause, `duracao_horas` = ?, `dias_semana` = ?, `horarios_semana` = ? WHERE id = ?";
-            $pdo = $this->getConnection()->prepare($sql);
+                // Adicionando o id ao final do array de dados
+                $arrData[] = $intId;
     
-            // Adicionando os novos campos e o id ao final do array de dados
-            $arrData['duracao_horas'] = isset($arrData['duracao_horas']) ? (int) $arrData['duracao_horas'] : null;
-            $arrData['dias_semana'] = implode(', ', $diasSemana);
-            $arrData['horarios_semana'] = json_encode($horariosSemana);
-            $arrData[] = $intId;
+                // Executa a query de atualização
+                $pdo->execute(array_values($arrData));
     
-            try {
-                $pdo->execute(array_values($arrData)); // Certificando-se de usar os valores do array
                 return $intId;
-            } catch (Exception $err) {
-                throw new Exception($err);
-            }  
-        } else {
     
-            $strNome = isset($arrData['nome']) ? mb_substr($arrData['nome'],0, 150) : null;
-            $dtInicio = (isset($arrData['data_inicio']) && !empty($arrData['data_inicio'])) ? DateTime::createFromFormat('d/m/Y H:i:s', $arrData['data_inicio'])->format('Y-m-d H:i:s') : null;
-            $dtFim = (isset($arrData['data_fim']) && !empty($arrData['data_fim'])) ? DateTime::createFromFormat('d/m/Y H:i:s', $arrData['data_fim'])->format('Y-m-d H:i:s') : null;
-            $intPeriodicidade = isset($arrData['periodicidade']) ? (int) $arrData['periodicidade'] : null;
-            $intDuracaoHoras = isset($arrData['duracao_horas']) ? (int) $arrData['duracao_horas'] : null;
-            $strStatus = isset($arrData['status']) ? $arrData['status'] : 'ativo';
+            } else {
+                // Inserção
+                $pdo = $this->getConnection();
+                $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); // Habilita o modo de erro do PDO
+                
+                // Sanitize and set variables
+                $intEventoId = isset($arrData['evento_id']) ? (!empty($arrData['evento_id']) ? $arrData['evento_id'] : null) : null;
+                $intProdutoId = isset($arrData['produtos_id']) ? (!empty($arrData['produtos_id']) ? $arrData['produtos_id'] : null) : null;
+                $intFuncionarioId = isset($arrData['funcionario_id']) ? $arrData['funcionario_id'] : null;
+                $intAtendimentoId = isset($arrData['atendimento_id']) ? (!empty($arrData['atendimento_id']) ? $arrData['atendimento_id'] : null) : null;
+                $intClienteId = isset($arrData['cliente_id']) ? $arrData['cliente_id'] : null;
+                $strPagamento = $arrData['pagamento'];
+                $intCondicao = isset($arrData['condicao']) ? $arrData['condicao'] : 1;
+                $decTotal = $arrData['total'];
+                $decDesconto = isset($arrData['desconto']) ? $arrData['desconto'] : 0.00; // Corrigido para 'desconto'
+                $intQtdItens = isset($arrData['qtd_itens']) ? $arrData['qtd_itens'] : 1;
+                $strStatus = isset($arrData['status']) ? $arrData['status'] : 'concluida';
     
-            $sql = "INSERT INTO " . DB_USUARIO . ".eventos (`nome`, `data_inicio`, `data_fim`, `periodicidade`, `status`, `duracao_horas`, `dias_semana`, `horarios_semana`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-            $pdo = $this->getConnection()->prepare($sql);
+                // Prepare and execute the SQL statement for insertion
+                $sql = "INSERT INTO " . DB_USUARIO . ".vendas (
+                        `evento_id`, `produtos_id`, `funcionario_id`, `atendimento_id`, `cliente_id`, `pagamento`,
+                        `condicao`, `total`, `desconto`, `qtd_itens`, `data`, `status`
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute([
+                    $intEventoId, $intProdutoId, $intFuncionarioId, $intAtendimentoId, $intClienteId, 
+                    $strPagamento, $intCondicao, $decTotal, $decDesconto, $intQtdItens, $formattedDate, $strStatus
+                ]);
     
-            try {
-                $pdo->execute([$strNome, $dtInicio, $dtFim, $intPeriodicidade, $strStatus, $intDuracaoHoras, implode(', ', $diasSemana), json_encode($horariosSemana)]);
-                return $this->getConnection()->lastInsertId();
-            } catch (Exception $err) {
-                throw new Exception($err);
+                // Return the last inserted ID
+                return $pdo->lastInsertId();
+    
             }
+        } catch (PDOException $e) {
+            // Log the database error and throw an exception
+            error_log("Database error: " . $e->getMessage());
+            throw new Exception("Database error: " . $e->getMessage());
+        } catch (Exception $err) {
+            // Log the general error and throw an exception
+            error_log("General error: " . $err->getMessage());
+            throw new Exception("General error: " . $err->getMessage());
         }
-    
-        return [];
     }
+    
     
 
     public function delete($pIntId) : bool {
-        $sql = "DELETE FROM ".DB_USUARIO.".agendamentos WHERE eventos_id = ?";
-        $pdo = $this->getConnection()->prepare($sql);
-        try {
-            $pdo->execute([$pIntId]);
-        } catch (Exception $err) {
-            throw new Exception($err);
-            return false;
-        }
-
-        $sql = "DELETE FROM " . DB_USUARIO . ".eventos WHERE id = ?";
+        $sql = "DELETE FROM " . DB_USUARIO . ".vendas WHERE id = ?";
         $pdo = $this->getConnection()->prepare($sql);
 
         try {
@@ -147,5 +158,50 @@ class VendasModel extends DatabaseConfig
         }
         
         return true;
+    }
+
+    public function noPeriodo(string $pPeriodo) {
+        function inicioDoTrimestre() {
+            $mesAtual = (int)date('n');
+            $trimestre = ceil($mesAtual / 3);
+            $primeiroMesDoTrimestre = ($trimestre - 1) * 3 + 1;
+            return (new DateTime("first day of " . DateTime::createFromFormat('m', $primeiroMesDoTrimestre)->format('F')))->setTime(0, 0)->getTimestamp();
+        }
+        
+        switch ($pPeriodo) {
+            case 'hoje':
+                $data = (new DateTime('today'))->setTime(0, 0)->getTimestamp();
+                break;
+            case 'ultimosSeteDias':
+                $data = (new DateTime('today'))->modify('-7 days')->setTime(0, 0)->getTimestamp();
+                break;
+            case 'esseMes':
+                $data = (new DateTime('first day of this month'))->setTime(0, 0)->getTimestamp();
+                break;
+            case 'trimestral':
+                $data = inicioDoTrimestre();
+                break;
+            default:
+                $data = (new DateTime('today'))->setTime(0, 0)->getTimestamp();
+                break;
+        }
+        
+        $strSqlFilter = "'" . date('Y-m-d H:i:s', $data) . "'";
+
+        $sql = "SELECT DATE(data) AS venda_dia, SUM(total) AS total_vendas 
+                FROM ". DB_USUARIO .".vendas 
+                WHERE data >= " . $strSqlFilter . "
+                GROUP BY venda_dia
+                ORDER BY venda_dia";
+        $pdo = $this->getConnection()->prepare($sql);
+        
+        try {
+            $pdo->execute();
+            $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $err) {
+            throw new Exception($err);
+        }
+
+        return $result;
     }
 }

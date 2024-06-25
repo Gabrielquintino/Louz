@@ -45,6 +45,8 @@ class AtendimentoController
         $arrInstancia = $usuarioInstanciaModel->getInstanceByUser($_SESSION['user_id']);
         $arrAtendimento = $atendimentotModel->listagem();
 
+        $arrClientes = $clienteModel->list();
+
         $page = isset($_POST['page']) ? $_POST['page'] : "1";
 
         $arrConversas = [];
@@ -54,9 +56,10 @@ class AtendimentoController
         }
 
         $arrTelefones = [];
+        
 
-        foreach ($arrAtendimento as $key => $atendimento) {
-            array_push($arrTelefones, $atendimento["telefone"]);
+        foreach ($arrClientes as $key => $cliente) {
+            array_push($arrTelefones, $cliente["telefone"]);
         }
 
         if (property_exists($arrConversas, 'chats')) {
@@ -189,5 +192,16 @@ class AtendimentoController
 
         // Salva o atendimento
         $result = $atendimentotModel->save($arrAttendance);        
-    }    
+    }
+
+    public function noPeriodo() {
+        $atendimentotModel = new AtendimentoModel();
+        $arrAtendimento = $atendimentotModel->noPeriodo($_POST['data']);
+
+        $arrLista['success'] = true;
+        $arrLista['data'] = $arrAtendimento;
+
+        echo json_encode($arrLista);
+        return true;
+    }
 }

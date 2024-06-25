@@ -283,7 +283,7 @@ class Crm {
         $('#listClients').show();
 
         $.ajax({
-            url: '/crm/list',
+            url: '/crm/listagem',
             type: 'POST',
             success: function (data) {
                 var objData = JSON.parse(data)

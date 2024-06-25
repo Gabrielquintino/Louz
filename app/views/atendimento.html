@@ -103,7 +103,7 @@
             <div class="card mb-2" id="atendimento-{{@key}}" onclick="objAtendimento.destacar('{{this.id}}', '{{this.clientId}}', '{{this.telefone}}',this)" style="cursor: pointer;">
                 <div class="d-flex justify-content-between p-2">
                     <div class="card-title">{{#if this.cliente}}{{this.cliente}}{{else}}{{this.telefone}}{{/if}}</div>
-                    <span class="fs-2">{{'formatDate' this.data}}</span>
+                    <span class="fs-2">{{this.data}}</span>
                 </div>
                 <div class="card-body py-0 px-2">
                     <span class="badge text-bg-primary me-2 mb-2" title="Chatbot" style="font-size: x-small;">

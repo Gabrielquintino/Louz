@@ -30,34 +30,11 @@ class Produto {
     }
 
     edit(intId = null) {
-
-        function populaCargos(cargoSelected) {
-            $.ajax({
-                url: '/cargos/listagem',
-                type: 'POST',
-                async: true,
-                success: function (data) {
-                    var objData = JSON.parse(data);
-
-                    objMain.inicializarSelect2("#formProduto #cargo", objData.data, 'nome', false, null, "#produtoModal", true);
-
-                    $("#formProduto #cargo").val(cargoSelected);
-                    $("#formProduto #cargo").trigger('change');
-                }
-            })
-        }
-
         if (intId == null) {
             var template = document.getElementById('conteudoProdutoTemplate').innerHTML;
-
             var compiled_template = Handlebars.compile(template);
-
             var rendered = compiled_template(null);
-
             document.getElementById('conteudoProduto').innerHTML = rendered;
-
-            populaCargos(0);
-            
             return;
         }
         $.ajax({
@@ -78,9 +55,7 @@ class Produto {
 
                 document.getElementById('conteudoProduto').innerHTML = rendered;
 
-                const cargoSelected = objData.data.cargo_id;
-
-                populaCargos(cargoSelected);
+                document.getElementById('descricao').value = objData.data.descricao;
             }
         })
     }
@@ -89,14 +64,21 @@ class Produto {
 
         if (
             !objMain.validar(document.getElementById('nome'), '#formProduto') || 
-            !objMain.validar(document.getElementById('email'), '#formProduto')
+            !objMain.validar(document.getElementById('valor'), '#formProduto') ||
+            !objMain.validar(document.getElementById('descricao'), '#formProduto')
         ) {
             return false;
         }
 
-        if ($('#formProduto #cargo').val() == 0) {
-            Swal.fire({title: "Ops!", text: "Selecione o cargo do funcionario", icon: "error"})
-            return false;
+        try {
+            var floValue = objMain.convertToDecimal($('#formProduto #valor').val());
+        } catch (error) {
+            Swal.fire({
+                title: "Ops!",
+                text: "O valor não foi digitado corretamente.",
+                icon: "error"
+            })
+            return;
         }
 
 
@@ -107,7 +89,7 @@ class Produto {
                 'id': $('#formProduto #id').val(),
                 'nome': $('#formProduto #nome').val(),
                 'descricao': $('#formProduto #descricao').val(),
-                'valor': $('#formProduto #valor').val()
+                'valor': floValue
             },
             async: true,
             success: function (data) {

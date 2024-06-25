@@ -31,6 +31,8 @@ $rotas = [
     '/atendimento/delete' => 'AtendimentoController@delete',
     '/atendimento/sendMessage' => 'AtendimentoController@sendMessage',
     '/atendimento/encerrar' => 'AtendimentoController@encerrar',
+    '/atendimento/noPeriodo' => 'AtendimentoController@noPeriodo',
+
     #endregion
 
     #region Funcionarios
@@ -63,6 +65,8 @@ $rotas = [
     '/agendamentos/save' => 'AgendamentoController@save',
     '/agendamentos/get' => 'AgendamentoController@get',
     '/agendamentos/delete' => 'AgendamentoController@delete',
+    '/agendamentos/noPeriodo' => 'AgendamentoController@noPeriodo',
+
     #endregion    
 
     #region Funil
@@ -73,12 +77,14 @@ $rotas = [
     '/crm/kanbam' => 'CrmController@kanbam',
     '/crm/saveKanbam' => 'CrmController@saveKanbam',
     '/crm/saveEtapa' => 'CrmController@saveEtapa',
-    '/crm/list' => 'CrmController@list',
+    '/crm/listagem' => 'CrmController@listagem',
     '/crm/save' => 'CrmController@save',
     '/crm/edit' => 'CrmController@edit',
     '/crm/delete' => 'CrmController@delete',
     '/crm/deleteEtapa' => 'CrmController@deleteEtapa',
     '/crm/history' => 'CrmController@history',
+    '/crm/noPeriodo' => 'CrmController@noPeriodo',
+
     #endregion
 
     #region Fornecedores
@@ -90,7 +96,7 @@ $rotas = [
     '/produtos/listagem' => 'ProdutosController@listagem',
     '/produtos/get' => 'ProdutosController@get',
     '/produtos/save' => 'ProdutosController@save',
-    '/produtos/delete' => 'ProdutosController@delte',
+    '/produtos/delete' => 'ProdutosController@delete',
     #endregion
     '/estoque' => 'EstoqueController@index',
 
@@ -100,6 +106,8 @@ $rotas = [
     '/vendas/get' => 'VendasController@get',
     '/vendas/save' => 'VendasController@save',
     '/vendas/delete' => 'VendasController@delete',
+    '/vendas/noPeriodo' => 'VendasController@noPeriodo',
+
     #endregion
 
     '/configuracoes' => 'ConfigController@index',
