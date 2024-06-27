@@ -1,4 +1,3 @@
-
 class Crm {
 
     constructor() {
@@ -37,22 +36,26 @@ class Crm {
                     var nomeElement = document.createElement("h5");
                     nomeElement.textContent = dados.nome;
 
-                    var emailElement = document.createElement("p");
-                    emailElement.textContent = "Email: " + dados.email;
-                    emailElement.style.fontSize = "small";
-
                     var telefoneElement = document.createElement("p");
                     telefoneElement.textContent = "Telefone: " + dados.telefone;
                     telefoneElement.style.fontSize = "small";
 
-                    var tagsElement = document.createElement("p");
-                    tagsElement.textContent = "Tags: " + dados.tags;
-                    tagsElement.style.fontSize = "small";
-
                     kanbanCard.appendChild(nomeElement);
-                    kanbanCard.appendChild(emailElement);
                     kanbanCard.appendChild(telefoneElement);
-                    kanbanCard.appendChild(tagsElement);
+
+                    if (dados.email !== null) {
+                        var emailElement = document.createElement("p");
+                        emailElement.textContent = "Email: " + dados.email;
+                        emailElement.style.fontSize = "small";
+                        kanbanCard.appendChild(emailElement);
+                    }
+
+                    if (dados.tags !== null) {
+                        var tagsElement = document.createElement("p");
+                        tagsElement.textContent = "Tags: " + dados.tags;
+                        tagsElement.style.fontSize = "small";
+                        kanbanCard.appendChild(tagsElement);
+                    }
 
                     var coluna = document.querySelector("#coluna-" + dados.etapa_order);
                     coluna.appendChild(kanbanCard);
@@ -144,7 +147,6 @@ class Crm {
     }
 
     saveEtapa() {
-
         if (
             !objMain.validar(document.getElementById('nomeEtapa'), '#formEtapaKanbam') ||
             !objMain.validar(document.getElementById('chatbot'), '#formEtapaKanbam') ||
@@ -168,14 +170,38 @@ class Crm {
                 }).then((result) => {
                     location.reload();
                 });
+            },
+            error: function (data) {
+                Swal.fire({
+                    title: "Ops!",
+                    text: "Não foi possível salvar a etapa verifique o nome e a ordem.",
+                    icon: "error"
+                }).then((result) => {
+                    return;
+                });
             }
         }) 
     }
 
     deleteEtapa(pEtapaId) {
+        var divs = document.querySelectorAll('div');
+        var filteredDivs = Array.prototype.filter.call(divs, function(div) {
+            return div.id.startsWith('coluna-');
+        });
+
+        var count = filteredDivs.length;
+        
+        if (count == 1) {
+            Swal.fire({
+                title: "Ops!",
+                text: "Esta é a única etapa e por isso não pode ser excluída.",
+                icon: "error"
+            })
+            return;
+        }
 
         var clientesNaColuna = $('#coluna-' + pEtapaId).html();
-        var booTemClinte = clientesNaColuna != '\n        ';
+        var booTemClinte = clientesNaColuna !== '\n        ' && clientesNaColuna !== undefined && clientesNaColuna !== null;
         var txtSucesso = "";
         var txtAviso = "";
 
@@ -245,11 +271,9 @@ class Crm {
                             title: "Sucesso!",
                             text: txtSucesso,
                             icon: "success"
-                        })
-
-                        setTimeout(() => {
+                        }).then((result) => {
                             location.reload();
-                        }, 200);
+                        });
                     }
                 })
 
@@ -258,7 +282,6 @@ class Crm {
     }
 
     saveKanbam(pClientId, pEtapaId) {
-
         // TODO:: verificar no log se possui mais que dez registros para o clienteId, se tiver... so deixa os ultimos dez
 
         $.ajax({
@@ -372,6 +395,7 @@ class Crm {
             "Digite 'excluir permanentemente' para excluir o registro:", function() {deletar(intId)} )
 
     }
+
     listChat() {
         $.ajax({
             url: '/crm/history',
@@ -412,5 +436,4 @@ class Crm {
             }
         });
     }
-    
 }

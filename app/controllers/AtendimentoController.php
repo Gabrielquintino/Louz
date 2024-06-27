@@ -6,6 +6,7 @@ use App\Models\AgendamentoModel;
 use App\Models\AtendimentoModel;
 use App\Models\ChatBotModel;
 use App\Models\ClienteModel;
+use App\Models\EtapaModel;
 use App\Models\UsuarioInstanciaModel;
 use App\Models\WhatsappApiModel;
 use Exception;
@@ -56,7 +57,6 @@ class AtendimentoController
         }
 
         $arrTelefones = [];
-        
 
         foreach ($arrClientes as $key => $cliente) {
             array_push($arrTelefones, $cliente["telefone"]);
@@ -90,6 +90,17 @@ class AtendimentoController
                     $arrParametrosAtendimento['id'] = $atendimentotModel->save($arrParametrosAtendimento);
     
                     array_push($arrAtendimento, $arrParametrosAtendimento);
+
+                    // TODO:: SALVAR ETAPA
+
+                    $etapaModel = new EtapaModel();
+                    $arrEtapas = $etapaModel->list();
+
+                    $intEtapaId = $arrEtapas[0]['id'];
+
+                    $etapaModel->saveLog($intClientId, $intEtapaId);
+
+
                 }
 
                 $arrAtendimento[$key]['unread'] = $conversa->unreadCount > 99 ? "99+" :  ($conversa->unreadCount > 0 ? $conversa->unreadCount . "+" : null) ;
@@ -142,6 +153,8 @@ class AtendimentoController
 
     public function save() {
 
+        $result = [];
+
         if (!empty($_POST['funcionarios_id'])) {
             $atendimentotModel = new AtendimentoModel();
 
@@ -152,6 +165,11 @@ class AtendimentoController
     
             // Salva o atendimento
             $result = $atendimentotModel->save($arrAttendance);
+        }
+
+        if (!empty($_POST['observacao'])) { // TODO: BUSCAR O FUNCIONARIO CORRETO
+            $atendimentotModel = new AtendimentoModel();
+            $atendimentotModel->saveLog((int) $_POST['cliente_id'], (int) 15, $_POST['observacao']);
         }
 
         if (!empty($_POST['evento_id']) && !empty($_POST['dataHora'])) {

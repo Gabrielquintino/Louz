@@ -280,4 +280,24 @@ class UsuarioModel extends DatabaseConfig
             die("Erro ao criar base de dados: " . $e->getMessage());
         }
     }
+
+    public function verificarEtapas(int $pUsuarioId) {
+        $sql = "SELECT 
+        (SELECT COUNT(*) FROM ".DB_BASE.".usuarios_instancias WHERE usuario_id = 7) instancia,
+        (SELECT COUNT(*) FROM ".DB_USUARIO.".chatbot WHERE status = 'ativo' LIMIT 1) chatbot,
+        (SELECT COUNT(*) FROM ".DB_USUARIO.".etapas WHERE status = 'ativo' LIMIT 1) etapas,
+        (SELECT COUNT(*) FROM ".DB_USUARIO.".funcionarios WHERE status = 'ativo' LIMIT 1) funcionarios,
+        (SELECT COUNT(*) FROM ".DB_USUARIO.".eventos WHERE status = 'ativo' LIMIT 1) eventos,
+        (SELECT COUNT(*) FROM ".DB_USUARIO.".produtos WHERE status = 'ativo' LIMIT 1) produtos";
+        $pdo = $this->getConnection()->prepare($sql);
+
+        try {
+            $pdo->execute();
+            $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
+        } catch (Exception $err) {
+            throw new Exception($err);
+        }
+
+        return $result;
+    }
 }

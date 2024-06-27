@@ -5,6 +5,7 @@ $rotas = [
     '' => 'LoginController@index',
     '/index' => 'LoginController@index',
     '/entrar' => 'LoginController@entrar',
+    '/verificarEtapas' => 'LoginController@verificarEtapas',
     '/cadastrar' => 'RegistrarController@index',
     '/cadastrar/salvar' => 'RegistrarController@cadastrar',
     #region Integração

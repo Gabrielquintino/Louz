@@ -25,7 +25,6 @@ class ClienteModel extends DatabaseConfig
     }
 
     public function save(array $arrData) : int {
-
         if (isset($arrData['id']) && !empty($arrData['id'])) {
 
             $intId = $arrData['id'];
@@ -57,7 +56,6 @@ class ClienteModel extends DatabaseConfig
                 // Obtenha a conexão com o banco de dados
                 $pdo = $this->getConnection();
                 $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); // Habilita o modo de erro do PDO
-            
                 // Sanitize and set variables
                 $strNome = isset($arrData['nome']) ? mb_substr($arrData['nome'], 0, 150) : null;
                 $strEmail = isset($arrData['email']) ? mb_substr($arrData['email'], 0, 150) : null;

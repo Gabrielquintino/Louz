@@ -54,12 +54,16 @@ class CrmController
     }
 
     public function saveKanbam() {
-        $etapaModel = new EtapaModel();
-        $etapaModel->saveLog($_POST['clientId'], $_POST['etapaId']);
-
-        $arrList['success'] = true;
-        echo json_encode($arrList);
-        return true;
+        try {
+            $etapaModel = new EtapaModel();
+            $etapaModel->saveLog($_POST['clientId'], $_POST['etapaId']);
+            $arrList['success'] = true;
+            echo json_encode($arrList);
+            return true;
+        } catch (Exception $err) {
+            throw new Exception($err->getMessage(), 1);
+            
+        }
     }
 
     public function listagem()
@@ -87,9 +91,11 @@ class CrmController
     public function edit()
     {
         $clientModel = new ClienteModel();
+        $atendimentoModel = new AtendimentoModel();
 
         $arrList['success'] = true;
         $arrList['data'] = $clientModel->getClient('id', $_POST['id'])[0];
+        $arrList['data']['obs'] = $atendimentoModel->getLog('cliente_id', $_POST['id']);
 
         echo json_encode($arrList);
         return true;

@@ -11,6 +11,12 @@ class LoginController
     public function index()
     {
         if (isset($_SESSION['usuario_logado']) && $_SESSION['usuario_logado']) {
+
+            if (isset($_SERVER['QUERY_STRING']) && $_SERVER['QUERY_STRING'] == 'session=destroy') {
+                session_destroy();
+                header("Location: /");
+            }
+
             $html = 'index.html';
             include_once __DIR__ . '/../views/index.php';
         } else {
@@ -49,6 +55,23 @@ class LoginController
             // Credenciais incorretas, redireciona para a página de login com uma mensagem de erro
             echo json_encode(['success' => false]);
             return true;
+        }
+    }
+
+    public function verificarEtapas() {
+        if (isset($_SESSION['usuario_logado']) && $_SESSION['usuario_logado']) {
+
+
+            $usuarioModel = new UsuarioModel();
+            $arrData = $usuarioModel->verificarEtapas($_SESSION['user_id']);
+
+            $arrData['success'] = true;
+            echo json_encode($arrData);
+            return true;
+
+        } else {
+            // Redireciona
+            header("Location: /");
         }
     }
 }

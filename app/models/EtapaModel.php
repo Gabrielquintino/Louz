@@ -6,13 +6,13 @@ use App\Config\DatabaseConfig;
 use App\Controllers\UtilController;
 use Exception;
 use PDO;
+use PDOException;
 
 class EtapaModel extends DatabaseConfig
 {
 
     public function list(): array
     {
-
         $sql = "SELECT *
         FROM " . DB_USUARIO . ".etapas e
         WHERE 1=1 and e.status = 'ativo' ORDER BY e.order, e.id DESC";
@@ -57,17 +57,61 @@ class EtapaModel extends DatabaseConfig
 
     public function save($arrData)
     {
-
-        $sql = "INSERT INTO " . DB_USUARIO . ".etapas (`chatbot_id`, `nome`, `order`) VALUES (?, ?, ?)";
-        $pdo = $this->getConnection()->prepare($sql);
-
-        try {
-            $pdo->execute([$arrData['chatbot_id'], $arrData['nome'], $arrData['order']]);
-            return $this->getConnection()->lastInsertId();
-        } catch (Exception $err) {
-            throw new Exception($err);
+        $pdo = $this->getConnection();
+        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); 
+    
+        if (isset($arrData['id']) && !empty($arrData['id'])) {
+    
+            $intId = $arrData['id'];
+            unset($arrData['id']);
+    
+            // Construindo a parte SET dinamicamente
+            $setParts = [];
+            foreach ($arrData as $key => $value) {
+                $setParts[] = "`$key` = ?";
+            }
+            $setClause = implode(", ", $setParts);
+    
+            // Construindo a query de UPDATE
+            $sql = "UPDATE " . DB_USUARIO . ".clientes SET $setClause WHERE id = ?";
+            $stmt = $pdo->prepare($sql);
+    
+            // Adicionando o id ao final do array de dados
+            $arrDataValues = array_values($arrData);
+            $arrDataValues[] = $intId;
+    
+            try {
+                $stmt->execute($arrDataValues); // Certificando-se de usar os valores do array
+                return $intId;
+            } catch (Exception $err) {
+                http_response_code(500);
+                throw new Exception($err->getMessage());
+            }  
+        } else {
+    
+            $sql = "INSERT INTO " . DB_USUARIO . ".etapas (`nome`, `chatbot_id`, `order`) VALUES (?, ?, ?)";
+    
+            try {
+                // Obtenha a conexão com o banco de dados
+                $stmt = $pdo->prepare($sql);
+                $stmt->execute(array_values($arrData));
+    
+                // Return the last inserted ID
+                return $pdo->lastInsertId();
+            } catch (PDOException $e) {
+                // Log the error and throw an exception
+                http_response_code(500);
+                error_log("Database error: " . $e->getMessage());
+                throw new Exception("Database error: " . $e->getMessage(), 1);
+            } catch (Exception $err) {
+                // Log the error and throw an exception
+                http_response_code(500);
+                error_log("General error: " . $err->getMessage());
+                throw new Exception("General error: " . $err->getMessage());
+            }
         }
     }
+    
 
     public function saveLog($pClienteId, $pEtapaId)
     {

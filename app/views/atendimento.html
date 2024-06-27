@@ -36,7 +36,7 @@
 
 <!-- Lista de atendimentos -->
  <div class="row">
-    <div class="col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4">
+    <div id="listaChats" class="col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4">
         <div class="card w-100">
             <div class="card-body card-atendimento p-0">
                 <div id="listAtendimento"></div>
@@ -77,7 +77,7 @@
 
         </div>
     </div>
-    <div id="chatAtendimentoAcoes" class="col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4" style="display: none;">
+    <div id="chatAtendimentoAcoes" class="col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6" style="display: none;">
 
 
 
@@ -231,11 +231,6 @@
             </div>
     
             <div class="card-body">
-                <div class="card-title">Status</div>
-                <p>{{this.status}}</p>
-            </div>
-    
-            <div class="card-body">
                 <div class="card-title">
                     Email
                 </div>
@@ -260,7 +255,30 @@
                 <div class="card-title">
                     Observações
                 </div>
-                <p>{{this.obs}}</p>
+                <!-- <p>{{this.obs}}</p> -->
+
+
+
+                <div class="container px-0">
+                    <div class="timeline-container">
+                        <ul class="timeline">
+                            {{#each obs}}
+                            <li class="timeline-item">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <p class="card-text">{{this.mensagem}}</p>
+                                        <p class="card-text"><small class="text-muted">{{'formatDate' this.data}} - {{this.funcionario}}</small></p>
+                                    </div>
+                                </div>
+                            </li>
+                            {{/each}}
+
+                            <!-- Adicione mais itens conforme necessário -->
+                        </ul>
+                    </div>
+                </div>
+
+                
             </div>
 
         </div>

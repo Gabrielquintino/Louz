@@ -99,3 +99,42 @@
 .dashboard-card {
     background-color: #d3edea;
 }
+
+.timeline-container {
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: antiquewhite;
+}
+.timeline {
+    position: relative;
+    padding: 0;
+    list-style: none;
+}
+.timeline::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 20px;
+    width: 4px;
+    height: 100%;
+    background-color: royalblue;
+}
+.timeline-item {
+    position: relative;
+    margin-left: 40px;
+    margin-bottom: 20px;
+}
+.timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -14px;
+    top: 0;
+    width: 12px;
+    height: 12px;
+    background-color: royalblue;
+    border-radius: 50%;
+    z-index: 1;
+}

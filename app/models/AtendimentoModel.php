@@ -186,4 +186,50 @@ class AtendimentoModel extends DatabaseConfig
 
         return $result;
     }
+
+    public function getLog(string $pFilter, $pValue) {
+        // Construir a query SQL
+        $sql = "SELECT c.nome as cliente, f.nome as funcionario, l.mensagem, l.data 
+                FROM ".DB_USUARIO.".atendimento_log l
+                INNER JOIN ".DB_USUARIO.".clientes c ON
+                c.id = l.cliente_id
+                INNER JOIN ".DB_USUARIO.".funcionarios f ON
+                f.id = l.funcionario_id
+                WHERE " . $pFilter . " = " . $pValue . " ORDER BY l.data DESC";
+        $pdo = $this->getConnection()->prepare($sql);
+    
+        try {
+            $pdo->execute();
+            $result = $pdo->fetchAll(PDO::FETCH_ASSOC);
+            return $result;
+        } catch (Exception $err) {
+            throw new Exception($err->getMessage());
+        }
+    }
+
+    public function saveLog(int $pIntclienteId, int $pIntFuncionarioId, string $pStrObservacao) {
+
+        try {
+            // Obtenha a conexão com o banco de dados
+            $pdo = $this->getConnection();
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION); // Habilita o modo de erro do PDO
+
+            $strObs = mb_substr($pStrObservacao, 0, 500);
+
+            // Prepare and execute the SQL statement
+            $sql = "INSERT INTO " . DB_USUARIO . ".atendimento_log (`cliente_id`, `funcionario_id`, `mensagem` ) VALUES (?, ?, ?)";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$pIntclienteId, $pIntFuncionarioId, $strObs]);
+        } catch (PDOException $e) {
+            http_response_code(500); // Define o status HTTP para 500 em caso de erro
+            // Log the error and throw an exception
+            error_log("Database error: " . $e->getMessage());
+            throw new Exception("Database error: " . $e->getMessage());
+        } catch (Exception $err) {
+            http_response_code(500); // Define o status HTTP para 500 em caso de erro
+            // Log the error and throw an exception
+            error_log("General error: " . $err->getMessage());
+            throw new Exception("General error: " . $err->getMessage());
+        }
+    }
 }

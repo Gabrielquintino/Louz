@@ -2,12 +2,15 @@ class Dashboard {
 
 	constructor() {
 		var select = $('#formDashboard #data').val()
-		this.list(select);
+        this.verificaPassos();
 	}
 
-	async list(strData, booDestroy = false) {
+	listar(strData, booDestroy = false) {
 
-        await $.ajax({
+        $('#inicio').hide();
+        $('#dashboard').show();
+
+        $.ajax({
             url: '/atendimento/noPeriodo',
             data: {
                 'data': strData
@@ -17,39 +20,54 @@ class Dashboard {
             success: function (data) {
                 var objData = JSON.parse(data)
 
-                $('#dashboard #totalAtendimentos').html(objData.data[0].qt_total)
-                $('#dashboard #clienteAtendimento').html(objData.data[0].qt_andamento)
-                $('#dashboard #clienteEspera').html(objData.data[0].qt_espera)
-                $('#dashboard #notaAtendimento').html(objData.data[0].avg_avaliacao)
-                $('#dashboard #tma').html(objData.data[0].avg_media)
-                $('#dashboard #tempoEspera').html(objData.data[0].avg_espera)
-                $('#dashboard #atendimentoFinalizado').html(objData.data[0].qt_encerrado)
-                $('#dashboard #totalVendas').html(objData.data[0].qt_vendas)
-                $('#dashboard #faturamento').html(objData.data[0].faturamento)
-                $('#dashboard #ticketMedio').html(objData.data[0].ticket_medio)
-                $('#dashboard #melhorVendedor').html(objData.data[0].melhor_funcionario)
+                var arr = []
+
+                $.each(objData.data[0], function(index, value) {
+                    if (value == null) {
+                        arr[index] = 0;
+                    } else {
+                        arr[index] = value;
+                    }
+                })
+                
+                console.log(arr)
+
+                $('#dashboard #totalAtendimentos').html(arr['qt_total'])
+                $('#dashboard #clienteAtendimento').html(arr['qt_andamento'])
+                $('#dashboard #clienteEspera').html(arr['qt_espera'])
+                $('#dashboard #notaAtendimento').html(arr['avg_avaliacao'])
+                $('#dashboard #tma').html(arr['avg_media'])
+                $('#dashboard #tempoEspera').html(arr['avg_espera'])
+                $('#dashboard #atendimentoFinalizado').html(arr['qt_encerrado'])
+                $('#dashboard #totalVendas').html(arr['qt_vendas'])
+                $('#dashboard #faturamento').html(arr['faturamento'])
+                $('#dashboard #ticketMedio').html(arr['ticket_medio'])
+                $('#dashboard #melhorVendedor').html(arr['melhor_funcionario'])
                 var divFuncionario = document.getElementById('melhorVendedor').parentElement;
-                divFuncionario.title = objData.data[0].melhor_funcionario
+                divFuncionario.title = arr['melhor_funcionario']
 
 
-                $('#dashboard #produtoMaisVendido').html(objData.data[0].produto_mais_vendido)
+                $('#dashboard #produtoMaisVendido').html(arr['produto_mais_vendido'])
                 var divProduto = document.getElementById('produtoMaisVendido').parentElement;
-                divProduto.title = objData.data[0].produto_mais_vendido
+                divProduto.title = arr['produto_mais_vendido']
 
                 var floConversao = 0;
-                if (objData.data[0].qt_vendas != 0 && objData.data[0].qt_encerrado != 0 ) {
-                    floConversao = ( (objData.data[0].qt_vendas * 100) / objData.data[0].qt_encerrado ).toFixed(2);                    
+                if (arr['qt_vendas'] != 0 && arr['qt_encerrado'] != 0 ) {
+                    floConversao = ( (arr['qt_vendas'] * 100) / arr['qt_encerrado'] ).toFixed(2);
                 }
 
                 $('#dashboard #conversao').html(floConversao + "%");
+
+                return;
             }
         })
 
-        await $.ajax({
+        $.ajax({
             url: '/vendas/noPeriodo',
             data: {
                 'data': strData
             },
+            async: false,
             type: 'POST',
             success: function (data) {
                 var objData = JSON.parse(data);
@@ -84,7 +102,7 @@ class Dashboard {
                     data: {
                         labels: labels, // Labels com os dias de venda formatados
                         datasets: [{
-                            label: 'Vendas por Dia',
+                            label: 'Vendido no dia',
                             data: dataPoints, // Dados com os totais de vendas
                             backgroundColor: 'rgba(54, 162, 235, 0.2)',
                             borderColor: 'rgba(54, 162, 235, 1)',
@@ -106,27 +124,77 @@ class Dashboard {
                 console.error('Erro ao obter dados:', error);
                 // Tratar o erro conforme necessário
             }
-        });
-        
-        
-        
-        
-        
+        });   
 	}
 
-    async loadSalesData() {
-        try {
-            // Substitua pela sua URL de API no backend que retorna os dados de vendas agrupados por dia
-            const apiUrl = '/api/vendas-por-dia';
+    verificaPassos() {
+        
+        var dash = this;
+        
+        $.ajax({
+            url: '/verificarEtapas',
+            type: 'POST',
+            async: false,
+            success: function (data) {
+                var objData = JSON.parse(data);   
+                var divconecta = document.getElementById('conecta');
+                var divchatbot = document.getElementById('chatbot');
+                var divEtapas = document.getElementById('etapas');
+                var divFuncionario = document.getElementById('funcionario');
+                var divEvento = document.getElementById('evento');
+                var divProduto = document.getElementById('produto');
 
-            const response = await fetch(apiUrl);
-            const data = await response.json();
+                if (objData[0].chatbot > 0 &&
+                    objData[0].etapas > 0 && 
+                    objData[0].eventos > 0 && 
+                    objData[0].funcionarios > 0 && 
+                    objData[0].instancia > 0 && 
+                    objData[0].produtos > 0
+                ) {
+                    dash.listar($('#formDashboard #data').val());
+                } else {
+                    if (objData[0].chatbot > 0) {
+                        var icon = divchatbot.getElementsByTagName('i');
+                        icon[0].classList = "ti ti-square-check text-success";
+                        var a = divchatbot.getElementsByTagName('a');
+                        a[0].remove();
+                    }
+                    if (objData[0].etapas > 0) {
+                        var icon = divEtapas.getElementsByTagName('i');
+                        icon[0].classList = "ti ti-square-check text-success";
+                        var a = divEtapas.getElementsByTagName('a');
+                        a[0].remove();
+                    }
+                    if (objData[0].eventos > 0) {
+                        var icon = divEvento.getElementsByTagName('i');
+                        icon[0].classList = "ti ti-square-check text-success";
+                        var a = divEvento.getElementsByTagName('a');
+                        a[0].remove();
+                    }
+                    if (objData[0].funcionarios > 0) {
+                        var icon = divFuncionario.getElementsByTagName('i');
+                        icon[0].classList = "ti ti-square-check text-success";
+                        var a = divFuncionario.getElementsByTagName('a');
+                        a[0].remove();
+                    }
+                    if (objData[0].instancia > 0) {
+                        var icon = divconecta.getElementsByTagName('i');
+                        icon[0].classList = "ti ti-square-check text-success";
+                        var a = divconecta.getElementsByTagName('a');
+                        a[0].remove();
+                    }
+                    if (objData[0].produtos > 0) {
+                        var icon = divProduto.getElementsByTagName('i');
+                        icon[0].classList = "ti ti-square-check text-success";
+                        var a = divProduto.getElementsByTagName('a');
+                        a[0].remove();
+                    }
+    
+                    $('#dashboard').hide();
+                    $('#inicio').show();
+                }
 
-
-
-        } catch (error) {
-            console.error('Erro ao carregar dados:', error);
-        }
+            }
+        })
     }
-
 }

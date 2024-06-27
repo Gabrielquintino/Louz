@@ -177,7 +177,7 @@ class Atendimento {
 
 
         if (
-            $('#formAtnedimento #funcionarios').val() == undefined &&
+            $('#formAtendimento #funcionarios').val() == undefined &&
             $('#formAtendimento #agendamento').val() == '' &&
             $('#formAtendimento #originalTags').val() == $('#formAtendimento #tags').val() &&
             $('#formAtendimento #observacao').val() == ''
@@ -193,22 +193,24 @@ class Atendimento {
 
         var data = dataHora
 
-        objMain.validar(document.getElementById('#evento'), '#formAgendamento');
+        if ($('#formAtendimento #evento').val() !== '') {
+            objMain.validar(document.getElementById('#evento'), '#formAgendamento');
 
-        const dataFornecida = new Date(data);
-
-        // Data atual
-        const dataAtual = new Date();
-
-        // Verifica se a data fornecida é menor que a data atual
-        if (dataFornecida < dataAtual) {
-            Swal.fire({
-                title: "Ops!",
-                text: "A data fornecida e menor que a data atual.",
-                icon: "error"
-            })
-
-            return;
+            const dataFornecida = new Date(data);
+    
+            // Data atual
+            const dataAtual = new Date();
+    
+            // Verifica se a data fornecida é menor que a data atual
+            if (dataFornecida < dataAtual) {
+                Swal.fire({
+                    title: "Ops!",
+                    text: "A data fornecida e menor que a data atual.",
+                    icon: "error"
+                })
+    
+                return;
+            }            
         }
 
         var boolTag = $('#formAtendimento #originalTags').val() == $('#formAtendimento #tags').val();
@@ -328,18 +330,20 @@ class Atendimento {
 
     showActions() {
 
+        var chatList = document.getElementById('listaChats');
         var chat = document.getElementById('chatAtendimentoConversa');
         var btn = document.getElementById('btnShowActions');
         var ico = document.getElementById('icoShowActions');
 
         if ($('#chatAtendimentoAcoes').is(':visible')) {
             $('#chatAtendimentoAcoes').hide()
-
+            chatList.style.display = 'block';
             chat.classList = "col-12 col-sm-12 col-md-12 col-lg-8 col-xl-8";
             ico.classList = "ti ti-layout-sidebar-right-expand";
             $('#btnShowActions').attr('title', 'Expandir detalhes');
         } else {
-            chat.classList = "col-12 col-sm-12 col-md-12 col-lg-4 col-xl-4"
+            chatList.style.display = 'none';
+            chat.classList = "col-12 col-sm-12 col-md-12 col-lg-6 col-xl-6"
             $('#btnShowActions').attr('title', 'Esconder detalhes');
 
             ico.classList = "ti ti-layout-sidebar-left-expand";
