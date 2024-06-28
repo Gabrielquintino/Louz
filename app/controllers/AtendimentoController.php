@@ -7,6 +7,7 @@ use App\Models\AtendimentoModel;
 use App\Models\ChatBotModel;
 use App\Models\ClienteModel;
 use App\Models\EtapaModel;
+use App\Models\FuncionarioModel;
 use App\Models\UsuarioInstanciaModel;
 use App\Models\WhatsappApiModel;
 use Exception;
@@ -165,6 +166,13 @@ class AtendimentoController
     
             // Salva o atendimento
             $result = $atendimentotModel->save($arrAttendance);
+
+            $funcionarioModel = new FuncionarioModel();
+            $arrFuncionario = $funcionarioModel->get($_POST['funcionarios_id']);
+
+            $arrFuncionarioAtual = $funcionarioModel->get($_SESSION['usuario'], 'f.email');
+
+            $atendimentotModel->saveLog((int) $_POST['cliente_id'], (int) $arrFuncionarioAtual[0]['id'], "Transferido para " . $arrFuncionario[0]['nome']);
         }
 
         if (!empty($_POST['observacao'])) { // TODO: BUSCAR O FUNCIONARIO CORRETO

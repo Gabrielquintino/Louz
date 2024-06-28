@@ -36,12 +36,14 @@ class FuncionarioModel extends DatabaseConfig
         return $result;
     }
 
-    public function get($pIntId) {
+    public function get($pFilter, string $strFilterType = 'f.id') {
+        
+
         $sql = "SELECT f.id, c.id cargo_id, c.nome cargo, f.nome, f.email, f.comissao, f.status
         FROM ". DB_USUARIO .".funcionarios f 
         INNER JOIN ". DB_USUARIO .".cargos c on 
         c.id = f.cargos_id and c.status = 'ativo' 
-        WHERE f.id = " . $pIntId;
+        WHERE ".$strFilterType." = '" . $pFilter . "'";
         $pdo = $this->getConnection()->prepare($sql);
         
         try {

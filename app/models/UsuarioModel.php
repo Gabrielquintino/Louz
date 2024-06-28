@@ -30,7 +30,7 @@ class UsuarioModel extends DatabaseConfig
         try {
             $pdo->execute([$planoId, $codigo, $email, $senha, $nome, $identidade, $tipo, $phone]);
 
-            $this->createDatabaseAndTable($codigo);
+            $this->createDatabaseAndTable($codigo, $email, $senha, $nome);
 
             return ['success' => true, 'id' => $this->getConnection()->lastInsertId()];
         } catch (Exception $err) {
@@ -96,7 +96,7 @@ class UsuarioModel extends DatabaseConfig
     }
 
     // Função para criar a nova base de dados e a tabela 'chatbot' usando o PDO
-    public function createDatabaseAndTable($codigo)
+    public function createDatabaseAndTable($codigo, $email, $senha, $nome)
     {
         try {
             // Obter a instância existente de PDO
@@ -125,6 +125,19 @@ class UsuarioModel extends DatabaseConfig
                     UNIQUE KEY `id_UNIQUE` (`id`)
                 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
+                CREATE TABLE IF NOT EXISTS `clientes` (
+                    `id` INT(11) NOT NULL AUTO_INCREMENT,
+                    `nome` VARCHAR(150) NULL DEFAULT NULL,
+                    `email` VARCHAR(150) NULL DEFAULT NULL,
+                    `telefone` VARCHAR(15) NULL DEFAULT NULL,
+                    `cpf` VARCHAR(15) NULL DEFAULT NULL,
+                    `cnpj` VARCHAR(15) NULL DEFAULT NULL,
+                    `tags` MEDIUMTEXT NULL DEFAULT NULL,
+                    PRIMARY KEY (`id`),
+                    UNIQUE INDEX `telefone_UNIQUE` (`telefone` ASC) VISIBLE,
+                    UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE
+                ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8;                
+
                 CREATE TABLE IF NOT EXISTS `atendimentos` (
                     `id` INT(11) NOT NULL AUTO_INCREMENT,
                     `chatbot_id` INT(11) NOT NULL,
@@ -146,19 +159,6 @@ class UsuarioModel extends DatabaseConfig
                       ON DELETE NO ACTION
                       ON UPDATE NO ACTION
                 ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8;
-                  
-                CREATE TABLE IF NOT EXISTS `clientes` (
-                    `id` INT(11) NOT NULL AUTO_INCREMENT,
-                    `nome` VARCHAR(150) NULL DEFAULT NULL,
-                    `email` VARCHAR(150) NULL DEFAULT NULL,
-                    `telefone` VARCHAR(15) NULL DEFAULT NULL,
-                    `cpf` VARCHAR(15) NULL DEFAULT NULL,
-                    `cnpj` VARCHAR(15) NULL DEFAULT NULL,
-                    `tags` MEDIUMTEXT NULL DEFAULT NULL,
-                    PRIMARY KEY (`id`),
-                    UNIQUE INDEX `telefone_UNIQUE` (`telefone` ASC) VISIBLE,
-                    UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE
-                ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8;
 
                 CREATE TABLE IF NOT EXISTS `produtos` (
                     `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -175,11 +175,8 @@ class UsuarioModel extends DatabaseConfig
                       FOREIGN KEY (`fornecedores_id`)
                       REFERENCES `fornecedores` (`id`)
                       ON DELETE NO ACTION
-                      ON UPDATE NO ACTION)
-                  ENGINE = InnoDB
-                  DEFAULT CHARACTER SET = utf8;
-                  
-
+                      ON UPDATE NO ACTION 
+                ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8;
 
                 CREATE TABLE `eventos` (
                     `id` int NOT NULL AUTO_INCREMENT,
@@ -203,8 +200,7 @@ class UsuarioModel extends DatabaseConfig
                     CONSTRAINT `fk_agendamentos_atendimentos1` FOREIGN KEY (`atendimentos_id`) REFERENCES `atendimentos` (`id`),
                     CONSTRAINT `fk_agendamentos_clientes1` FOREIGN KEY (`clientes_id`) REFERENCES `clientes` (`id`),
                     CONSTRAINT `fk_agendamentos_eventos1` FOREIGN KEY (`eventos_id`) REFERENCES `eventos` (`id`)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8;            
-
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
                 CREATE TABLE IF NOT EXISTS `vendas` (
                     `id` INT(11) NOT NULL AUTO_INCREMENT,
@@ -222,29 +218,8 @@ class UsuarioModel extends DatabaseConfig
                       FOREIGN KEY (`produtos_id`)
                       REFERENCES `produtos` (`id`)
                       ON DELETE NO ACTION
-                      ON UPDATE NO ACTION)
-                  ENGINE = InnoDB
-                  DEFAULT CHARACTER SET = utf8;
-                  
-                CREATE TABLE IF NOT EXISTS `estoque` (
-                    `produtos_id` INT(11) NOT NULL,
-                    `fornecedores_id` INT(11) NULL DEFAULT NULL,
-                    `qtd` INT(11) NULL DEFAULT NULL,
-                    `dt_ultima_compra` DATETIME NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-                    PRIMARY KEY (`produtos_id`),
-                    INDEX `fk_estoque_fornecedores1_idx` (`fornecedores_id` ASC) VISIBLE,
-                    CONSTRAINT `fk_estoque_produtos1`
-                      FOREIGN KEY (`produtos_id`)
-                      REFERENCES `produtos` (`id`)
-                      ON DELETE NO ACTION
-                      ON UPDATE NO ACTION,
-                    CONSTRAINT `fk_estoque_fornecedores1`
-                      FOREIGN KEY (`fornecedores_id`)
-                      REFERENCES `fornecedores` (`id`)
-                      ON DELETE NO ACTION
-                      ON UPDATE NO ACTION)
-                  ENGINE = InnoDB
-                  DEFAULT CHARACTER SET = utf8;
+                      ON UPDATE NO ACTION 
+                ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8;
                   
                 CREATE TABLE IF NOT EXISTS `avaliacoes` (
                     `clientes_id` INT(11) NOT NULL,
@@ -270,7 +245,31 @@ class UsuarioModel extends DatabaseConfig
                       ON DELETE NO ACTION
                       ON UPDATE NO ACTION,
                     PRIMARY KEY (`clientes_id`, `atendimentos_id`) -- Removi `vendas_id` da chave primária
-                  ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8;                  
+                ) ENGINE = InnoDB DEFAULT CHARACTER SET = utf8;
+
+                CREATE TABLE `cargos` (
+                    `id` int NOT NULL AUTO_INCREMENT,
+                    `nome` varchar(150) NOT NULL,
+                    `status` enum('ativo','inativo') DEFAULT 'ativo',
+                    PRIMARY KEY (`id`)
+                ) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8mb3;
+
+                INSERT INTO ".$databaseName.".`cargos` (`nome`,`status`)VALUES('admin','ativo');
+
+                CREATE TABLE `funcionarios` (
+                    `id` int NOT NULL AUTO_INCREMENT,
+                    `cargos_id` int NOT NULL,
+                    `nome` varchar(150) NOT NULL,
+                    `email` varchar(150) NOT NULL,
+                    `comissao` decimal(10,2) DEFAULT NULL,
+                    `senha` varchar(60) NOT NULL,
+                    `status` enum('ativo','inativo') DEFAULT 'ativo',
+                    PRIMARY KEY (`id`),
+                    KEY `fk_funcionarios_cargos1_idx` (`cargos_id`),
+                    CONSTRAINT `fk_funcionarios_cargos1` FOREIGN KEY (`cargos_id`) REFERENCES `cargos` (`id`)
+                ) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb3;
+
+                INSERT INTO ".$databaseName.".`funcionarios` (`cargos_id`, `nome`, `email`, `senha`, `status`) VALUES ('1', ".$nome.", ".$email.", ".$senha.", 'ativo');
 
             ";
             $pdo->exec($sqlTable);
