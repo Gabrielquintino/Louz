@@ -442,7 +442,7 @@ paper.on('element:pointerdblclick',
                 title: "Enviar " + type + ":",
                 html: `
                 <div class="mb-3">
-                    <input id="fileSended" class="form-control" type="file" id="formFileMultiple">
+                    <input id="fileSended" class="form-control" type="file">
                 </div>`,
                 showCancelButton: true,
                 confirmButtonText: 'Confirmar',
@@ -712,6 +712,109 @@ paper.on('element:pointerdblclick',
                 }
             });
 
+        }
+        if (type == "Catálogo") {
+            Swal.fire({
+                title: "Enviar " + type,
+                html: `
+                <div class="mb-3">
+                    <p>Você pode enviar o link ou um arquivo para que seu cliente visualize seus produtos. Depois de enviar o catálogo, espera-se que o cliente escolha um dos produtos apresentados.</p>
+                    <label for="url" class="form-label">Link do catálogo</label>
+                    <input id="url" class="form-control" type="text" title="Link para seu cliente visualizar o catálogo">
+                    <input id="fileSended" class="form-control mt-3" type="file">                    
+                </div>`,
+                showCancelButton: true,
+                confirmButtonText: 'Confirmar',
+                cancelButtonText: 'Cancelar',
+                preConfirm: async () => {
+                    const file = document.getElementById('fileSended').value;
+                    if (!file) {
+                        Swal.showValidationMessage('Por favor, envie um arquivo.');
+                    } else {
+                        var objChatBot = new ChatBot();
+                        const link = await objChatBot.uploadToAWS('fileSended');
+
+                        const url = document.getElementById('url').value;
+
+                        Swal.fire({
+                            title: "Arquivo recebido",
+                        });
+
+                        return { link: link, url: url };
+                    }
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    elementView.model.attributes.attrs.bodyText.arquivo = result.value.link;
+                    elementView.model.attributes.attrs.bodyText.link = result.value.url;
+                    elementView.update();
+                }
+            })
+        }
+        if (type == "Produto") {
+            var selectProdutos = document.createElement("select");
+            selectProdutos.id = "selProdutos";
+            selectProdutos.classList.add('form-control');
+            selectProdutos.classList.add('mb-3');
+
+            $.ajax({
+                url: '/produtos/listagem',
+                type: 'POST',
+                success: function (data) {
+                    var objData = JSON.parse(data)
+                    var cargos = objData.data;
+
+                    var option = document.createElement("option");
+                    option.value = "";
+                    option.innerHTML = "Exibir para o cliente o produto...";
+                    selectProdutos.appendChild(option);
+
+                    cargos.forEach(element => {
+                        var option = document.createElement("option");
+                        option.value = element.id;
+                        option.innerHTML = element.nome;
+                        selectProdutos.appendChild(option);
+                    });
+                }
+            })
+
+            var div = document.createElement('div');
+            var p = document.createElement('p');
+            p.innerHTML = "Nesta ação é apresentado ao cliente as informações do produto, é enviado o link de pagamento do produto e registramos uma venda com o status de aguardando pagamento. Você pode confirmar a venda na seção VENDAS."
+            div.appendChild(p);
+            div.appendChild(selectProdutos);
+
+
+            Swal.fire({
+                title: "Vender o produto",
+                html: div,
+                showCancelButton: true,
+                confirmButtonText: 'Inserir',
+                didOpen: () => {
+                    setTimeout(function () {
+                        document.getElementById('selProdutos').value = elementView.model.attributes.attrs.bodyText.produto;
+                    }, 1000)
+                },
+                preConfirm: () => {
+                    const produto = document.getElementById('selProdutos').value;
+
+                    // Verifica se o valor é válido
+                    if ((!produto || produto == "")) {
+                        Swal.showValidationMessage('Por favor, escolha um produto!');
+                    }
+
+                    return {produto: produto};                    
+                    
+                },
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Obtém o valor do texto digitado
+                    elementView.model.attributes.attrs.bodyText.produto = result.value.produto;
+
+                    // Atualiza a visualização do elemento
+                    elementView.update();
+                }
+            });
         }
     }
 );
@@ -1277,6 +1380,8 @@ tags.addPorts([
 ]);
 tags.addTo(draggableContainerAcoes);
 
+//#endregion
+
 draggableAcoes.on('cell:pointerdown', function (cellView, e, x, y) {
     $('body').append('<div id="flyPaper" style="position:relative;opacity:0.4;pointer-event:none;"></div>');
     var flyGraph = new joint.dia.Graph,
@@ -1323,4 +1428,125 @@ draggableAcoes.on('cell:pointerdown', function (cellView, e, x, y) {
         $('#flyPaper').remove();
     });
 });
+// #endregion
+
+// #region Vender
+var draggableContainerVender = new joint.dia.Graph;
+var draggableVender = new joint.dia.Paper({
+    el: document.getElementById('draggableVender'),
+    gridSize: 1,
+    width: 325,
+    height: 210,
+    model: draggableContainerVender,
+    interactive: false,
+    background: {
+        color: '#ecf8ec',
+        opacity: 0.3
+    },
+});
+
+// #region Catálogo
+var catalogo = new joint.shapes.standard.Image({
+    ports: {
+        groups: {
+            'in': portsIn,
+            'out': portsOut
+        }
+    }
+});
+catalogo.resize(90, 70);
+catalogo.position(20, 5);
+catalogo.attr('root/title', 'Apresentar todos os produtos');
+catalogo.attr('label/text', 'Catálogo');
+catalogo.attr('background/fill', 'lightblue');
+catalogo.attr('border/rx', 5);
+catalogo.attr('bodyText/arquivo', '');
+catalogo.attr('bodyText/link', '');
+catalogo.attr('image/xlinkHref', '../../resources/images/ElementosJointJs/building-store.png');
+catalogo.addPorts([
+    {
+        group: 'in',
+    },
+    {
+        group: 'out',
+    }
+]);
+catalogo.addTo(draggableContainerVender);
+// #endregion
+
+// #region Produto
+var produto = new joint.shapes.standard.Image({
+    ports: {
+        groups: {
+            'in': portsIn,
+            'out': portsOut
+        }
+    }
+});
+produto.resize(90, 70);
+produto.position(190, 5);
+produto.attr('root/title', 'Vender um produto');
+produto.attr('label/text', 'Produto');
+produto.attr('background/fill', 'lightorange');
+produto.attr('border/rx', 5);
+produto.attr('bodyText/produto', '');
+produto.attr('image/xlinkHref', '../../resources/images/ElementosJointJs/package.png');
+produto.addPorts([
+    {
+        group: 'in',
+    },
+    {
+        group: 'out',
+    }
+]);
+produto.addTo(draggableContainerVender);
+// #endregion
+
+draggableVender.on('cell:pointerdown', function (cellView, e, x, y) {
+    $('body').append('<div id="flyPaper" style="position:relative;opacity:0.4;pointer-event:none;"></div>');
+    var flyGraph = new joint.dia.Graph,
+        flyPaper = new joint.dia.Paper({
+            el: $('#flyPaper'),
+            model: flyGraph,
+            height: 100,
+            width: 110,
+            interactive: false
+        }),
+        flyShape = cellView.model.clone(),
+        pos = cellView.model.position(),
+        offset = {
+            x: x - pos.x,
+            y: y - pos.y
+        };
+
+    flyShape.position(15, 10);
+    flyShape.prop = 1;
+    flyGraph.addCell(flyShape);
+    $("#flyPaper").offset({
+        left: e.pageX - offset.x,
+        top: e.pageY - offset.y
+    });
+    $('body').on('mousemove.fly', function (e) {
+        $("#flyPaper").offset({
+            left: e.pageX - offset.x,
+            top: e.pageY - offset.y
+        });
+    });
+    $('body').on('mouseup.fly', function (e) {
+        var x = e.pageX,
+            y = e.pageY,
+            target = paper.$el.offset();
+
+        // Dropped over paper ?
+        if (x > target.left && x < target.left + paper.$el.width() && y > target.top && y < target.top + paper.$el.height()) {
+            var s = flyShape.clone();
+            s.position(x - target.left - offset.x, y - target.top - offset.y);
+            graph.addCell(s);
+        }
+        $('body').off('mousemove.fly').off('mouseup.fly');
+        flyShape.remove();
+        $('#flyPaper').remove();
+    });
+});
+
 // #endregion

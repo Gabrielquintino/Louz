@@ -98,9 +98,14 @@
                     <div class="card-body p-2">
                         <input type="hidden" name="id" id="id" value="{{this.id}}">
                         <div class="row mb-3">
-                            <div class="col-12">
+                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mb-0">
                                 <label for="nome" class="form-label">Nome</label>
                                 <input class="form-control" id="nome" name="nome" type="text" value="{{this.nome}}" />
+                            </div>
+                            <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mb-0">
+                                <label for="valor" class="form-label">Valor</label>
+                                <input class="form-control" id="valor" name="valor" title="" type="number" value="{{this.valor}}"
+                                    placeholder="" />
                             </div>
                         </div>
                         <div class="row mb-3">
@@ -128,7 +133,7 @@
                         <div class="row mb-3">
                             <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mb-0">
                                 <label class="form-label" for="duracao_horas">Duração (em horas):</label>
-                                <input type="number" id="duracao_horas" class="form-control" name="duracao_horas" required>
+                                <input type="number" id="duracao_horas" class="form-control" name="duracao_horas" value="{{this.duracao_horas}}">
                             </div>
                             <div class="col-12 col-sm-12 col-md-6 col-lg-6 col-xl-6 mb-0">
                                 <label for="periodicidade" class="form-label">Periodicidade</label>

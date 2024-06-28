@@ -175,7 +175,7 @@ class AtendimentoController
             $atendimentotModel->saveLog((int) $_POST['cliente_id'], (int) $arrFuncionarioAtual[0]['id'], "Transferido para " . $arrFuncionario[0]['nome']);
         }
 
-        if (!empty($_POST['observacao'])) { // TODO: BUSCAR O FUNCIONARIO CORRETO
+        if (!empty($_POST['observacao'])) {
             $atendimentotModel = new AtendimentoModel();
             $atendimentotModel->saveLog((int) $_POST['cliente_id'], (int) 15, $_POST['observacao']);
         }

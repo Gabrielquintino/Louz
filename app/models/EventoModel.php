@@ -87,14 +87,14 @@ class EventoModel extends DatabaseConfig
             $setClause = implode(", ", $setParts);
     
             // Construindo a query de UPDATE
-            $sql = "UPDATE " . DB_USUARIO . ".eventos SET $setClause, `duracao_horas` = ?, `dias_semana` = ?, `horarios_semana` = ? WHERE id = ?";
+            $sql = "UPDATE " . DB_USUARIO . ".eventos SET $setClause WHERE id = ?";
             $pdo = $this->getConnection()->prepare($sql);
     
             // Adicionando os novos campos e o id ao final do array de dados
             $arrData['duracao_horas'] = isset($arrData['duracao_horas']) ? (int) $arrData['duracao_horas'] : null;
             $arrData['dias_semana'] = implode(', ', $diasSemana);
             $arrData['horarios_semana'] = json_encode($horariosSemana);
-            $arrData[] = $intId;
+            $arrData['id'] = $intId;
     
             try {
                 $pdo->execute(array_values($arrData)); // Certificando-se de usar os valores do array
@@ -105,23 +105,23 @@ class EventoModel extends DatabaseConfig
         } else {
     
             $strNome = isset($arrData['nome']) ? mb_substr($arrData['nome'],0, 150) : null;
+            $strValor = isset($arrData['valor']) ?  $arrData['valor'] : null;
             $dtInicio = (isset($arrData['data_inicio']) && !empty($arrData['data_inicio'])) ? DateTime::createFromFormat('d/m/Y H:i:s', $arrData['data_inicio'])->format('Y-m-d H:i:s') : null;
             $dtFim = (isset($arrData['data_fim']) && !empty($arrData['data_fim'])) ? DateTime::createFromFormat('d/m/Y H:i:s', $arrData['data_fim'])->format('Y-m-d H:i:s') : null;
             $intPeriodicidade = isset($arrData['periodicidade']) ? (int) $arrData['periodicidade'] : null;
             $intDuracaoHoras = isset($arrData['duracao_horas']) ? (int) $arrData['duracao_horas'] : null;
             $strStatus = isset($arrData['status']) ? $arrData['status'] : 'ativo';
     
-            $sql = "INSERT INTO " . DB_USUARIO . ".eventos (`nome`, `data_inicio`, `data_fim`, `periodicidade`, `status`, `duracao_horas`, `dias_semana`, `horarios_semana`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO " . DB_USUARIO . ".eventos (`nome`, `valor`, `data_inicio`, `data_fim`, `periodicidade`, `status`, `duracao_horas`, `dias_semana`, `horarios_semana`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             $pdo = $this->getConnection()->prepare($sql);
     
             try {
-                $pdo->execute([$strNome, $dtInicio, $dtFim, $intPeriodicidade, $strStatus, $intDuracaoHoras, implode(', ', $diasSemana), json_encode($horariosSemana)]);
+                $pdo->execute([$strNome, $strValor, $dtInicio, $dtFim, $intPeriodicidade, $strStatus, $intDuracaoHoras, implode(', ', $diasSemana), json_encode($horariosSemana)]);
                 return $this->getConnection()->lastInsertId();
             } catch (Exception $err) {
                 throw new Exception($err);
             }
         }
-    
         return [];
     }
     

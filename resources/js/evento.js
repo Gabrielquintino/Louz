@@ -72,7 +72,10 @@ class Evento {
                 if (objData.data.dias_semana && objData.data.horarios_semana) {
                     var diasSemana = objData.data.dias_semana.split(', ');
                     var horariosSemana = JSON.parse(objData.data.horarios_semana);
-    
+
+                    console.log(diasSemana);
+                    console.log(horariosSemana);
+
                     diasSemana.forEach(function(dia) {
                         dia = dia.toLowerCase();
                         if (document.getElementById(dia)) {
@@ -110,6 +113,10 @@ class Evento {
             valid = false;
             errorMessage += "A data final é menor que a data atual.\n";
         }
+        if ($('#formEvento #valor').val() < 0) {
+            valid = false;
+            errorMessage += "O valor do evento não pode ser inferior a 0.\n";
+        }
 
         // Validação dos dias da semana e horários
         var diasSelecionados = $('input[name="dias_semana[]"]:checked');
@@ -144,6 +151,7 @@ class Evento {
         // Dados para envio
         var dados = {
             'id': $('#id').val(),
+            'valor': $('#formEvento #valor').val(),
             'nome': $('#nome').val(),
             'data_inicio': $('#dataInicio').val(),
             'data_fim': $('#dataFim').val(),
